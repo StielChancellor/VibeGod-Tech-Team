@@ -23,7 +23,9 @@ const secrets = [
   [/\bglpat-[A-Za-z0-9_-]{20,}\b/, 'GitLab personal access token'],
   [/\bAIza[0-9A-Za-z_-]{35}\b/, 'Google API key'],
   [/\bxox[baprs]-[A-Za-z0-9-]{10,}\b/, 'Slack token'],
-  [/\bsk_live_[0-9a-zA-Z]{24,}\b/, 'Stripe live secret key'],
+  [/\b(?:sk|rk)_(?:live|prod)_[0-9a-zA-Z]{20,}\b/, 'Stripe live/prod secret key'],
+  [/\bSG\.[\w-]{22}\.[\w-]{43}\b/, 'SendGrid API key'],
+  [/\bnpm_[A-Za-z0-9]{36}\b/, 'npm access token'],
   [/\bsk-[A-Za-z0-9]{32,}\b/, 'OpenAI-style secret key'],
   [/-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----/, 'Private key block'],
 ];

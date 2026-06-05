@@ -40,6 +40,18 @@ god-mode-principles #7 (security by default). User > skills > default.
 - **A10 SSRF** — validate/allowlist outbound URLs; block private/loopback/metadata IPs
   (169.254.169.254, 10/8, 127/8); no user-controlled fetch without validation.
 
+## OWASP Top 10:2025 (RC1 — forward-guidance, published Nov 2025)
+Treat 2021 as the stable reference and 2025 RC1 as forward-guidance. Encode these deltas:
+- **A03 Software Supply Chain Failures (NEW)** — now a top-tier risk (expands 2021 "Vulnerable
+  Components"). Pin & lock deps, verify integrity/provenance (SLSA), vet packages, secure the
+  build pipeline, block untrusted install scripts. See Supply chain below.
+- **A10 Mishandling of Exceptional Conditions (NEW)** — handle errors/exceptions securely:
+  fail CLOSED, never leak stack traces/secrets in error paths, don't swallow exceptions
+  (ties to god-mode-principle #2: no silent error-swallowing).
+- **SSRF folded into A01 Broken Access Control**; **Security Misconfiguration rises to A02**.
+- Cheat-sheet note: the Access Control cheat sheet is **deprecated** → use the **Authorization**
+  cheat sheet.
+
 ## OWASP Secure Coding Practices — checklist
 - **Input validation:** validate at every trust boundary (type, length, range, format);
   allowlist over denylist; reject, don't sanitize-and-hope.
@@ -53,10 +65,17 @@ god-mode-principles #7 (security by default). User > skills > default.
 - **Comms:** TLS 1.2+; verify certs (never disable — hooks block); HSTS.
 - **Config:** secure defaults; secrets from env/secret manager; separate per-environment config.
 
-## Supply chain
-- Lockfiles committed and pinned; verify checksums/provenance; prefer minimal, well-maintained
-  deps; audit transitive deps; treat install scripts from untrusted packages as hostile;
-  scan ingested third-party content with `/ingest-scan` before adopting it.
+## Supply chain (OWASP A03:2025)
+- Commit & pin lockfiles; enforce them in CI (`npm ci`, `pip install --require-hashes`,
+  `go mod verify`); pin GitHub Actions to full commit SHAs, not tags.
+- Run SCA in CI and fail on threshold: **`npm audit`**, **`pip-audit`**, **`govulncheck`**
+  (call-graph-aware), **OWASP Dependency-Check** / **OSV-Scanner** (multi-ecosystem).
+- Generate & verify build provenance (SLSA / in-toto / Sigstore `cosign`). Caveat: valid SLSA
+  provenance proves *which pipeline* built an artifact, not that it was clean — also vet packages.
+- Block untrusted lifecycle scripts (`npm ci --ignore-scripts`; prefer Python wheels over sdists).
+- Defend dependency-confusion/typosquatting/"slopsquatting": verify name/owner/downloads before
+  adding (esp. AI-suggested packages); scope internal packages (`@org/`).
+- Scan ingested third-party content with `/ingest-scan` before adopting it.
 
 ## Secrets — absolute rules
 - No secrets in code, commits, logs, error messages, or client bundles. Env vars / secret
@@ -68,3 +87,29 @@ god-mode-principles #7 (security by default). User > skills > default.
 3. Grep for sinks (`eval`, `exec`, shell=True, string-built SQL, innerHTML, deserialization).
 4. Confirm secrets handling, TLS, headers, logging-without-PII, dependency posture.
 5. Produce findings with severity + concrete fix; REJECT if a critical issue is unresolved.
+
+## Injection sinks to grep, per language (warn → fix)
+The real fix is always: arg-array exec (`shell=false`), parameterized queries, framework
+auto-escaping, and safe parsers — regex detection is only defense-in-depth (CWE-77/78/94).
+- **JS/TS:** `eval`, `Function`, `child_process.exec`/`execSync`, `spawn({shell:true})`,
+  `innerHTML`/`document.write`/`insertAdjacentHTML`, `dangerouslySetInnerHTML`, proto-pollution merges.
+- **Python:** `eval`/`exec`/`compile`, `os.system`/`os.popen`, `subprocess(shell=True)`,
+  `pickle.load(s)`, `yaml.load` (non-safe), Django `.raw()`/`.extra()`/`RawSQL`, XML w/o `defusedxml`.
+- **Go:** `exec.Command` with `sh -c`, `fmt.Sprintf` into `db.Query/Exec`, `text/template` for HTML,
+  `template.HTML`/`template.JS` escape-bypass.
+- **Java/Kotlin:** `Runtime.exec(String)`/`ProcessBuilder` concat, `ObjectInputStream.readObject`,
+  `XMLDecoder`, `ScriptEngine.eval`, SpEL/OGNL, `Statement` + concat (use `PreparedStatement`).
+- **Ruby:** `system`/`exec`/backticks/`%x`, `eval`/`instance_eval`, `Marshal.load`, `YAML.load`,
+  `where("...#{x}...")`.
+- **PHP:** `exec`/`shell_exec`/`system`/`passthru`/backticks, `eval`/`assert`/`create_function`,
+  `unserialize`, `include`/`require` with input, concatenated `mysqli_query`/`PDO::query`.
+
+## Sources (primary, 2024–2026)
+- OWASP Top 10: https://owasp.org/Top10/2021/ · 2025 RC1: https://owasp.org/Top10/2025/0x00_2025-Introduction/
+- OWASP Cheat Sheets: Input Validation, SQL Injection, XSS, Authentication, Session Management,
+  Authorization (supersedes deprecated Access Control), Cryptographic Storage, Secrets Management,
+  Logging, SSRF, Deserialization, OS Command Injection, Vulnerable Dependency Management, CI/CD,
+  Node.js, NPM, Prototype Pollution, Django — https://cheatsheetseries.owasp.org/
+- CWE-77/78/88/94: https://cwe.mitre.org/ · Secret rules: gitleaks/trufflehog/detect-secrets
+- Supply chain: SLSA https://slsa.dev/ · govulncheck https://go.dev/security/vuln/ ·
+  pip-audit · npm audit/provenance · OWASP Dependency-Check · OSV-Scanner

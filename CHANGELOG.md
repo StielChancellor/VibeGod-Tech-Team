@@ -27,6 +27,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Interactive drag-drop journey canvas: dependency-free local Node server + HTML/JS canvas
   (`journey-mapping/canvas/`) — add/connect/comment/insert-on-edge steps, persists to JSON;
   server endpoints smoke-tested.
+- 5 language-specific skills: `lang-typescript`, `lang-python`, `lang-go`, `lang-java-kotlin`,
+  `lang-rust` (idiomatic style, toolchain, error/concurrency norms, language security pitfalls).
+- `secure-coding` enriched with web-sourced, cited OWASP material: Top 10 **2025 RC1** mapping
+  (A03 Supply-Chain, A10 Exceptional Conditions, SSRF→A01), supply-chain hardening (SCA tools,
+  SLSA/provenance, install-script + typosquat defense), per-language injection-sink grep guide,
+  and a primary-source reference list.
+- Guardrail `guard-write` hook extended with SendGrid/npm/broader-Stripe secret patterns
+  (gitleaks-derived); hook tests now 25/25.
 
 ### Deferred
 - End-to-end dogfood of a full sample platform build.

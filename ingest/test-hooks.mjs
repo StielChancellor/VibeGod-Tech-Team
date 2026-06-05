@@ -34,6 +34,8 @@ check('blocks AWS key', run('guard-write.mjs', { tool_input: { file_path: 'a.js'
 check('blocks GitHub PAT', run('guard-write.mjs', { tool_input: { file_path: 'a.js', content: 'token=ghp_' + 'a'.repeat(36) } }).status === 2);
 check('blocks private key', run('guard-write.mjs', { tool_input: { file_path: 'k.pem', content: '-----BEGIN RSA PRIVATE KEY-----\nMII...' } }).status === 2);
 check('blocks generic cred', run('guard-write.mjs', { tool_input: { file_path: 'a.py', content: 'password = "S3cr3tP4ssw0rd99x"' } }).status === 2);
+check('blocks SendGrid key', run('guard-write.mjs', { tool_input: { file_path: 'a.js', content: 'SG.' + 'a'.repeat(22) + '.' + 'b'.repeat(43) } }).status === 2);
+check('blocks npm token', run('guard-write.mjs', { tool_input: { file_path: '.npmrc', content: '//r/:_authToken=npm_' + 'a'.repeat(36) } }).status === 2);
 check('allows placeholder', run('guard-write.mjs', { tool_input: { file_path: 'a.js', content: "const apiKey='your-api-key-here'" } }).status === 0);
 check('allows clean code', run('guard-write.mjs', { tool_input: { file_path: 'a.js', content: 'export const add = (a,b) => a+b;' } }).status === 0);
 const sink = run('guard-write.mjs', { tool_input: { file_path: 'a.js', content: 'eval(userInput)' } });
