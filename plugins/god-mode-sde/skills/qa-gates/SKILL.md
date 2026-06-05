@@ -53,7 +53,11 @@ and the swarm move to the next task. A single failing lens blocks the feature.
    docs-ready). All must sign off.
 5. **Release & GA readiness**: `release-manager` (`/release` — versioning, CAB, go/no-go) +
    `devops-sre` (`/launch-readiness` — SRE launch checklist + staged/canary rollout).
-◆ Confirm all green with the user, then ship for end-user review.
+6. **User-perspective acceptance** (the coordinator/orchestrator): dogfood the assembled build from
+   the USER's POV — real end-to-end flows, the four states, broken-UI/cross-screen consistency. On
+   any breakage, route the fix to the owning agent and re-check. This is the coordinator's acceptance;
+   it does NOT replace the user's final sign-off.
+◆ Present the acceptance result + all gates green-with-evidence; the **user gives the final go/no-go**, then ship.
 
 ## How to run it
 - Dispatch the four Stage-7 lenses concurrently (one agent per lens) — don't serialize them.

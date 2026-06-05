@@ -74,6 +74,11 @@ The most common failure to actively prevent. On ANY feature add/change/remove:
 - Operate autonomously WITHIN a stage, but check in with the user at every phase gate (◆).
 - Honor the strict pipeline (see the `sde-orchestrator`): never skip a gate; any change
   re-enters at the PRD stage.
+- **Single front-door:** the `sde-orchestrator` is the ONE user-facing voice (program/delivery
+  lead). Specialists inform it; it consults `product-manager` (scope) and `delivery-manager`
+  (delivery) underneath and speaks as one — preserving the user's decision-gates and surfacing a
+  specialist directly only when the user asks ("front-door, not a wall"). Before ship, the
+  coordinator runs a **user-perspective acceptance** pass; the user still gives the final sign-off.
 
 ## 11. Design excellence (frontend)
 - UIs are distinctive, sophisticated, and visually impressive by default — never "AI slop."

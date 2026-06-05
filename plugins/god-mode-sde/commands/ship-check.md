@@ -16,5 +16,6 @@ Do this:
 5. Final consistency sweep: confirm the full propagation chain is in sync (**PRD → blueprint → roadmap → graphify → code**) — no orphans, no half-wired features. Refresh the graph via `/graph` if needed.
 6. **Pre-ship gates** — run `/compliance-check` (compliance-grc: SOC2/GDPR/VPAT), `/perf-check` (performance-engineer: load/stress vs SLA), and `/docs-check` (technical-writer: docs-ready). All must sign off.
 7. **Release & GA readiness** — run `/release` (release-manager: version, CAB, go/no-go) then `/launch-readiness` (release-manager + devops-sre: SRE launch checklist + staged/canary rollout). Post-GA → Stage 10 Operate.
+8. **User-perspective acceptance** — as the single front-door coordinator, dogfood the assembled build from the USER's point of view (real end-to-end flows, the four states, broken-UI/cross-screen consistency). On any breakage, route the fix to the owning agent and re-check. This is YOUR acceptance; it does not replace the user's sign-off.
 
-◆ Gate: Present all results green-with-evidence. STOP and get explicit user confirmation, **then ship for end-user review.** If anything is red, fix and re-run — do not ship on a fail.
+◆ Gate: Present the acceptance result + all gates green-with-evidence. STOP and get the **user's explicit final go/no-go**, **then ship for end-user review.** If anything is red, fix and re-run — do not ship on a fail.

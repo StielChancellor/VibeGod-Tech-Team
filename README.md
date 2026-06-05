@@ -36,6 +36,12 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
   - **Security & Compliance:** security-engineer, compliance-grc · **Docs:** technical-writer
   - (No customer-facing roles — internal product delivery only.)
 
+- **One coordinator voice (single front-door):** you talk to the `sde-orchestrator`
+  (program/delivery-lead); it consults product-manager (scope) + delivery-manager (delivery) and
+  the specialists underneath, preserves your decision-gates, and runs a **user-perspective
+  acceptance** pass before ship — you still give the final go/no-go. You can ask to hear any
+  specialist directly ("front-door, not a wall").
+
 - **Battle-tested methodology skills** (adapted from superpowers): TDD, systematic debugging,
   planning, code review, parallel-agent dispatch, git worktrees, verification-before-completion.
 

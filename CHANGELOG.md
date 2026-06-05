@@ -25,6 +25,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   Stage 6): when a build exceeds one swarm, the orchestrator + delivery-manager spin up multiple
   parallel swarms — partition chosen per build (module vs workstream) from the dependency graph,
   foundation-first, worktree-isolated, RAID-tracked, reconciled at the QA gate.
+- **Single front-door interaction model:** the orchestrator is the one user-facing coordinator
+  (program/delivery-lead persona) consulting product-manager (scope) + delivery-manager (delivery)
+  underneath; user decision-gates preserved; direct specialist consult on request; delivery-manager
+  and product-manager clarified to never message the user directly. A coordinator-led
+  **user-perspective acceptance** pass runs before ship — user's final sign-off still required.
 - Totals: **22 agents, 44 skills, 20 commands.** Validation clean; hooks 25/25.
 
 ## [0.1.0] — Unreleased (Phase A complete)
