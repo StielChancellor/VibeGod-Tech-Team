@@ -21,6 +21,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   Release & GA launch readiness (SRE checklist + staged/canary rollout), and Stage 10 Operate.
 - **Org model + RACI:** orchestrator delegation map reorganized into 11 departments with leads +
   specialists; one Accountable agent per gate; explicit hand-offs/feedback. No customer-facing roles.
+- **Multi-swarm scaling pattern** documented in `dispatching-parallel-agents` (+ orchestrator
+  Stage 6): when a build exceeds one swarm, the orchestrator + delivery-manager spin up multiple
+  parallel swarms — partition chosen per build (module vs workstream) from the dependency graph,
+  foundation-first, worktree-isolated, RAID-tracked, reconciled at the QA gate.
 - Totals: **22 agents, 44 skills, 20 commands.** Validation clean; hooks 25/25.
 
 ## [0.1.0] — Unreleased (Phase A complete)

@@ -82,3 +82,30 @@ After agents return: review each summary; check for conflicts (did agents edit t
 ## Key Benefits
 
 Parallelization (concurrent investigations), focus (narrow scope per agent), independence (no interference), speed (N problems solved in the time of one).
+
+## Scaling out: multiple agent swarms
+
+One swarm = a handful of agents on one set of independent work. When the build is too big for a
+single swarm (many independent modules/services, or several disciplines working at once), **fan out
+into multiple concurrent swarms** — the same independence rule, one level up.
+
+**Who decides, and how to partition:** the `sde-orchestrator` + `delivery-manager` (TPM) choose the
+partition **per build** from the dependency graph and the scale — there is no fixed rule. Common cuts:
+one swarm **per module/service** (default for foundation-first builds with frozen contracts), or one
+**per discipline/workstream** (frontend/backend/data) coordinated by the department leads. Pick
+whichever yields the most genuinely independent lanes for this build.
+
+**Rules for spinning up more swarms (do NOT skip these):**
+- **Foundation first.** Never fan out across the shared foundation or unfrozen contracts — stabilize
+  the base, freeze the interfaces, THEN parallelize the independent work that sits on top.
+- **Independence still required.** Only split work with no shared state / no sequential dependency
+  between swarms — the same test as for parallel agents, scaled up. Dependent work stays sequential.
+- **Isolate.** Each swarm runs in its own git worktree (`using-git-worktrees`) so swarms never collide.
+- **Bound concurrency.** Cap simultaneous swarms to what the dependency graph AND review capacity
+  allow; queue the rest. More swarms than you can integrate/review is slower, not faster.
+- **Track as workstreams.** `delivery-manager` logs each swarm in the **RAID log** (owner, cross-swarm
+  dependencies, status) and escalates any cross-swarm blocker.
+- **Reconcile at the seams.** Integrate swarm outputs at the shared contracts/interfaces; every feature
+  still passes the **Stage 7 QA gate** (incl. the consistency/no-orphans check). Resolve conflicts at
+  module boundaries, not by letting one swarm reach into another's lane.
+

@@ -59,7 +59,10 @@ tradeoffs and assumptions.
   `ui-ux-designer` first produces the design spec (tokens/components/states/responsive); the
   `frontend-engineer` then IMPLEMENTS it (no independent design decisions) and feeds
   feasibility back to the designer. Dispatch the swarm (foundation -> modules), TDD throughout,
-  worktree isolation for parallel work.
+  worktree isolation for parallel work. **Scale out when needed:** if the build exceeds one swarm,
+  you + `delivery-manager` spin up **multiple parallel swarms** — choosing the partition (per module
+  or per workstream) from the dependency graph, foundation first, each swarm isolated in a worktree
+  and tracked as a RAID workstream, reconciled at the QA gate (see `dispatching-parallel-agents`).
 - **7 Per-feature QA:** Before closing EACH feature, run the 4 QA lenses in parallel. Include
   the consistency/no-orphans check (UI<->backend sync, all call sites, no dead code). Advance
   only when all confirm.
