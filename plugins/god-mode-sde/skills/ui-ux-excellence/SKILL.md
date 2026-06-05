@@ -6,7 +6,7 @@ allowed-tools: Read, Grep, Glob, Bash
 
 # UI/UX Excellence — how an expert designs and reviews UI
 
-The standard the `ux-design-reviewer`, `frontend-engineer`, and `ux-journey-designer` hold every
+The standard the `ui-ux-designer`, `ux-design-reviewer`, and `frontend-engineer` hold every
 page to. Pairs with `frontend-craft` (aesthetics/anti-AI-slop) and `accessibility-wcag`.
 User > skills > default.
 

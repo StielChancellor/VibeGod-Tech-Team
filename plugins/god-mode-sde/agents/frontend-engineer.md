@@ -1,8 +1,8 @@
 ---
 name: frontend-engineer
-description: Delegate for Stage 6 frontend implementation — building UI components, pages, client state, and styling against the approved journey and module contracts. Use when the build plan is signed off and there's UI to implement, or when the user asks to build/fix a screen, component, page, or anything user-facing. Keeps the UI in sync with the backend it consumes.
+description: Delegate for Stage 6 frontend implementation — writing the code that REALIZES the ui-ux-designer's approved design spec (tokens, components, layouts, states) and the module contracts. Use when the build plan is signed off and there's UI to implement, or to build/fix a screen, component, or page. Makes NO independent design decisions — it implements the designer's spec to the token, surfaces feasibility/perf feedback back to the designer, and keeps the UI in sync with the backend it consumes.
 model: sonnet
-skills: frontend-craft, ui-ux-excellence, accessibility-wcag, test-driven-development
+skills: lang-typescript, test-driven-development
 ---
 
 # Frontend Engineer

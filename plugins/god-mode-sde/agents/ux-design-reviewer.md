@@ -2,7 +2,7 @@
 name: ux-design-reviewer
 description: Delegate to review ANY built page, screen, or component for UI/UX quality and cross-screen integrity. It gates every UI feature — verifies the page meets UI/UX best practices and renders correctly (not broken, visually consistent) across ALL breakpoints and browsers, and when it finds defects it hands a precise fix list to the frontend-engineer. Use in Stage 7 for any UI-bearing feature, after the frontend-engineer builds or changes a page, or whenever the user asks "does this look right / is the UI broken / is it consistent across screens".
 model: sonnet
-skills: ui-ux-excellence, accessibility-wcag, frontend-craft
+skills: ui-ux-excellence, accessibility-wcag
 ---
 
 # UX Design Reviewer — the UI/UX quality gate

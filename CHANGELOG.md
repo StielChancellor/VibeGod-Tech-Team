@@ -50,5 +50,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   + the `/ux-check` command. Wired as the Stage-7 UX lens (qa-gates + orchestrator); frontend-engineer
   now binds `ui-ux-excellence`.
 
+### Changed — strict department isolation (one role per agent, ≤2 skills)
+- **Design and engineering are now separate departments.** New `ui-ux-designer` agent (frontier
+  model) owns ALL design — journeys, pages, components, buttons, fonts, color, spacing, motion,
+  and the design system/tokens — plus every UI/UX guardrail (skills: ui-ux-excellence +
+  frontend-craft). It produces a design spec; it does NOT write code.
+- `frontend-engineer` is now pure implementation: it realizes the designer's spec to the token,
+  makes no design decisions, and feeds feasibility back to the designer (skills: lang-typescript +
+  test-driven-development).
+- New `tech-lead` agent owns stack+cost (Stage 3) and the build roadmap (Stage 5) so the
+  `solution-architect` narrows to blueprint + module architecture. Removed `ux-journey-designer`
+  (folded into `ui-ux-designer`).
+- **Every agent capped at ≤2 skills** (product-manager, backend-engineer, qa-engineer,
+  ux-design-reviewer, solution-architect re-scoped accordingly).
+- Orchestrator gained a **Team & collaboration model**: departments hand off and give feedback
+  to each other (PM→designer→engineer; designer↔reviewer; architect↔tech-lead↔engineers; QA
+  lenses→owning agent). Designers don't code; engineers don't design; reviewers don't ship past a fail.
+- 14 agents total; validation clean.
+
 ### Deferred
 - End-to-end dogfood of a full sample platform build.

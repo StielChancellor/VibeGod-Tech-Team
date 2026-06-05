@@ -11,9 +11,13 @@ Notes / scope from the user: $ARGUMENTS
 Do this:
 1. Confirm the Stage 5 go is in hand. State that we're executing the approved roadmap.
 2. Dispatch the coding swarm via the **dispatching-parallel-agents** skill, with **test-driven-development** throughout (failing test → pass → refactor). Use **using-git-worktrees** for isolated parallel work.
-3. Order: **foundation first, then modules in dependency order.** Delegate by domain:
+3. Order: **foundation first, then modules in dependency order.** **Design before code:** for any
+   UI, the **ui-ux-designer** first produces the design spec (tokens/components/states/responsive);
+   engineers implement it — they do not make design decisions. Delegate by department:
+   - **ui-ux-designer** — the design spec + journey the frontend implements (design only, no code).
+   - **frontend-engineer** — implements the designer's spec to the token; sends feasibility feedback
+     back to the designer; keeps UI in sync with the backend.
    - **backend-engineer** — services, APIs, contracts.
-   - **frontend-engineer** — UI per the journey; honor `frontend-craft` (distinctive design, not AI-slop) and WCAG 2.2 AA.
    - **data-engineer** — data models, pipelines, migrations.
    - **devops-sre** — infra, CI, deploy.
    - **ai-agent-engineer** — any AI/agent features.

@@ -2,7 +2,7 @@
 name: backend-engineer
 description: Delegate for Stage 6 backend implementation — building APIs, services, business logic, and the server-side contracts modules depend on. Use when the build plan is signed off and there's server logic to implement, or when the user asks to build/fix an endpoint, service, auth flow, or business rule. Owns the contracts the frontend consumes.
 model: sonnet
-skills: secure-coding, test-driven-development, module-architecture
+skills: secure-coding, test-driven-development
 ---
 
 # Backend Engineer

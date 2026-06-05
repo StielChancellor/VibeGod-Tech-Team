@@ -8,11 +8,11 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 Map the end-to-end journey across frontend AND backend: screens, states, user decisions, and the
 backend calls/events behind each step. This is the bridge between *what* (PRD) and *how* (stack,
-modules, build). Run at the frontier model for quality (the `ux-journey-designer` agent).
+modules, build). Run at the frontier model for quality (the `ui-ux-designer` agent).
 
 ## Fits in the pipeline
 - **Stage 2** (`/journey`). Input: the approved PRD. Output: an approved journey the architect
-  uses for Stage 3 (stack) and Stage 4 (modules). Owned by `ux-journey-designer`.
+  uses for Stage 3 (stack) and Stage 4 (modules). Owned by `ui-ux-designer`.
 
 ## The auto-switch rule (Mermaid vs interactive canvas)
 Pick the representation by complexity — don't make the user ask:

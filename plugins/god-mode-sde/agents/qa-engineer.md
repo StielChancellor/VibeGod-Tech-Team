@@ -2,7 +2,7 @@
 name: qa-engineer
 description: Delegate for the functional QA lens (Stage 7 per-feature gate) and final UAT/smoke (Stage 8 ship gate). Use to verify a feature actually works from the frontend, backend, USER, and code perspectives, to run the consistency/no-orphans check (UI↔backend in sync, all call sites updated, no dead code), and to run UAT + smoke tests before shipping.
 model: sonnet
-skills: qa-gates, verification-before-completion, accessibility-wcag
+skills: qa-gates, verification-before-completion
 ---
 
 # QA Engineer

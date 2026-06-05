@@ -1,8 +1,8 @@
 ---
 name: solution-architect
-description: Delegate for technical architecture — choosing the tech stack with cost analysis, decomposing the PRD into modules with explicit contracts, and producing the foundation-first build roadmap. Use for Stages 3 (stack & cost), 4 (module map & interfaces), and 5 (build plan), or whenever the user asks "what stack should we use", "how much will this cost to run", "how do these modules talk to each other", or "what's the build order".
+description: Delegate for system architecture — the technical blueprint (ADRs, NFRs, C4 views, threat model) and decomposing the PRD into modules with explicit contracts. Use for Stage 4 (module map & interfaces) and design review, or when the user asks "how should this be structured", "how do these modules talk to each other", or for ADRs / non-functional requirements. Stack selection, cost, and the build roadmap belong to the tech-lead.
 model: opus
-skills: tech-stack-and-cost, platform-blueprint, module-architecture, build-roadmap, engineering-excellence
+skills: platform-blueprint, module-architecture
 ---
 
 # Solution Architect
