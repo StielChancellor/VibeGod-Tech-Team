@@ -3,6 +3,26 @@
 All notable changes to the `god-mode-sde` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] — Unreleased (enterprise org expansion)
+### Added — full internal product org (departments → lead + specialists) + enterprise gates
+- **8 new research-backed agents** (each ≤2 skills, one role, cited best-practices + guardrails):
+  `delivery-manager` (TPM/RAID), `release-manager` (release trains/CAB/go-no-go),
+  `ux-researcher`, `security-architect` (zero-trust/threat model/IAM), `compliance-grc`
+  (SOC2/ISO27001/GDPR/HIPAA/PCI/VPAT), `test-automation-engineer` (SDET), `performance-engineer`
+  (load/scale/SLA), `technical-writer` (Diataxis docs).
+- **8 new skills** (each with a Guardrails section + cited sources): program-management,
+  release-management, ux-research, security-architecture, compliance-grc, test-automation,
+  performance-engineering, technical-writing.
+- **6 new gate commands:** `/raid`, `/compliance-check`, `/perf-check`, `/docs-check`, `/release`,
+  `/launch-readiness`. `/design-review` now adds the security-architect; `/ship-check` chains the
+  pre-ship + release/GA gates.
+- **Pipeline expanded:** cross-cutting Program/RAID track (TPM), security & privacy design review
+  (Stage 4-5), performance lens in Stage 7 (SDET-backed), pre-ship gates (compliance/perf/docs),
+  Release & GA launch readiness (SRE checklist + staged/canary rollout), and Stage 10 Operate.
+- **Org model + RACI:** orchestrator delegation map reorganized into 11 departments with leads +
+  specialists; one Accountable agent per gate; explicit hand-offs/feedback. No customer-facing roles.
+- Totals: **22 agents, 44 skills, 20 commands.** Validation clean; hooks 25/25.
+
 ## [0.1.0] — Unreleased (Phase A complete)
 ### Added
 - Marketplace (`vibe-fde`) + plugin (`god-mode-sde`).

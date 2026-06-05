@@ -14,7 +14,7 @@ Evidence-based only: a lens "passes" when it has actually run and verified, neve
 - **Stage 7** (`/feature-check`) — runs before closing EACH feature.
 - **Stage 8** (`/ship-check`) — final pass + UAT + smoke before shipping to end users.
 
-## Stage 7 — per-feature gate (4 lenses + a UX lens for UI, IN PARALLEL)
+## Stage 7 — per-feature gate (QA lenses + UX + performance, IN PARALLEL)
 Before a feature is marked done, dispatch these agents **in parallel**; all must pass:
 
 1. **`security-engineer`** — OWASP + cyber best practices: authz at boundaries, input validation/
@@ -34,8 +34,12 @@ Before a feature is marked done, dispatch these agents **in parallel**; all must
    gates it on `ui-ux-excellence`: not broken (no overflow/overlap/truncation/CLS/contrast fails),
    visually consistent across screens and pages, and design-token-clean. On fail it hands a precise
    fix list to the `frontend-engineer` and re-reviews. (See the `/ux-check` command.)
+6. **`performance-engineer`** (perf-sensitive features) — checks the change against perf budgets/SLAs
+   (p95/p99, Core Web Vitals) and flags regressions. `test-automation-engineer` (SDET) backs the whole
+   gate with the regression/e2e automation that makes it fast and repeatable. (See `/perf-check`.)
 
-◆ **Only when all lenses confirm** (the UX lens included for any UI feature) does the feature close
+◆ **Only when all lenses confirm** (UX lens for any UI feature; perf lens for perf-sensitive ones)
+does the feature close
 and the swarm move to the next task. A single failing lens blocks the feature.
 
 ## Stage 8 — final gate before ship
@@ -44,6 +48,11 @@ and the swarm move to the next task. A single failing lens blocks the feature.
 2. Run the **UAT plan** — real-world acceptance scenarios from the build roadmap, tied to PRD
    requirements.
 3. Run the **smoke-test plan** — critical-path checks on a deploy-like environment.
+4. **Pre-ship gates** (parallel): `compliance-grc` (`/compliance-check` — SOC2/GDPR/VPAT),
+   `performance-engineer` (`/perf-check` — load/stress vs SLA), `technical-writer` (`/docs-check` —
+   docs-ready). All must sign off.
+5. **Release & GA readiness**: `release-manager` (`/release` — versioning, CAB, go/no-go) +
+   `devops-sre` (`/launch-readiness` — SRE launch checklist + staged/canary rollout).
 ◆ Confirm all green with the user, then ship for end-user review.
 
 ## How to run it

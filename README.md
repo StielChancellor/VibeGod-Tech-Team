@@ -20,12 +20,21 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
 - **A lead orchestrator** (`sde-orchestrator`) that runs a strict, gated pipeline and never
   jumps straight to code:
 
-  `Discover -> PRD -> Journey -> Stack & Cost -> Modules -> Foundation-first Build ->
-   Per-feature QA -> UAT/Smoke -> Ship`  (any change re-enters at PRD)
+  `Discover -> PRD -> Journey -> Stack & Cost -> Modules -> Security/Privacy review ->
+   Foundation-first Build -> Per-feature QA -> UAT/Smoke -> Compliance/Perf/Docs gates ->
+   Release & GA readiness -> Operate`  (any change re-enters at PRD; a cross-cutting RAID/TPM
+   track runs throughout)
 
-- **A specialist team (subagents):** solution-architect, product-manager, ux-journey-designer
-  (frontier model), backend-/frontend-/data-engineer, devops-sre, ai-agent-engineer, and a
-  4-lens QA swarm (security-engineer, code-quality-reviewer, adversarial-tester, qa-engineer).
+- **A full internal product org — 22 specialist subagents across 11 departments** (each ≤2
+  skills, one role, collaborating via explicit hand-offs/RACI):
+  - **Program/Delivery:** delivery-manager (TPM), release-manager
+  - **Product:** product-manager · **Design/UX:** ui-ux-designer (frontier), ux-researcher
+  - **Architecture:** solution-architect, tech-lead, security-architect
+  - **Engineering:** frontend-, backend-, data-, ai-agent-engineer · **Reliability:** devops-sre
+  - **Quality:** qa-engineer, adversarial-tester, code-quality-reviewer, ux-design-reviewer,
+    test-automation-engineer (SDET), performance-engineer
+  - **Security & Compliance:** security-engineer, compliance-grc · **Docs:** technical-writer
+  - (No customer-facing roles — internal product delivery only.)
 
 - **Battle-tested methodology skills** (adapted from superpowers): TDD, systematic debugging,
   planning, code review, parallel-agent dispatch, git worktrees, verification-before-completion.
@@ -42,8 +51,9 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
 
 ## Commands
 
-`/kickoff` `/prd` `/journey` `/stack-and-cost` `/module-map` `/build-plan` `/build`
-`/feature-check` `/ship-check` `/change-request` `/design-review` `/ingest-scan` `/graph`
+`/kickoff` `/prd` `/journey` `/stack-and-cost` `/module-map` `/design-review` `/build-plan`
+`/build` `/feature-check` `/ux-check` `/ship-check` `/compliance-check` `/perf-check`
+`/docs-check` `/release` `/launch-readiness` `/change-request` `/raid` `/ingest-scan` `/graph`
 
 ## Security & provenance
 

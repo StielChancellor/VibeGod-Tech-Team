@@ -14,5 +14,7 @@ Do this:
 3. Run the **UAT plan** — real-world acceptance scenarios tied to PRD requirements.
 4. Run the **smoke-test plan** — critical-path checks on a deploy-like environment.
 5. Final consistency sweep: confirm the full propagation chain is in sync (**PRD → blueprint → roadmap → graphify → code**) — no orphans, no half-wired features. Refresh the graph via `/graph` if needed.
+6. **Pre-ship gates** — run `/compliance-check` (compliance-grc: SOC2/GDPR/VPAT), `/perf-check` (performance-engineer: load/stress vs SLA), and `/docs-check` (technical-writer: docs-ready). All must sign off.
+7. **Release & GA readiness** — run `/release` (release-manager: version, CAB, go/no-go) then `/launch-readiness` (release-manager + devops-sre: SRE launch checklist + staged/canary rollout). Post-GA → Stage 10 Operate.
 
 ◆ Gate: Present all results green-with-evidence. STOP and get explicit user confirmation, **then ship for end-user review.** If anything is red, fix and re-run — do not ship on a fail.

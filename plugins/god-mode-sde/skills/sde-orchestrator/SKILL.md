@@ -29,9 +29,14 @@ tradeoffs and assumptions.
 | 4 | Module map & interfaces | `/module-map` | solution-architect, module-architecture | ◆ user confirms decomposition |
 | 5 | Build plan (foundation-first) | `/build-plan` | tech-lead, build-roadmap | ◆ EXPLICIT go before coding |
 | 6 | Build | `/build` | ui-ux-designer (design) -> frontend/backend/data/devops engineers (implement), dispatching-parallel-agents, TDD | per-feature -> stage 7 |
-| 7 | Per-feature QA gate | `/feature-check` | security-engineer + code-quality-reviewer + adversarial-tester + qa-engineer + ux-design-reviewer (UI) (PARALLEL) | ◆ all pass -> next feature |
-| 8 | Final QA, UAT & smoke | `/ship-check` | qa-engineer, security-engineer | ◆ confirm -> ship |
+| 7 | Per-feature QA gate | `/feature-check` | security-engineer + code-quality-reviewer + adversarial-tester + qa-engineer + ux-design-reviewer (UI) + performance-engineer (PARALLEL; test-automation-engineer backs the gate with automation) | ◆ all pass -> next feature |
+| 8 | Final QA, UAT & smoke | `/ship-check` | qa-engineer, security-engineer | ◆ confirm |
+| 8b | Pre-ship gates | `/compliance-check` · `/perf-check` · `/docs-check` | compliance-grc, performance-engineer, technical-writer | ◆ all sign off |
+| 8c | Release & GA readiness | `/release` · `/launch-readiness` | release-manager, devops-sre | ◆ go/no-go + staged rollout |
 | 9 | Change management | `/change-request` | product-manager, change-propagation | re-enter at PRD |
+| 10 | Operate | monitor / incident | devops-sre | postmortems -> discovery |
+
+**Cross-cutting — Program/Delivery (`/raid`, `delivery-manager` TPM):** maintains the RAID log and tracks dependencies/risk/status across ALL stages and escalates blockers — runs continuously, not a single gate. **Security & privacy design review** (`security-architect`, via `/design-review`) gates Stage 4-5 before any build.
 
 ### Stage rules
 - **0 Discover:** Invite the user to share anything and everything. Capture into a scratchpad.
@@ -45,7 +50,9 @@ tradeoffs and assumptions.
   expensive, present a cheaper alternative with pros/cons and what's LOST. Do not proceed
   until the user confirms cost.
 - **4 Modules:** Show module decomposition + how each module talks to others (API/events/
-  protocol) with explicit contracts.
+  protocol) with explicit contracts. Then a **security & privacy design review**
+  (`security-architect` + `security-engineer`, via `/design-review`) gates the design before
+  build — threat model, IAM/multi-tenant isolation, privacy-by-design.
 - **5 Build plan:** Foundation FIRST (the shared base all modules build on). Produce roadmap +
   milestones + TDD/UAT/smoke/QA plans. Then **explicitly ask before starting the coding agents.**
 - **6 Build:** Only after stage-5 sign-off. **Design before code:** for any UI, the
@@ -56,15 +63,23 @@ tradeoffs and assumptions.
 - **7 Per-feature QA:** Before closing EACH feature, run the 4 QA lenses in parallel. Include
   the consistency/no-orphans check (UI<->backend sync, all call sites, no dead code). Advance
   only when all confirm.
-- **8 Ship:** Fresh QA best-practices pass + fixes, then UAT + smoke for real-world usage,
-  then ship for end-user review.
+- **8 Ship:** Fresh QA best-practices pass + fixes, then UAT + smoke. Then the **pre-ship gates**
+  (8b): `compliance-grc` signs off SOC2/GDPR/VPAT, `performance-engineer` proves perf/scale vs SLA,
+  `technical-writer` confirms docs-ready. Then **release & GA readiness** (8c): `release-manager`
+  runs change-mgmt/CAB + versioning + go/no-go, `devops-sre` runs the SRE launch checklist + staged/
+  canary rollout. Only then ship to end users.
 - **9 Change:** ANY feature/journey/functionality change re-enters at the PRD stage and edits
   the full PRD + downstream flow. Propagate every change: **PRD -> blueprint -> roadmap ->
   graphify -> code.** Never start by editing code.
+- **10 Operate:** Post-GA, `devops-sre` runs monitoring + incident response + blameless
+  postmortems; learnings feed back into discovery for the next cycle.
 
 ## Compliance baked into every stage
 - **OWASP** security (see `secure-coding`), **WCAG 2.2 AA** accessibility (see
   `accessibility-wcag`), **OODA** iteration. Cost-awareness throughout.
+- **Enterprise gates:** zero-trust security design (`security-architect`), SOC2/GDPR/HIPAA/PCI +
+  VPAT compliance (`compliance-grc`), performance/scale SLAs (`performance-engineer`), docs-ready
+  (`technical-writer`), and SRE launch-readiness + staged rollout (`release-manager` + `devops-sre`).
 
 ## Delegation map (departments — each agent stays in its lane, ≤2 skills)
 - **Product** — PRD, requirements, discovery, change-requests -> `product-manager`
@@ -74,7 +89,15 @@ tradeoffs and assumptions.
 - **Implementation** — `frontend-engineer` (realizes the design, no design decisions),
   `backend-engineer`, `data-engineer`, `devops-sre`, `ai-agent-engineer`
 - **QA lenses (Stage 7, parallel)** — `security-engineer`, `code-quality-reviewer`,
-  `adversarial-tester`, `qa-engineer`, and `ux-design-reviewer` (UI/UX gate)
+  `adversarial-tester`, `qa-engineer`, `ux-design-reviewer` (UI/UX), and `performance-engineer`;
+  `test-automation-engineer` (SDET) builds the automation that backs the gate.
+- **Program/Delivery** — RAID, dependencies, risk, status, gate facilitation -> `delivery-manager` (TPM);
+  release trains, versioning, CAB, go/no-go, rollout -> `release-manager`
+- **Design research** — user research, usability testing, validation -> `ux-researcher`
+- **Architecture/Security design** — zero-trust, IAM/tenancy, threat model -> `security-architect`
+- **Security & Compliance** — code-level OWASP/appsec -> `security-engineer`; SOC2/GDPR/HIPAA/PCI/VPAT,
+  audit, privacy-by-design -> `compliance-grc`
+- **Documentation** — API/admin/user docs, runbooks, release notes -> `technical-writer`
 
 ## Team & collaboration model
 Departments are isolated (no agent does more than its ~2 core skills) and collaborate through
@@ -89,6 +112,12 @@ explicit hand-offs + feedback — never by one agent doing another's job:
   picks stack/cost + roadmap; engineers feed effort/feasibility back up.
 - **QA lenses → owning agent:** each lens files precise feedback to whoever owns that code/design;
   the owner fixes; the lens re-checks. Nothing closes until every relevant lens passes.
+- **delivery-manager (TPM)** maintains the RAID log across all departments and escalates blockers;
+  **release-manager** owns the go/no-go; **compliance-grc**, **performance-engineer**, and
+  **technical-writer** each hold a pre-ship gate; **security-architect** sets the secure design the
+  build must follow; **ux-researcher** feeds evidence to `product-manager` + `ui-ux-designer`.
+- **RACI rule:** exactly ONE agent is Accountable per gate (the one named in the pipeline table);
+  others are Responsible/Consulted/Informed. The orchestrator + delivery-manager keep hand-offs flowing.
 Designers don't code; engineers don't design; reviewers don't ship around a failure. You route
 work, relay feedback between departments, and hold the gates.
 
