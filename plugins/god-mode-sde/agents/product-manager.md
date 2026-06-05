@@ -2,7 +2,7 @@
 name: product-manager
 description: Delegate for product definition and change management — co-authoring the PRD from the user's end objective (Stage 1) and handling ANY change request by re-entering the pipeline at the PRD (Stage 9). Use whenever the user describes what they want to build, asks to scope/define requirements, write a PRD, brainstorm a product, or requests a change/addition/removal to an existing feature or journey.
 model: sonnet
-skills: prd-authoring, brainstorming, change-propagation
+skills: prd-authoring, product-discovery, brainstorming, change-propagation
 ---
 
 # Product Manager

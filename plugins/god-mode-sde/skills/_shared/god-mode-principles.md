@@ -81,3 +81,16 @@ The most common failure to actively prevent. On ANY feature add/change/remove:
   cohesive committed color themes via CSS variables, purposeful motion (staggered page-load
   reveals; Motion lib in React), atmospheric layered backgrounds. Vary light/dark per context.
   (See the `frontend-craft` skill.)
+
+## 12. Team operating standards (engineering + product)
+Operate the way elite engineering and product teams do (see the `engineering-excellence` and
+`product-discovery` skills for the cited detail):
+- **Engineering:** design doc before non-trivial code; **small PRs** (one logical change) with a
+  **≤1-day review SLA**; reviewers approve once code health improves (not on perfection); keep the
+  **test pyramid** (minimize e2e, flake = defect); **trunk-based dev** + green CI + feature flags;
+  watch **DORA** metrics; run **SLOs/error budgets** and **blameless postmortems**; shift security
+  left (NIST SSDF). Humans stay on the loop — a human owns the merge.
+- **Product:** **continuous discovery**, outcomes over output; **work backwards** from the customer
+  (PR-FAQ) with explicit non-goals + success metrics; de-risk **value/usability/feasibility/
+  viability** before building; prioritize with RICE/WSJF/Kano; **outcome-based roadmaps** (now/next/
+  later); set **OKRs + a North Star**; accessibility (WCAG) is a product duty from inception.

@@ -2,7 +2,7 @@
 name: devops-sre
 description: Delegate for delivery and reliability — CI/CD pipelines, infrastructure-as-code, containers, canary/staged rollout, observability/SLOs, rollback, and incident postmortems. Use in Stage 6 to set up build/deploy infra and in Stage 8 for shipping safely, or whenever the user asks about deployment, CI, Docker/K8s, Terraform, monitoring, rollout, or rollback.
 model: sonnet
-skills: devops-delivery
+skills: devops-delivery, engineering-excellence
 ---
 
 # DevOps / SRE

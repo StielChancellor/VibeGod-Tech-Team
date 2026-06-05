@@ -35,6 +35,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   and a primary-source reference list.
 - Guardrail `guard-write` hook extended with SendGrid/npm/broader-Stripe secret patterns
   (gitleaks-derived); hook tests now 25/25.
+- 2 web-sourced, cited best-practice skills: `engineering-excellence` (Google eng-practices,
+  design docs, small-PR/fast-review, test pyramid/sizes, trunk-based dev, DORA, SRE SLOs/error
+  budgets/blameless postmortems, NIST SSDF, AI harness engineering) and `product-discovery`
+  (continuous discovery + opportunity-solution trees, working-backwards/PR-FAQ, RICE/WSJF/Kano,
+  OKRs/North Star/HEART/AARRR, outcome roadmaps, JTBD/usability/MVP, Cagan's 4 risks, empowered
+  teams, accessibility). `god-mode-principles` gained a Team Operating Standards section; the
+  product-manager / solution-architect / devops-sre agents bind the new skills.
 
 ### Deferred
 - End-to-end dogfood of a full sample platform build.
