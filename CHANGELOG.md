@@ -22,6 +22,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   root-cause**, burn-rate on-call alerting + runbooks, and **blameless postmortems** with tracked action
   items (every SEV1/2); ties incidents to the error budget. Wired into Stage 10 (incident-manager = IC,
   devops-sre = Ops Lead) + the Reliability/Ops delegation.
+- **Proactive graphify recommendation (tech-lead):** at the build plan (Stage 5), the tech-lead now
+  proactively recommends installing graphify (free/OSS) for real cross-module impact analysis, with the
+  install-now (`/graph`) or proceed-with-fallback choice — surfaced before the first build/change so
+  change-propagation runs on facts, not memory. (tech-lead agent + build-roadmap skill + /build-plan.)
 - Totals: **26 agents, 50 skills, 23 commands.** Validation clean; hooks 42/42. Bump to 0.4.0.
 
 ## [0.3.0] — Unreleased (design refinement — kill the "AI-slop" look)

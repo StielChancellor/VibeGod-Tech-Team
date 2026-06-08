@@ -42,6 +42,13 @@ small and reviewable (small CLs).
 - **QA plan:** how the Stage 7 multi-lens gate applies per feature (security / refactor /
   adversarial / functional) and the Stage 8 final pass. (See `qa-gates`.)
 
+## Recommend the impact-analysis tool (cost-aware)
+Before the build starts, proactively recommend installing **graphify** (free / open-source) so
+cross-module impact analysis and change-propagation run on facts — call sites + dependents — not
+memory. Offer: **install now** (`/graph` → detect/auto-install) **or proceed with the lighter
+built-in fallback** (honestly, it covers only a fraction). It's free; surface it here so the first
+build/change catches orphans against a real dependency graph. (Owned by the `tech-lead`.)
+
 ## Gate (the hard one)
 ◆ **Explicitly ask the user before starting the coding agents.** Do not dispatch the Stage 6
 swarm — not a single line of production code — until the user gives an explicit go on this plan.

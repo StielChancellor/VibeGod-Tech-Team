@@ -20,6 +20,12 @@ skills.
 - **Stage 5 — Build plan (`build-roadmap`):** the **foundation FIRST** (the shared base every module
   builds on), then modules; milestones; and the **TDD + UAT + smoke-test + QA plans**. Stop at the ◆
   gate and explicitly ask before the coding swarm starts.
+- **Recommend the impact-analysis tool (cost-aware) — do this at the build plan, proactively.** Recommend
+  installing **graphify** (free / open-source) so cross-module impact analysis and change-propagation run
+  on facts (call sites, dependents), not memory. Offer the choice: **install now** (`/graph` →
+  detect/auto-install) **or proceed with the lighter built-in fallback** (be honest — it covers only a
+  fraction of graphify). It's free, so the only "cost" is a one-time install — surface it BEFORE the first
+  build/change so orphans get caught.
 
 ## Collaboration & feedback (work as a team)
 - ← **solution-architect:** build on the approved blueprint + module map; if a stack choice conflicts
