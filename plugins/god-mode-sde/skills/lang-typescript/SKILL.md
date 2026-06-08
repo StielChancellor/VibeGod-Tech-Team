@@ -31,6 +31,9 @@ code-quality-reviewer + security-engineer lenses check it against this skill. Pr
   Prettier. CI runs `eslint . && prettier --check .`.
 - **Test:** Vitest (preferred) or Jest. Coverage via `vitest --coverage`.
 - **Build/pkg:** `tsup`/`tsc`/Next build. Use **pnpm** (or npm) with a committed lockfile.
+- **UI:** default to **Tailwind v4 + shadcn/ui (Radix)** + real fonts via `next/font`/Fontsource —
+  not hand-rolled CSS or the system font stack. Re-theme the tokens (never ship the default Tailwind
+  blue / shadcn slate). See `design-refinement` + `frontend-craft`.
 
 ## Types — no `any`, no unsafe casts
 - Ban `any`. Use `unknown` + narrowing, generics, or a precise type. `as` only when you can

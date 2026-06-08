@@ -33,6 +33,10 @@ Owned by `solution-architect`.
 ## Output format
 ```
 ## Recommended stack
+**Default web UI** (unless a requirement says otherwise): **Tailwind v4 + shadcn/ui (Radix) + real
+fonts** (Fontsource / `next/font`) — free, accessible primitives, removes the hand-CSS "AI" tells;
+re-theme the tokens (no default Tailwind blue / shadcn slate). See `frontend-craft` + `design-refinement`.
+
 | Layer | Choice | Why (which requirement/NFR) | Impl cost | Run cost @ <load> |
 |-------|--------|------------------------------|-----------|-------------------|
 

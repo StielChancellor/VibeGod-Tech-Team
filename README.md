@@ -45,6 +45,11 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
 - **Battle-tested methodology skills** (adapted from superpowers): TDD, systematic debugging,
   planning, code review, parallel-agent dispatch, git worktrees, verification-before-completion.
 
+- **Distinctive UI, not AI-slop:** the `design-refinement` skill (adapted from Impeccable, Apache-2.0)
+  + the `/polish` gate enforce real loaded fonts (no Inter/system), a committed color strategy (no
+  default Tailwind blue), a default Tailwind + shadcn/Radix component system, a per-project `DESIGN.md`,
+  and an anti-cliché blocklist — audited by the `ux-design-reviewer` before ship.
+
 - **Runtime guardrails (hooks):** best-effort blocks for secrets-in-code and common dangerous
   shell commands (POSIX **and** Windows/PowerShell), plus advisory flags for injection sinks and
   unquoted secrets and nudges for tests/lint/change-propagation. These are heuristic speed bumps —
@@ -60,7 +65,7 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
 ## Commands
 
 `/kickoff` `/prd` `/journey` `/stack-and-cost` `/module-map` `/design-review` `/build-plan`
-`/build` `/feature-check` `/ux-check` `/ship-check` `/compliance-check` `/perf-check`
+`/build` `/feature-check` `/ux-check` `/polish` `/ship-check` `/compliance-check` `/perf-check`
 `/docs-check` `/release` `/launch-readiness` `/change-request` `/raid` `/ingest-scan` `/graph`
 
 ## Security & provenance

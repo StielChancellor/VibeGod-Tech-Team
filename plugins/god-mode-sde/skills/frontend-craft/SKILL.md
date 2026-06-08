@@ -47,6 +47,23 @@ staying accessible. Match the product's character; don't apply one house style t
   within the existing system — don't silently re-theme the whole app. Propose a fuller refresh
   separately if warranted.
 
+## Default web stack + refinement (the real anti-slop levers)
+Prose alone won't beat the generic look — tooling + real assets do. For web UI:
+- **Default to a real component system:** Tailwind v4 + shadcn/ui (Radix primitives) over hand-rolled
+  CSS — it removes the "AI hand-CSS" tells and gives accessible primitives. Deviate only with a reason
+  (cost-aware). **Re-theme the tokens** — never ship the default Tailwind blue or untouched shadcn
+  slate as if it were a design decision.
+- **Load real fonts** (Fontsource / `next/font` / Google Fonts), never the system stack. Run the
+  font-selection procedure in `design-refinement` (three voice words → reject training-data defaults
+  like Inter/DM/Space Grotesk/Fraunces → browse a real catalog).
+- **Produce a per-project `DESIGN.md`** (the `ui-ux-designer` owns it): named aesthetic + a real
+  reference, the actual font/color tokens, and a banned-patterns list the engineer and reviewer enforce.
+- **Run `/polish`** (the `design-refinement` skill) before the Stage-7 visual gate. Pick the register
+  first: **brand** (distinctiveness is the bar) vs **product** (earned familiarity — calm, not theatrics).
+- **Design boldly first; audit a11y at review.** A11y reminders mid-design make output timid — make the
+  distinctive design, THEN run the accessibility audit (`accessibility-wcag` / `ux-design-reviewer`).
+  Never ship inaccessible, but don't let a11y anxiety flatten the design before it exists.
+
 ## Tie every choice to accessibility (WCAG 2.2 AA)
 Distinctive is not an excuse to be inaccessible. Enforce alongside `accessibility-wcag`:
 - **Contrast:** body text ≥ 4.5:1, large text/UI ≥ 3:1 — against the *actual* layered background,
@@ -57,5 +74,6 @@ Distinctive is not an excuse to be inaccessible. Enforce alongside `accessibilit
 - **Color is never the only signal:** pair it with text/icon/shape.
 
 ## Definition of done (frontend)
-Distinctive committed design + WCAG 2.2 AA + reduced-motion support + theme driven by CSS vars +
-no generic-default fonts. Verified at the Stage 7 QA gate before the feature closes.
+Distinctive committed design + **real loaded fonts (not the system stack)** + a tokenized component
+system (Tailwind+shadcn or CSS-var tokens, re-themed) + WCAG 2.2 AA + reduced-motion support +
+**passed the `/polish` slop test**. Verified at the Stage 7 QA gate before the feature closes.

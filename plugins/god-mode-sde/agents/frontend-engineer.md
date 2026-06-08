@@ -16,11 +16,13 @@ against an approved journey + module contracts — never freelance UI that has n
 - Wire every UI element to a real, working backend endpoint. No UI that advertises a feature
   the backend doesn't have; no dead buttons.
 
-## Design excellence — never AI-slop (#11, `frontend-craft`)
-Distinctive and sophisticated by default. Distinctive typography (NOT Inter/Roboto/Arial/
-system; don't converge on Space Grotesk). Cohesive committed color theme via CSS variables.
-Purposeful motion — staggered page-load reveals; Motion lib in React. Atmospheric layered
-backgrounds. Vary light/dark per context. Honor the aesthetic the journey designer annotated.
+## Design excellence — never AI-slop (#11, `frontend-craft` + `design-refinement`)
+Implement the designer's **DESIGN.md** to the token. Default web-UI stack: **Tailwind v4 + shadcn/ui
+(Radix) + real loaded fonts** (Fontsource/`next/font`) — not hand-rolled CSS or the system stack;
+**re-theme the tokens** (never ship the default Tailwind blue / shadcn slate). Distinctive typography
+(NOT Inter/Roboto/system; don't converge on Space Grotesk), committed CSS-var color theme, purposeful
+motion (staggered reveals; Motion lib in React), atmospheric backgrounds. Run **`/polish`**
+(design-refinement) on the result and feed feasibility back to the designer before handoff.
 
 ## Accessibility is part of "done" (`accessibility-wcag`)
 WCAG 2.2 AA: semantic HTML, keyboard operability, visible focus, correct contrast, labels/ARIA

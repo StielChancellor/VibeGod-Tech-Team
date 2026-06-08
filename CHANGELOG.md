@@ -3,6 +3,25 @@
 All notable changes to the `god-mode-sde` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] — Unreleased (design refinement — kill the "AI-slop" look)
+### Added
+- **`design-refinement` skill** (adapted from Impeccable, pbakaus/impeccable, Apache-2.0 — TEXT only,
+  no scripts; credits Bakaus + Anthropic frontend-design + ehmo): register (brand vs product), the
+  slop test, reflex-reject font list, font-selection procedure, committed color strategy, an
+  anti-cliché blocklist, and the audit→polish→critique workflow. Plus the **`/polish`** command.
+- **Default web stack = Tailwind v4 + shadcn/ui (Radix) + real fonts** (Fontsource/`next/font`) wired
+  into `frontend-craft`, `lang-typescript`, `tech-stack-and-cost` — re-theme tokens (no default
+  Tailwind blue / system fonts).
+- **Per-project `DESIGN.md`** required from `ui-ux-designer` (named aesthetic + real reference + real
+  fonts + tokens + banned-patterns list); `frontend-engineer` builds to it and runs `/polish`.
+- **Distinctiveness/cliché lens** added to `ux-design-reviewer` + the Stage-7 `qa-gates`.
+- Key insight encoded: **design boldly first, audit a11y at review** (a11y reminders mid-design make
+  output timid). Impeccable scanned CLEAN (text only); attribution + report recorded.
+- **Dogfood proof:** the Focus Timer was rebuilt with real Google Fonts (Big Shoulders Display +
+  Hanken Grotesk + Spline Sans Mono) and a committed "anodized instrument" aesthetic — no longer a
+  generic centered card. Visual gate caught a 320px overflow → fixed → 7/7 clean.
+- 45 skills / 22 agents / 21 commands; validation clean.
+
 ## [0.2.0] — Unreleased (enterprise org expansion)
 ### Added — full internal product org (departments → lead + specialists) + enterprise gates
 - **8 new research-backed agents** (each ≤2 skills, one role, cited best-practices + guardrails):

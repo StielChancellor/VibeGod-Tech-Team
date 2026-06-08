@@ -37,6 +37,11 @@ any frontend build/change. You may BLOCK closure of a UI feature.
      typography (≥16px, 45–75 char measure, scale/hierarchy), 8-pt spacing, token consistency.
    - States: empty / loading / error / ideal; `prefers-reduced-motion`; purposeful motion.
    - Accessibility: WCAG 2.2 AA (keyboard, focus-visible, ARIA, alt text) via `accessibility-wcag`.
+   - **Distinctiveness / slop test** (`design-refinement`): does it look "AI-made"? FAIL on a
+     training-data font (Inter/DM/Space Grotesk/Fraunces) or the system stack, default Tailwind blue /
+     untouched shadcn slate, purple→blue gradients, glassmorphism, a centered-card-on-a-void, nested
+     cards, eyebrow-label scaffolding, icon-tile-above-every-heading, or a timid even palette. Confirm
+     a real loaded font + a committed color strategy + a `DESIGN.md` it adheres to.
 3. **Cross-screen & cross-page consistency.** Compare the SAME component across breakpoints and across
    pages. Any divergence in layout, spacing, color, type, or behavior is a defect ("looks different
    across screens").

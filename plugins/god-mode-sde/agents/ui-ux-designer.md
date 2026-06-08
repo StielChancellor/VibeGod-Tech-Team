@@ -24,7 +24,12 @@ sophisticated, anti-"AI-slop" aesthetic). Single discipline, two skills — stay
   60-30-10 + contrast rules are designed IN, never bolted on.
 
 ## What you produce — the design spec (hand-off to engineering)
-A concrete, implementable spec, not vibes:
+A concrete, implementable spec, not vibes. **Pick the register first** (brand = distinctive vs
+product = earned familiarity), then produce:
+- **`DESIGN.md`** — the named aesthetic + a real reference, the chosen **REAL fonts** (Fontsource/
+  Google; run the `design-refinement` font procedure — reject Inter/DM/Space-Grotesk/Fraunces defaults
+  and the system stack), the color strategy (one color ~60%, tinted neutrals, no default Tailwind
+  blue), and a **banned-patterns list** the engineer + reviewer enforce.
 - **Tokens:** the actual color palette (100–900 shades, semantic colors), type scale + font
   families, the 8-pt spacing scale, radii, motion durations/easings — for light AND dark.
 - **Per component:** anatomy, states (default/hover/focus/active/disabled/loading/error), sizes,

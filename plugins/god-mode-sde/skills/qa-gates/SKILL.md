@@ -30,10 +30,13 @@ Before a feature is marked done, dispatch these agents **in parallel**; all must
    - Every call site of changed code updated; no half-wired feature.
    - No dead/orphaned code the change left behind.
    - Accessibility (WCAG 2.2 AA) + cross-browser/perf budgets for UI.
-5. **`ux-design-reviewer`** (UI features only) — renders the page across the breakpoint matrix and
-   gates it on `ui-ux-excellence`: not broken (no overflow/overlap/truncation/CLS/contrast fails),
-   visually consistent across screens and pages, and design-token-clean. On fail it hands a precise
-   fix list to the `frontend-engineer` and re-reviews. (See the `/ux-check` command.)
+5. **`ux-design-reviewer`** (UI features only) — first confirm the feature passed **`/polish`**
+   (`design-refinement`), then render across the breakpoint matrix and gate on `ui-ux-excellence`:
+   not broken (no overflow/overlap/truncation/CLS/contrast fails), visually consistent across screens,
+   design-token-clean, AND **not generic** — fail the slop test if it's a centered-card-on-a-void with
+   a training-data font (Inter/DM/Space Grotesk), default Tailwind blue, a purple→blue gradient,
+   eyebrow-label scaffolding, or an icon-tile above every heading. On fail it hands a precise fix list
+   to the `frontend-engineer` and re-reviews. (See `/ux-check` + `/polish`.)
 6. **`performance-engineer`** (perf-sensitive features) — checks the change against perf budgets/SLAs
    (p95/p99, Core Web Vitals) and flags regressions. `test-automation-engineer` (SDET) backs the whole
    gate with the regression/e2e automation that makes it fast and repeatable. (See `/perf-check`.)
