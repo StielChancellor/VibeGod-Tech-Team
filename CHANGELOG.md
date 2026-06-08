@@ -35,7 +35,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   images / oversized elements / console errors to `report.json` (exit 1 if broken). Resolves Playwright
   from the project; graceful install message if missing. Wired into ui-ux-excellence, ux-design-reviewer,
   and `/ux-check`. Verified end-to-end (caught a planted overflow + broken image).
-- Totals: **22 agents, 44 skills, 20 commands.** Validation clean; hooks 25/25.
+- **CI:** GitHub Action (`.github/workflows/ci.yml`) runs `validate.mjs` + `test-hooks.mjs` on
+  every push and PR, keeping manifests/skills/agents/commands and the guardrail hooks green.
+- Totals: **22 agents, 44 skills, 20 commands.** Validation clean; guardrail hooks 42/42
+  (after the runtime-hardening pass).
 
 ## [0.1.0] — Unreleased (Phase A complete)
 ### Added

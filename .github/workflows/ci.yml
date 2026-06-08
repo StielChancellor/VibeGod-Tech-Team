@@ -1,0 +1,30 @@
+name: CI
+
+# Keeps the god-mode-sde plugin green: validates the marketplace/plugin manifests and every
+# skill/agent/command frontmatter, and runs the guardrail hook unit tests. Both are
+# zero-dependency Node scripts, so no install step is needed.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate manifests, skills, agents, commands
+        run: node ingest/validate.mjs
+
+      - name: Run guardrail hook unit tests
+        run: node ingest/test-hooks.mjs
