@@ -30,7 +30,8 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
   - **Program/Delivery:** delivery-manager (TPM), release-manager
   - **Product:** product-manager · **Design/UX:** ui-ux-designer (frontier), ux-researcher
   - **Architecture:** solution-architect, tech-lead, security-architect
-  - **Engineering:** frontend-, backend-, data-, ai-agent-engineer · **Reliability:** devops-sre
+  - **Engineering:** frontend-, backend-, data-, ai-agent-, identity-access-, integration-engineer · **Reliability:** devops-sre
+  - **Analytics:** analytics-engineer (tracking plan, instrumentation, dashboards)
   - **Quality:** qa-engineer, adversarial-tester, code-quality-reviewer, ux-design-reviewer,
     test-automation-engineer (SDET), performance-engineer
   - **Security & Compliance:** security-engineer, compliance-grc · **Docs:** technical-writer
@@ -64,7 +65,7 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
 
 ## Commands
 
-`/kickoff` `/prd` `/journey` `/stack-and-cost` `/module-map` `/design-review` `/build-plan`
+`/kickoff` `/triage` `/prd` `/journey` `/stack-and-cost` `/module-map` `/design-review` `/build-plan`
 `/build` `/feature-check` `/ux-check` `/polish` `/ship-check` `/compliance-check` `/perf-check`
 `/docs-check` `/release` `/launch-readiness` `/change-request` `/raid` `/ingest-scan` `/graph`
 

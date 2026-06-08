@@ -3,6 +3,22 @@
 All notable changes to the `god-mode-sde` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — Unreleased (enterprise-coverage gaps from the audit)
+### Added — close the top audit gaps (each research-backed + cited)
+- **Gap #1 — analytics-engineer + `analytics-instrumentation` skill:** tracking-plan-as-contract,
+  Object-Action events, server-preferred instrumentation + identity stitching + idempotency, North Star
+  + inputs / AARRR / HEART, experiment guardrails, and hard privacy rules (no PII in events, consent,
+  instrument before GA). Wired into the orchestrator (Analytics & data) + Stages 1/6/8/10.
+- **Gap #3 — risk-tiered express lane:** `change-risk-triage` skill + `/triage` command. A 4-tier model
+  (trivial/low/standard/high-emergency) + gate matrix so trivial changes skip non-applicable gates, with
+  FOUR always-on safety gates that never skip (CI+tests, security scan, ≥1 non-author review, no-orphans);
+  emergency post-hoc audit + PIR. Owned by delivery-manager; orchestrator runs it first.
+- **Gap #2 — identity-access-engineer + integration-engineer (+ `identity-access`, `integration-engineering`
+  skills):** IAM (OIDC/PKCE, SAML SSO, SCIM, RBAC/ABAC/ReBAC, deny-by-default server-side authz, multi-tenant
+  isolation + RLS, sessions/MFA) and integrations (OpenAPI contracts + versioning + idempotency, signed/
+  idempotent webhooks, transactional outbox + DLQ, resilient outbound + SSRF guards, contract testing).
+- Totals: **25 agents, 49 skills, 22 commands.** Validation clean; hooks 42/42. Bump to 0.4.0.
+
 ## [0.3.0] — Unreleased (design refinement — kill the "AI-slop" look)
 ### Added
 - **`design-refinement` skill** (adapted from Impeccable, pbakaus/impeccable, Apache-2.0 — TEXT only,

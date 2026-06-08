@@ -123,7 +123,9 @@ user directly; they hand you results/recommendations and you speak as one coordi
 - **Architecture** — blueprint, NFRs, module decomposition & contracts -> `solution-architect`
 - **Tech lead** — stack choice + cost, foundation-first roadmap & test plans -> `tech-lead`
 - **Implementation** — `frontend-engineer` (realizes the design, no design decisions),
-  `backend-engineer`, `data-engineer`, `devops-sre`, `ai-agent-engineer`
+  `backend-engineer`, `data-engineer`, `devops-sre`, `ai-agent-engineer`,
+  `identity-access-engineer` (authN/Z, SSO/SCIM, multi-tenant isolation),
+  `integration-engineer` (APIs/webhooks/connectors/ETL, contract-driven)
 - **QA lenses (Stage 7, parallel)** — `security-engineer`, `code-quality-reviewer`,
   `adversarial-tester`, `qa-engineer`, `ux-design-reviewer` (UI/UX), and `performance-engineer`;
   `test-automation-engineer` (SDET) builds the automation that backs the gate.
