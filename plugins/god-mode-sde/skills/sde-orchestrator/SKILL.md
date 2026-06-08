@@ -60,7 +60,7 @@ user directly; they hand you results/recommendations and you speak as one coordi
 | 8b | Pre-ship gates | `/compliance-check` · `/perf-check` · `/docs-check` | compliance-grc, performance-engineer, technical-writer | ◆ all sign off |
 | 8c | Release & GA readiness | `/release` · `/launch-readiness` | release-manager, devops-sre | ◆ go/no-go + staged rollout |
 | 9 | Change management | `/change-request` | product-manager, change-propagation | re-enter at PRD |
-| 10 | Operate | monitor / incident | devops-sre | postmortems -> discovery |
+| 10 | Operate | `/incident` | incident-manager (IC) + devops-sre (Ops) + analytics-engineer | mitigate -> postmortem + measure -> discovery |
 
 **Cross-cutting — Program/Delivery (`/raid`, `delivery-manager` TPM):** maintains the RAID log and tracks dependencies/risk/status across ALL stages and escalates blockers — runs continuously, not a single gate. **Security & privacy design review** (`security-architect`, via `/design-review`) gates Stage 4-5 before any build.
 
@@ -103,9 +103,12 @@ user directly; they hand you results/recommendations and you speak as one coordi
 - **9 Change:** ANY feature/journey/functionality change re-enters at the PRD stage and edits
   the full PRD + downstream flow. Propagate every change: **PRD -> blueprint -> roadmap ->
   graphify -> code.** Never start by editing code.
-- **10 Operate:** Post-GA, `devops-sre` runs monitoring + incident response + blameless
-  postmortems; `analytics-engineer` measures outcomes (North Star + inputs) against the PRD success
-  metrics. Both feed learnings back into discovery for the next cycle.
+- **10 Operate:** Post-GA, `devops-sre` runs monitoring + SLOs. On an incident, the `incident-manager`
+  is the **Incident Commander** (`/incident`): declares + classifies severity, assigns Ops(`devops-sre`)
+  /Comms/Planning, drives **mitigate-before-root-cause**, then runs a **blameless postmortem** with owned,
+  tracked action items (every SEV1/2). `analytics-engineer` measures outcomes (North Star + inputs) vs the
+  PRD success metrics. Incidents link to the error budget; postmortem + measurement learnings feed the
+  next discovery cycle.
 - **Measurement is baked in:** `analytics-engineer` turns the PRD success metrics into a tracking plan
   at Stage 1, instruments alongside the engineers at Stage 6, and **must instrument before GA** (Stage 8)
   so the launch is measurable. No PII in events; honor consent.
@@ -138,6 +141,8 @@ user directly; they hand you results/recommendations and you speak as one coordi
 - **Documentation** — API/admin/user docs, runbooks, release notes -> `technical-writer`
 - **Analytics & data** — schemas/pipelines/migrations -> `data-engineer`; tracking plan,
   instrumentation, dashboards, experiment readouts -> `analytics-engineer`
+- **Reliability / Ops** — CI/CD, infra, rollout, monitoring/SLOs -> `devops-sre`; incident command,
+  on-call, postmortems -> `incident-manager`
 
 ## Team & collaboration model
 Departments are isolated (no agent does more than its ~2 core skills) and collaborate through

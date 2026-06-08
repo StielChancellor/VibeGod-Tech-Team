@@ -17,7 +17,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   skills):** IAM (OIDC/PKCE, SAML SSO, SCIM, RBAC/ABAC/ReBAC, deny-by-default server-side authz, multi-tenant
   isolation + RLS, sessions/MFA) and integrations (OpenAPI contracts + versioning + idempotency, signed/
   idempotent webhooks, transactional outbox + DLQ, resilient outbound + SSRF guards, contract testing).
-- Totals: **25 agents, 49 skills, 22 commands.** Validation clean; hooks 42/42. Bump to 0.4.0.
+- **Operate depth — incident-manager + `incident-management` skill + `/incident`:** Incident Commander
+  role (Google SRE — IC/Ops/Comms/Planning, decide≠fix≠communicate), severity tiers, **mitigate before
+  root-cause**, burn-rate on-call alerting + runbooks, and **blameless postmortems** with tracked action
+  items (every SEV1/2); ties incidents to the error budget. Wired into Stage 10 (incident-manager = IC,
+  devops-sre = Ops Lead) + the Reliability/Ops delegation.
+- Totals: **26 agents, 50 skills, 23 commands.** Validation clean; hooks 42/42. Bump to 0.4.0.
 
 ## [0.3.0] — Unreleased (design refinement — kill the "AI-slop" look)
 ### Added
