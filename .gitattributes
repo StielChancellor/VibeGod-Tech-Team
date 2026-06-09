@@ -1,0 +1,3 @@
+# Shell installers must stay LF so `curl … | bash` works on macOS/Linux
+# (CRLF would produce `/usr/bin/env: bash\r` errors).
+*.sh text eol=lf
