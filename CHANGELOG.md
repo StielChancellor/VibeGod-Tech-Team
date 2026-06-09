@@ -3,6 +3,22 @@
 All notable changes to the `god-mode-sde` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.1] — Unreleased (README rewrite + source-available license)
+### Changed
+- **README fully rewritten for clarity and audience.** Leads with the problem vibe-coders feel
+  (AI-slop look, security holes, no tests, spaghetti-at-scale), the USPs, then "one plugin = a
+  complete company" (27 agents across 11 departments grouped into Product / Design / Architecture /
+  Engineering / Quality / Security & Compliance / Delivery-Release-Ops / Docs teams), a plain-English
+  feature table, install, credits, and contributing. Counts corrected to 27 agents · 50 skills · 23 commands.
+- **Credits section** thanks and links every upstream project (superpowers/@obra, graphify/safishamsi,
+  Impeccable/@pbakaus + Anthropic frontend-design + ehmo/typecraft, andrej-karpathy-skills).
+- **License changed from MIT to a custom source-available license** (`LICENSE`,
+  `LicenseRef-GodModeSDE-1.0`): personal/non-commercial use is free; commercial use requires visible
+  credit + a link back; any modification to the project's code must be contributed back as a PR; no
+  rebranding/reselling as your own. Bundled third-party components KEEP their original MIT/Apache-2.0
+  licenses (Section 6 + `ATTRIBUTION.md`) — those rights are unaffected. Project open for contribution.
+- plugin.json `license` field updated accordingly; validation clean, official `claude plugin validate` ✔.
+
 ## [0.5.0] — Unreleased (anti-hallucination — claim-verifier agent)
 ### Added
 - **`claim-verifier` agent (27th specialist).** An epistemic red-team that independently
