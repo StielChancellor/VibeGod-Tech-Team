@@ -1,5 +1,5 @@
 ---
-description: Design-refinement pass — make a UI distinctive (not "AI-slop"): audit fonts/color/spacing/cliché patterns, fix the highest-impact gaps, then re-run the visual + a11y gates. Args: the page/component/route.
+description: "Design-refinement pass — make a UI distinctive (not \"AI-slop\"): audit fonts/color/spacing/cliché patterns, fix the highest-impact gaps, then re-run the visual + a11y gates. Args: the page/component/route."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

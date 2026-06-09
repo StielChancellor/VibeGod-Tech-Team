@@ -1,5 +1,5 @@
 ---
-description: Docs-ready gate — API reference, admin/dev/user guides, runbooks, release notes, ADRs (Diataxis-structured) are complete and accurate before GA. Args: scope/surfaces.
+description: "Docs-ready gate — API reference, admin/dev/user guides, runbooks, release notes, ADRs (Diataxis-structured) are complete and accurate before GA. Args: scope/surfaces."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

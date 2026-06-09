@@ -11,6 +11,18 @@ let errors = 0, warns = 0;
 const err = (m) => { console.error('  ✗ ' + m); errors++; };
 const warn = (m) => { console.warn('  ! ' + m); warns++; };
 
+// Reject unquoted scalar values a real YAML parser would choke on. The killer case:
+// an unquoted value containing ": " (colon-space) is read as a nested mapping ->
+// "Unexpected token" -> the ENTIRE frontmatter is silently dropped (no description,
+// no allowed-tools, etc.). Also catches " #" (inline comment) and leading indicators.
+function yamlUnsafe(value) {
+  if (!value || /^["']/.test(value)) return null; // empty or already quoted -> safe
+  if (value.includes(': ') || value.endsWith(':')) return "contains ': ' (colon-space)";
+  if (/\s#/.test(value)) return "contains ' #' (inline comment)";
+  if (/^[!&*?|>@`%[\]{},]/.test(value)) return 'starts with a YAML indicator char';
+  return null;
+}
+
 function frontmatter(file) {
   const t = readFileSync(file, 'utf8');
   const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -18,7 +30,11 @@ function frontmatter(file) {
   const fm = {};
   for (const line of m[1].split(/\r?\n/)) {
     const mm = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (mm) fm[mm[1]] = mm[2].trim();
+    if (!mm) continue;
+    const key = mm[1], value = mm[2].trim();
+    fm[key] = value;
+    const why = yamlUnsafe(value);
+    if (why) err(`${file.slice(ROOT.length + 1)}: frontmatter '${key}' must be quoted — ${why}; a YAML parser would drop the whole block.`);
   }
   return fm;
 }

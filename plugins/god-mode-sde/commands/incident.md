@@ -1,5 +1,5 @@
 ---
-description: Declare and run a production incident — assign IC/Ops/Comms/Planning, set severity, mitigate before root-cause, communicate on a cadence, then run a blameless postmortem with tracked action items. Args: what's happening (symptoms/impact).
+description: "Declare and run a production incident — assign IC/Ops/Comms/Planning, set severity, mitigate before root-cause, communicate on a cadence, then run a blameless postmortem with tracked action items. Args: what's happening (symptoms/impact)."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

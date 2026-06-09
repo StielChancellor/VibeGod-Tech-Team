@@ -1,5 +1,5 @@
 ---
-description: Review a page/screen/component for UI/UX best practices and cross-screen integrity — renders across all breakpoints, flags broken/inconsistent UI, and dispatches fixes to the frontend-engineer. Args: the page/route/component (path or URL).
+description: "Review a page/screen/component for UI/UX best practices and cross-screen integrity — renders across all breakpoints, flags broken/inconsistent UI, and dispatches fixes to the frontend-engineer. Args: the page/route/component (path or URL)."
 ---
 
 Run a full UI/UX quality gate on: **$ARGUMENTS** (if empty, ask which page/route/component, or use the
