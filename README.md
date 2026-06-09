@@ -11,34 +11,52 @@ accessibility (WCAG) are baked in, so you don't have to know about them to get t
 
 ---
 
-## ⚡ Quick start — copy, paste, run in Claude Code
+## ⚡ Install — pick your setup
 
-**1. Install** (paste both lines into Claude Code, then start a fresh session):
+God-Mode SDE is a **Claude Code** plugin, so you install it *through* Claude Code. The catch: the
+`/plugin` command only exists in **some** Claude surfaces. Find yours below, then **start a fresh session**.
 
+> 🔁 **Rule of thumb:** anywhere this README shows a `/plugin …` command, if your surface doesn't
+> support it (Desktop app, JetBrains), run the **same thing in a terminal** as `claude plugin …`.
+> They're identical — everything lives in `~/.claude/`, shared across all surfaces.
+
+**🖥️ Claude Code in a terminal (CLI)** — `/plugin` works. Paste:
 ```text
 /plugin marketplace add StielChancellor/God-Mode-VibeSDE
 /plugin install god-mode-sde@vibe-fde
 ```
 
-**2. Update** to the latest version (restart the session after):
+**🧩 VS Code (Claude Code extension)** — type `/plugins` in the chat to open the plugin manager → add
+the marketplace `StielChancellor/God-Mode-VibeSDE` → install `god-mode-sde`. (Or run the terminal
+commands below in VS Code's integrated terminal.)
 
+**🧠 JetBrains & other IDEs** — no plugin UI; open the integrated terminal and run:
 ```text
-/plugin update god-mode-sde@vibe-fde
+claude plugin marketplace add StielChancellor/God-Mode-VibeSDE
+claude plugin install god-mode-sde@vibe-fde
 ```
 
-**3. Uninstall** (removes the plugin; your projects are untouched):
+**💻 Claude Desktop app (Cowork / agent mode)** — ❗`/plugin` is **NOT** available in the desktop chat
+(you'll see *"isn't available in this environment"*). Install from a **terminal** with the same two
+`claude plugin …` commands as JetBrains above. Once installed it **loads automatically** in your next
+Desktop session. If the `claude` command isn't found, install it once: `npm i -g @anthropic-ai/claude-code`.
 
+**🌐 claude.ai (web chat)** — Claude Code plugins **don't apply** to the website. Use a terminal, an
+IDE, or the Desktop app instead.
+
+**Update / uninstall** (from the same surface you installed in):
 ```text
-/plugin uninstall god-mode-sde@vibe-fde
+/plugin update god-mode-sde@vibe-fde       # terminal/Desktop:  claude plugin update god-mode-sde@vibe-fde
+/plugin uninstall god-mode-sde@vibe-fde    # terminal/Desktop:  claude plugin uninstall god-mode-sde@vibe-fde
 ```
 
-> ⚠️ Always install with the two commands above — **don't copy the plugin files by hand**, it breaks
-> the plugin. After install/update, **start a new Claude Code session** for it to take effect.
-
+> ⚠️ **Don't copy the plugin files by hand** — always use the commands above, then **start a fresh
+> session** for it to take effect.
+>
 > 💰 **Token tip:** while enabled, the team adds **~9.5k tokens/session** (a whole crew on call) — but
 > **0 when disabled**. Keep it **off** for projects that don't need a full dev team and flip it **on**
-> per project: `/plugin disable god-mode-sde@vibe-fde` (off) · `/plugin enable god-mode-sde@vibe-fde`
-> (on). Details in the [Manual](#-manual--how-to-use-it).
+> per project with `/plugin enable …` / `/plugin disable …` (or `claude plugin enable/disable …`).
+> Details in the [Manual](#-manual--how-to-use-it).
 
 Once installed, jump to the **[📖 Manual](#-manual--how-to-use-it)** below, or just type `/kickoff`.
 
@@ -157,8 +175,8 @@ stack — so the system never drifts out of sync.
 ## 📖 Manual — how to use it
 
 ### Step 0 · Install (one time)
-Run the two install lines from **[⚡ Quick start](#-quick-start--copy-paste-run-in-claude-code)** above,
-then **start a fresh Claude Code session**.
+Install it for your setup using **[⚡ Install — pick your setup](#-install--pick-your-setup)** above
+(terminal, VS Code, JetBrains, or Desktop app), then **start a fresh Claude Code session**.
 
 ### 💰 The important bit first: token cost (and how to pay $0)
 
