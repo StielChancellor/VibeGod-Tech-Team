@@ -41,8 +41,20 @@ function frontmatter(file) {
 
 console.log('Manifests:');
 for (const f of ['.claude-plugin/marketplace.json', 'plugins/god-mode-sde/.claude-plugin/plugin.json']) {
-  try { JSON.parse(readFileSync(join(ROOT, f), 'utf8')); console.log('  ✓ ' + f); }
-  catch (e) { err(`${f}: ${e.message}`); }
+  let parsed;
+  try { parsed = JSON.parse(readFileSync(join(ROOT, f), 'utf8')); console.log('  ✓ ' + f); }
+  catch (e) { err(`${f}: ${e.message}`); continue; }
+  // Duplicate-hooks guard: hooks/hooks.json auto-loads by convention. If the manifest ALSO
+  // references it, Claude Code REFUSES to load the plugin ("Duplicate hooks file detected:
+  // ... The standard hooks/hooks.json is loaded automatically, so manifest.hooks should only
+  // reference additional hook files."). `claude plugin validate` does NOT catch this — only a
+  // real load (`claude plugin list`) does — so we guard it here.
+  if (f.endsWith('plugin.json') && typeof parsed.hooks === 'string') {
+    const norm = parsed.hooks.replace(/^\.\//, '');
+    if (norm === 'hooks/hooks.json' && existsSync(join(PLUGIN, 'hooks', 'hooks.json'))) {
+      err(`${f}: manifest.hooks references the auto-loaded hooks/hooks.json — this triggers a "Duplicate hooks file detected" load failure. Remove the field; the convention loads it. Reserve manifest.hooks for ADDITIONAL hook files only.`);
+    }
+  }
 }
 
 console.log('Skills:');

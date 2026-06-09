@@ -3,6 +3,24 @@
 All notable changes to the `god-mode-sde` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.2] — Unreleased (plugin load fix — duplicate hooks)
+### Fixed
+- **The plugin failed to load (`✘ failed to load`).** `plugin.json` declared
+  `"hooks": "./hooks/hooks.json"`, but Claude Code already auto-loads `hooks/hooks.json` by
+  convention — so the manifest reference is a *second* registration of the same file, and the
+  loader rejects it: *"Duplicate hooks file detected … The standard hooks/hooks.json is loaded
+  automatically, so manifest.hooks should only reference additional hook files."* Removed the
+  field (kept `hooks/hooks.json` itself untouched — it auto-loads). Verified the plugin now
+  loads `✔ enabled` via `claude plugin list` with all 3 hook events active.
+- **`ingest/validate.mjs` now guards against this regression.** It errors if `plugin.json`'s
+  `hooks` field points at the auto-loaded `hooks/hooks.json`. Note: the official
+  `claude plugin validate` does **not** catch this (it reports ✔ even when the plugin fails to
+  load — the failure only surfaces in `claude plugin list`), so the homegrown guard is the real
+  backstop here. Mutation-tested.
+- Note for verifiers: check real load status with `claude plugin list` (`✔ enabled` /
+  `✘ failed to load`), NOT `claude plugin details` — `details` prints the static inventory
+  (e.g. `Hooks (3)`) even for a plugin that fails to load.
+
 ## [0.4.1] — Unreleased (frontmatter integrity fix)
 ### Fixed
 - **13 skills/commands silently loaded with EMPTY metadata.** Their YAML frontmatter
