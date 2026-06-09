@@ -35,6 +35,11 @@ accessibility (WCAG) are baked in, so you don't have to know about them to get t
 > ⚠️ Always install with the two commands above — **don't copy the plugin files by hand**, it breaks
 > the plugin. After install/update, **start a new Claude Code session** for it to take effect.
 
+> 💰 **Token tip:** while enabled, the team adds **~9.5k tokens/session** (a whole crew on call) — but
+> **0 when disabled**. Keep it **off** for projects that don't need a full dev team and flip it **on**
+> per project: `/plugin disable god-mode-sde@vibe-fde` (off) · `/plugin enable god-mode-sde@vibe-fde`
+> (on). Details in the [Manual](#-manual--how-to-use-it).
+
 Once installed, jump to the **[📖 Manual](#-manual--how-to-use-it)** below, or just type `/kickoff`.
 
 ---
