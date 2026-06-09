@@ -25,7 +25,7 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
    Release & GA readiness -> Operate`  (any change re-enters at PRD; a cross-cutting RAID/TPM
    track runs throughout)
 
-- **A full internal product org — 22 specialist subagents across 11 departments** (each ≤2
+- **A full internal product org — 27 specialist subagents across 11 departments** (each ≤2
   skills, one role, collaborating via explicit hand-offs/RACI):
   - **Program/Delivery:** delivery-manager (TPM), release-manager
   - **Product:** product-manager · **Design/UX:** ui-ux-designer (frontier), ux-researcher
@@ -33,7 +33,8 @@ This repository is a **Claude Code plugin marketplace** (`vibe-fde`) hosting one
   - **Engineering:** frontend-, backend-, data-, ai-agent-, identity-access-, integration-engineer · **Reliability/Ops:** devops-sre, incident-manager (Incident Commander)
   - **Analytics:** analytics-engineer (tracking plan, instrumentation, dashboards)
   - **Quality:** qa-engineer, adversarial-tester, code-quality-reviewer, ux-design-reviewer,
-    test-automation-engineer (SDET), performance-engineer
+    test-automation-engineer (SDET), performance-engineer, claim-verifier (independent
+    falsification of claims/diagnoses — catches confident hallucinations)
   - **Security & Compliance:** security-engineer, compliance-grc · **Docs:** technical-writer
   - (No customer-facing roles — internal product delivery only.)
 

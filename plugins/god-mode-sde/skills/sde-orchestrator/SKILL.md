@@ -55,7 +55,7 @@ user directly; they hand you results/recommendations and you speak as one coordi
 | 4 | Module map & interfaces | `/module-map` | solution-architect, module-architecture | ◆ user confirms decomposition |
 | 5 | Build plan (foundation-first) | `/build-plan` | tech-lead, build-roadmap | ◆ EXPLICIT go before coding |
 | 6 | Build | `/build` | ui-ux-designer (design) -> frontend/backend/data/devops engineers (implement), dispatching-parallel-agents, TDD | per-feature -> stage 7 |
-| 7 | Per-feature QA gate | `/feature-check` | security-engineer + code-quality-reviewer + adversarial-tester + qa-engineer + ux-design-reviewer (UI) + performance-engineer (PARALLEL; test-automation-engineer backs the gate with automation) | ◆ all pass -> next feature |
+| 7 | Per-feature QA gate | `/feature-check` | security-engineer + code-quality-reviewer + adversarial-tester + qa-engineer + ux-design-reviewer (UI) + performance-engineer (PARALLEL; test-automation-engineer backs the gate with automation; claim-verifier falsifies each lens's verdict & any diagnosis before the gate closes) | ◆ all pass -> next feature |
 | 8 | Final QA, UAT & smoke | `/ship-check` | qa-engineer, security-engineer | ◆ confirm |
 | 8b | Pre-ship gates | `/compliance-check` · `/perf-check` · `/docs-check` | compliance-grc, performance-engineer, technical-writer | ◆ all sign off |
 | 8c | Release & GA readiness | `/release` · `/launch-readiness` | release-manager, devops-sre | ◆ go/no-go + staged rollout |
@@ -131,7 +131,10 @@ user directly; they hand you results/recommendations and you speak as one coordi
   `integration-engineer` (APIs/webhooks/connectors/ETL, contract-driven)
 - **QA lenses (Stage 7, parallel)** — `security-engineer`, `code-quality-reviewer`,
   `adversarial-tester`, `qa-engineer`, `ux-design-reviewer` (UI/UX), and `performance-engineer`;
-  `test-automation-engineer` (SDET) builds the automation that backs the gate.
+  `test-automation-engineer` (SDET) builds the automation that backs the gate;
+  `claim-verifier` independently FALSIFIES any high-stakes claim/diagnosis (real signal, not a
+  proxy; reproduce the symptom; reconcile contradictions) — it validates the other lenses' verdicts,
+  not just the code, at Stages 7 & 8 and on any conclusion that overrides prior evidence.
 - **Program/Delivery** — RAID, dependencies, risk, status, gate facilitation -> `delivery-manager` (TPM);
   release trains, versioning, CAB, go/no-go, rollout -> `release-manager`
 - **Design research** — user research, usability testing, validation -> `ux-researcher`

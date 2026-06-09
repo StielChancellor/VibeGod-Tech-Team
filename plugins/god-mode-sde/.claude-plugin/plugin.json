@@ -1,7 +1,7 @@
 {
   "name": "god-mode-sde",
   "displayName": "God-Mode SDE",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "A virtual enterprise SDE team (lead orchestrator + role subagents + methodology skills) that drives a strict, gated SDLC with OWASP/WCAG/OODA compliance and best-effort (heuristic, fail-open) runtime security/QA guardrails.",
   "author": {
     "name": "StielChancellor"

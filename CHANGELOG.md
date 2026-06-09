@@ -3,6 +3,28 @@
 All notable changes to the `god-mode-sde` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] — Unreleased (anti-hallucination — claim-verifier agent)
+### Added
+- **`claim-verifier` agent (27th specialist).** An epistemic red-team that independently
+  FALSIFIES the team's CLAIMS — diagnoses, root-cause stories, and "fixed / works / non-issue"
+  verdicts — before they reach the user. Complements `adversarial-tester` (which breaks *features*)
+  by breaking *claims*. Skills: `verification-before-completion` + `systematic-debugging`. Wired into
+  the Stage 7 per-feature gate (it validates the other lenses' verdicts, not just the code), the
+  Stage 8 ship gate, and any conclusion that overrides prior evidence.
+### Changed
+- **`verification-before-completion` skill hardened with five anti-hallucination rules:**
+  (1) verify the real user-observable end state, not a proxy/inventory/count; (2) reproduce the exact
+  reported symptom before calling it absent/fixed/non-issue; (3) run a disconfirmation pass ("if I'm
+  wrong, what would I see?"); (4) treat any contradiction with another agent / the user / a prior run
+  as a STOP — reconcile by reproducing both, never override evidence with an argument; (5) escalate
+  high-stakes/contested claims to `claim-verifier`. New table rows + red flags encode the
+  `plugin details` (proxy) vs `plugin list` (real load) trap that produced a wrong "non-issue" call.
+- Orchestrator delegation map + Stage 7 row updated to include `claim-verifier`. README agent count
+  corrected to **27** (was a stale "22").
+- Rationale: the duplicate-hooks miss was a *verification-methodology* failure (a proxy metric read
+  as ground truth, a contradicting hands-on result dismissed by argument), not a knowledge gap —
+  so the fix is process, enforced by a dedicated lens.
+
 ## [0.4.2] — Unreleased (plugin load fix — duplicate hooks)
 ### Fixed
 - **The plugin failed to load (`✘ failed to load`).** `plugin.json` declared

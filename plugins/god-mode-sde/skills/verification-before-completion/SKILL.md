@@ -40,6 +40,28 @@ BEFORE claiming any status or expressing satisfaction:
 Skip any step = lying, not verifying
 ```
 
+## Verify the Real Signal — Anti-Hallucination Rules (MANDATORY)
+
+A confident, well-argued conclusion can still be wrong. These five rules exist because the worst
+errors are *verified against the wrong thing*, not unverified. They apply to every diagnosis,
+root-cause story, and "fixed / works / passing / non-issue" claim.
+
+1. **Real signal, not a proxy.** Verify what the USER actually observes (does it load? does the
+   command appear? does the request succeed?), never a related count/inventory/log that merely
+   correlates. *Canonical trap: `claude plugin details` prints `Hooks (3)` even for a plugin that
+   `✘ failed to load`; only `claude plugin list` shows the real load status.* Confirm the command
+   measures the property you care about (static parse ≠ runtime load; cached ≠ fresh; one scope ≠ all).
+2. **Reproduce the exact reported symptom** before calling it absent, fixed, or a non-issue. Same
+   command, same state the reporter used.
+3. **Disconfirmation pass.** Ask "if I'm wrong, what would I see?" — then go look for it. A claim you
+   only tried to confirm is unverified.
+4. **Contradiction = STOP.** If your conclusion clashes with another agent's hands-on result, the
+   user's report, or a prior run, reconcile by reproducing BOTH observations until they agree. Never
+   override empirical evidence with a theoretical argument — the reproduction wins, not the argument.
+5. **Escalate high-stakes/contested claims to `claim-verifier`.** For any conclusion that overrides
+   prior evidence, removes something as "safe", or declares a hard-to-see bug fixed, dispatch the
+   `claim-verifier` agent for an independent falsification pass before presenting it as fact.
+
 ## Common Failures
 
 | Claim | Requires | Not Sufficient |
@@ -52,6 +74,8 @@ Skip any step = lying, not verifying
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
 | Feature fully wired | Consistency/no-orphans check (below) | Backend works in isolation |
+| "It works / it loads" | The user-observable end state (e.g. `plugin list` load status) | A proxy/inventory that merely correlates (`plugin details`) |
+| "X is a non-issue / safe to remove" | Reproduced the reported symptom both ways | A theoretical argument that contradicts someone's hands-on result |
 
 ## Consistency & No-Orphans (MANDATORY — blocks completion)
 
@@ -73,7 +97,7 @@ Skip any step = lying, not verifying
 
 ## Red Flags — STOP
 
-"should" / "probably" / "seems to" · expressing satisfaction before verification ("Great!"/"Perfect!"/"Done!") · about to commit/push/PR without verification · trusting agent success reports · relying on partial verification · "just this once" · tired and wanting it over · **ANY wording implying success without having run verification** · claiming a feature done while a call site, the UI, or a doc still references the old behavior.
+"should" / "probably" / "seems to" · expressing satisfaction before verification ("Great!"/"Perfect!"/"Done!") · about to commit/push/PR without verification · trusting agent success reports · relying on partial verification · "just this once" · tired and wanting it over · **ANY wording implying success without having run verification** · claiming a feature done while a call site, the UI, or a doc still references the old behavior · verifying a proxy/inventory/count instead of the real user-observable end state · dismissing another agent's or the user's reproduced result with an argument instead of a reproduction · calling something a "non-issue" or "safe to remove" without reproducing the reported symptom.
 
 ## Rationalization Prevention
 
@@ -89,6 +113,8 @@ Skip any step = lying, not verifying
 | "Different words so rule doesn't apply" | Spirit over letter |
 | "Backend works, frontend later" | Half-wired = not done. Run the consistency check. |
 | "I only changed one place" | Search the repo. Every call site, or it's an orphan. |
+| "The inventory/count looks right" | Counts ≠ outcome. Verify the real end state the user sees. |
+| "My reasoning says the other agent is wrong" | Reproduce their observation. Argument ≠ evidence. |
 
 ## Key Patterns
 
