@@ -1,4 +1,4 @@
-// Self-validation for the god-mode-sde plugin. Run: node ingest/validate.mjs
+// Self-validation for the vibegod-tech-team plugin. Run: node ingest/validate.mjs
 // Checks: manifests parse; every SKILL.md/agent/command has required frontmatter;
 // every agent binds <=2 skills that EXIST; every ${CLAUDE_PLUGIN_ROOT}/<file> ref resolves.
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
@@ -6,7 +6,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const PLUGIN = join(ROOT, 'plugins', 'god-mode-sde');
+const PLUGIN = join(ROOT, 'plugins', 'vibegod-tech-team');
 let errors = 0, warns = 0;
 const err = (m) => { console.error('  ✗ ' + m); errors++; };
 const warn = (m) => { console.warn('  ! ' + m); warns++; };
@@ -40,7 +40,7 @@ function frontmatter(file) {
 }
 
 console.log('Manifests:');
-for (const f of ['.claude-plugin/marketplace.json', 'plugins/god-mode-sde/.claude-plugin/plugin.json']) {
+for (const f of ['.claude-plugin/marketplace.json', 'plugins/vibegod-tech-team/.claude-plugin/plugin.json']) {
   let parsed;
   try { parsed = JSON.parse(readFileSync(join(ROOT, f), 'utf8')); console.log('  ✓ ' + f); }
   catch (e) { err(`${f}: ${e.message}`); continue; }

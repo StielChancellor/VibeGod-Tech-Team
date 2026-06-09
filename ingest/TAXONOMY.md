@@ -1,6 +1,6 @@
-# Final deduped taxonomy (god-mode-sde)
+# Final deduped taxonomy (vibegod-tech-team)
 
-Decisions: lead = sde-orchestrator absorbs superpowers' dispatcher · planning = layer
+Decisions: lead = vibegod-orchestrator absorbs superpowers' dispatcher · planning = layer
 (reuse superpowers + add architecture) · test/review = adopt superpowers as canonical, drop
 my dupes · graphify = detect/auto-install/proceed-without + fallback skill.
 
@@ -20,22 +20,22 @@ my dupes · graphify = detect/auto-install/proceed-without + fallback skill.
 - using-git-worktrees
 - requesting-code-review            ← canonical review (my `code-review-discipline` DROPPED)
 - receiving-code-review
-(using-superpowers → ABSORBED into sde-orchestrator, not shipped separately)
+(using-superpowers → ABSORBED into vibegod-orchestrator, not shipped separately)
 
 ### New (authored for this plugin)
-- sde-orchestrator      (LEAD: enterprise SDLC + dispatch; absorbs using-superpowers)
+- vibegod-orchestrator      (LEAD: enterprise SDLC + dispatch; absorbs using-superpowers)
 - platform-blueprint    (enterprise architecture layer atop brainstorming/writing-plans: ADRs, NFRs, threat model)
 - secure-coding         (OWASP, secrets, authz, supply chain)
 - frontend-craft        (builds on user's settings.json aesthetics)
 - devops-delivery       (CI/CD, IaC, containers, release)
 - data-engineering      (schemas, pipelines, migrations)
 - codebase-knowledge-graph (graphify detect/auto-install/fallback)
-- _shared/god-mode-principles.md (Karpathy 4 guidelines + superpowers priority rule + user principles + enterprise defaults)
+- _shared/vibegod-principles.md (Karpathy 4 guidelines + superpowers priority rule + user principles + enterprise defaults)
 
 ### Dropped (my duplicates, superseded by superpowers)
 - testing-verification   → use test-driven-development + verification-before-completion
 - code-review-discipline → use requesting-code-review + receiving-code-review
-- agent-orchestration    → covered by subagent-driven-development + dispatching-parallel-agents + sde-orchestrator
+- agent-orchestration    → covered by subagent-driven-development + dispatching-parallel-agents + vibegod-orchestrator
 
 ## Agents
 solution-architect · backend-engineer · frontend-engineer · security-engineer (also powers
@@ -79,7 +79,7 @@ See `FLOW-SPEC.md` for the full 15-step pipeline. Additions below.
 /change-request · /graph   (plus existing /kickoff · /design-review · /ship-check · /ingest-scan)
 
 ## Notes
-- Large bundle by design ("host of skill sets"); sde-orchestrator gates which skills load per
+- Large bundle by design ("host of skill sets"); vibegod-orchestrator gates which skills load per
   stage to avoid trigger confusion.
 - Local journey canvas = dependency-free Node static server + self-contained HTML/JS (adapts
   superpowers' brainstorming localhost-server pattern); journey persists to JSON.

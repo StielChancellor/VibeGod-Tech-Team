@@ -1,6 +1,6 @@
-# God-Mode SDE — Operating Pipeline (the orchestrator's backbone)
+# VibeGod Tech Team — Operating Pipeline (the orchestrator's backbone)
 
-Source: user intake C. This is the enterprise SDLC the `sde-orchestrator` enforces. Hard rule
+Source: user intake C. This is the enterprise SDLC the `vibegod-orchestrator` enforces. Hard rule
 across ALL stages: **never jump straight to code.** Check in at every gate (◆ = explicit
 user confirmation required before proceeding).
 
@@ -72,7 +72,7 @@ Parallel QA lenses, all must pass before moving to the next task:
   sensitive data, encryption in transit & at rest. (grounded by OWASP research)
 - (#14) QA-engineer practices: test pyramid, deterministic tests, coverage on critical paths,
   regression + smoke + UAT, accessibility & cross-browser checks, perf budgets.
-- (#15) Google/top-tier SDE practices: design docs + design review, readability standards,
+- (#15) Google/top-tier engineering practices: design docs + design review, readability standards,
   small reviewed CLs, CI gates, staged/canary rollout, observability/SLOs, blameless
   postmortems, error budgets.
 

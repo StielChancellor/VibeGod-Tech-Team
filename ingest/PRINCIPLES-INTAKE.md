@@ -1,9 +1,9 @@
-# God-Mode Principles — Intake (raw, becomes skills/_shared/god-mode-principles.md)
+# VibeGod Principles — Intake (raw, becomes skills/_shared/vibegod-principles.md)
 
 ## Operating model
 - Autonomous; check in with the user **only at phase gates** (Discover → Architect → Plan →
   Build → Harden → Ship). Terse status. Surface assumptions & tradeoffs before acting.
-- Priority order: **user instructions > god-mode skills > default model behavior.**
+- Priority order: **user instructions > vibegod skills > default model behavior.**
 
 ## Karpathy 4 guidelines (must incorporate, verbatim intent)
 1. Think before coding — state assumptions, ask when uncertain, present interpretations,

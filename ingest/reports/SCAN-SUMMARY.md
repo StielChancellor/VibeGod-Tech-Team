@@ -34,7 +34,7 @@ Date: 2026-06-05. Method: static, read-only audit of shallow clones in `ingest/_
 - **What:** 4 concise behavioral guidelines: (1) Think before coding, (2) Simplicity first,
   (3) Surgical changes, (4) Goal-driven execution.
 - **Risk:** n/a (plain guidance, fetched read-only). No injection.
-- **Verdict:** ✅ CLEAN. Fold into `god-mode-principles.md`.
+- **Verdict:** ✅ CLEAN. Fold into `vibegod-principles.md`.
 
 ## superpowers skill inventory (for de-dup)
 using-superpowers (meta/dispatch), brainstorming, writing-plans, writing-skills,

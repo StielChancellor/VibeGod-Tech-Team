@@ -1,7 +1,21 @@
 # Changelog
 
-All notable changes to the `god-mode-sde` plugin are documented here.
+All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
+
+## [0.6.0] — Rebrand: God-Mode SDE → VibeGod Tech Team
+### Changed
+- **Full rebrand.** Display name `God-Mode SDE` → **`VibeGod Tech Team`**; plugin id `god-mode-sde`
+  → `vibegod-tech-team`; marketplace `vibe-fde` → `vibegod` (install: `vibegod-tech-team@vibegod`);
+  GitHub repo `God-Mode-VibeSDE` → `VibeGod-Tech-Team` (install URLs updated in `install.ps1`/`install.sh`).
+- **Deep scrub of internal handles:** the lead skill `sde-orchestrator` → `vibegod-orchestrator`, and
+  the shared `_shared/god-mode-principles.md` → `_shared/vibegod-principles.md` (all ~115 references
+  across the 27 agents / 50 skills / 23 commands updated in lockstep).
+- **Guardrail env var renamed** `GODMODE_GUARDRAILS` → `VIBEGOD_GUARDRAILS` (and `[GODMODE advisory]`
+  → `[VIBEGOD advisory]`) across the hook scripts + tests.
+- **Note:** this is a NEW plugin identity — `vibegod-tech-team@vibegod` does not auto-update from
+  `god-mode-sde@vibe-fde`; reinstall under the new name. License id `LicenseRef-GodModeSDE-1.0` →
+  `LicenseRef-VibeGodTechTeam-1.0`. Validation clean; hooks 42/42.
 
 ## [0.5.1] — Unreleased (README rewrite + source-available license)
 ### Changed

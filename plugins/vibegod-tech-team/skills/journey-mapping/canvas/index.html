@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VibeGod Tech Team — Journey Canvas</title>
+<style>
+  :root{
+    --bg:#0b1020; --bg2:#131a33; --ink:#e8ecf8; --muted:#8a93b2;
+    --ui:#34d399; --backend:#60a5fa; --module:#f59e0b; --edge:#5b6791;
+    --card:#1a2240; --sel:#f472b6; --line:#2a3358;
+    --font-display:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --font-ui:"IBM Plex Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:
+    radial-gradient(1200px 700px at 80% -10%,#1c2750 0,transparent 60%),
+    radial-gradient(900px 600px at -10% 110%,#241640 0,transparent 55%),
+    var(--bg);color:var(--ink);font-family:var(--font-ui);overflow:hidden}
+  header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);
+    backdrop-filter:blur(6px);position:relative;z-index:5}
+  header h1{font-family:var(--font-display);font-weight:600;font-size:19px;letter-spacing:.2px;margin:0;
+    background:linear-gradient(90deg,#fff,#9fb4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #title{background:var(--bg2);border:1px solid var(--line);color:var(--ink);font-family:var(--font-ui);
+    padding:6px 10px;border-radius:8px;font-size:13px;min-width:200px}
+  .tools{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  button{font-family:var(--font-ui);font-size:12px;letter-spacing:.3px;color:var(--ink);
+    background:var(--bg2);border:1px solid var(--line);padding:7px 11px;border-radius:8px;cursor:pointer;
+    transition:transform .12s ease,border-color .12s ease,background .12s ease}
+  button:hover{transform:translateY(-1px);border-color:#3c4a86}
+  button.active{border-color:var(--sel);color:#fff;background:#2a1d33}
+  button.primary{background:linear-gradient(90deg,#2563eb,#7c3aed);border:none}
+  #stage{position:absolute;inset:58px 0 0 0;overflow:hidden;cursor:grab}
+  #world{position:absolute;left:0;top:0;transform-origin:0 0}
+  svg{position:absolute;left:0;top:0;width:6000px;height:4000px;pointer-events:none;overflow:visible}
+  .edge{stroke:var(--edge);stroke-width:2;fill:none;pointer-events:stroke;cursor:pointer}
+  .edge.sel{stroke:var(--sel);stroke-width:3}
+  .elabel{font-family:var(--font-ui);font-size:11px;fill:var(--muted)}
+  .node{position:absolute;width:172px;background:linear-gradient(180deg,var(--card),#161d3a);
+    border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:grab;
+    box-shadow:0 8px 24px rgba(0,0,0,.35);user-select:none;opacity:0;animation:rise .4s ease forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .node.sel{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel),0 8px 24px rgba(0,0,0,.4)}
+  .badge{display:inline-block;font-size:10px;letter-spacing:.6px;text-transform:uppercase;
+    padding:2px 7px;border-radius:999px;margin-bottom:7px}
+  .badge.ui{background:rgba(52,211,153,.16);color:var(--ui)}
+  .badge.backend{background:rgba(96,165,250,.16);color:var(--backend)}
+  .badge.module{background:rgba(245,158,11,.16);color:var(--module)}
+  .lab{font-size:13px;font-weight:600;line-height:1.25;outline:none}
+  .cmt{font-size:11px;color:var(--muted);margin-top:6px;outline:none;min-height:14px}
+  .cmt:empty:before{content:"+ note";opacity:.5}
+  .port{position:absolute;right:-7px;top:50%;width:12px;height:12px;border-radius:50%;
+    background:var(--sel);transform:translateY(-50%);cursor:crosshair;display:none}
+  .connecting .port{display:block}
+  #hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);
+    background:rgba(10,14,30,.7);padding:7px 14px;border-radius:999px;border:1px solid var(--line);z-index:5}
+  #toast{position:absolute;top:70px;right:18px;background:#10341f;color:#a7f3d0;border:1px solid #1f6b40;
+    padding:9px 14px;border-radius:9px;font-size:12px;opacity:0;transition:opacity .25s;z-index:6}
+  #toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Journey Canvas</h1>
+  <input id="title" placeholder="Journey title" />
+  <div class="tools">
+    <button data-add="ui">+ UI step</button>
+    <button data-add="backend">+ Backend step</button>
+    <button data-add="module">+ Module</button>
+    <button id="connect">Connect</button>
+    <button id="insert">Insert on edge</button>
+    <button id="del">Delete</button>
+    <button id="reload">Reload</button>
+    <button id="save" class="primary">Save</button>
+  </div>
+</header>
+<div id="stage">
+  <div id="world">
+    <svg id="edges"><defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--edge)"/></marker>
+    </defs></svg>
+  </div>
+</div>
+<div id="hint">Drag nodes • double-click label/note to edit • Connect: click two nodes • select an edge then Insert on edge</div>
+<div id="toast"></div>
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const stage=document.getElementById('stage'), world=document.getElementById('world'),
+      svg=document.getElementById('edges'), titleEl=document.getElementById('title'),
+      toast=document.getElementById('toast');
+let state={title:'New Journey',nodes:[],edges:[]};
+let view={x:40,y:30,k:1}, uid=1, mode=null, connectFrom=null, selNode=null, selEdge=null;
+
+const nid=()=>{ let id; do{ id='n'+(uid++); }while(state.nodes.some(n=>n.id===id)); return id; };
+function applyView(){ world.style.transform=`translate(${view.x}px,${view.y}px) scale(${view.k})`; }
+function showToast(m,ok=true){ toast.textContent=m; toast.style.background=ok?'#10341f':'#3a1320';
+  toast.style.color=ok?'#a7f3d0':'#fecaca'; toast.style.borderColor=ok?'#1f6b40':'#7f1d1d';
+  toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1900); }
+
+async function load(){
+  try{ const r=await fetch('/journey'); state=await r.json(); }catch{ state={title:'New Journey',nodes:[],edges:[]}; }
+  state.nodes=state.nodes||[]; state.edges=state.edges||[];
+  uid=1; state.nodes.forEach(n=>{ const m=/^n(\d+)$/.exec(n.id); if(m) uid=Math.max(uid,+m[1]+1); });
+  titleEl.value=state.title||'New Journey';
+  render();
+}
+async function save(){
+  state.title=titleEl.value.trim()||'New Journey';
+  try{ const r=await fetch('/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state)});
+    const j=await r.json(); if(j.ok) showToast('Saved ✓ '+j.file.split(/[\\/]/).pop()); else showToast('Save failed: '+j.error,false);
+  }catch(e){ showToast('Save failed: '+e.message,false); }
+}
+
+function nodeEl(n){
+  const el=document.createElement('div'); el.className='node'; el.dataset.id=n.id;
+  el.style.left=n.x+'px'; el.style.top=n.y+'px';
+  const b=document.createElement('span'); b.className='badge '+n.type; b.textContent=n.type; el.appendChild(b);
+  const lab=document.createElement('div'); lab.className='lab'; lab.textContent=n.label; el.appendChild(lab);
+  const cmt=document.createElement('div'); cmt.className='cmt'; cmt.textContent=n.comment||''; el.appendChild(cmt);
+  const port=document.createElement('div'); port.className='port'; el.appendChild(port);
+  lab.addEventListener('dblclick',e=>{e.stopPropagation();editText(lab,v=>{n.label=v;});});
+  cmt.addEventListener('dblclick',e=>{e.stopPropagation();editText(cmt,v=>{n.comment=v;});});
+  el.addEventListener('pointerdown',e=>onNodeDown(e,n,el));
+  return el;
+}
+function editText(el,commit){
+  el.setAttribute('contenteditable','true'); el.focus();
+  const range=document.createRange(); range.selectNodeContents(el);
+  const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+  const done=()=>{ el.removeAttribute('contenteditable'); commit(el.textContent.trim()); el.removeEventListener('blur',done); };
+  el.addEventListener('blur',done);
+  el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();el.blur();} });
+}
+
+function render(){
+  [...world.querySelectorAll('.node')].forEach(n=>n.remove());
+  [...svg.querySelectorAll('.edge,.elabel')].forEach(n=>n.remove());
+  state.edges.forEach(drawEdge);
+  state.nodes.forEach(n=>world.appendChild(nodeEl(n)));
+  document.body.classList.toggle('connecting',mode==='connect');
+}
+function center(n){ return {x:n.x+86,y:n.y+34}; }
+function drawEdge(e){
+  const a=state.nodes.find(n=>n.id===e.from), b=state.nodes.find(n=>n.id===e.to); if(!a||!b)return;
+  const p=document.createElementNS(SVGNS,'path'); const c1=center(a),c2=center(b);
+  const mx=(c1.x+c2.x)/2;
+  p.setAttribute('d',`M${c1.x},${c1.y} C${mx},${c1.y} ${mx},${c2.y} ${c2.x},${c2.y}`);
+  p.setAttribute('class','edge'+(selEdge===e?' sel':'')); p.setAttribute('marker-end','url(#arrow)');
+  p.addEventListener('click',ev=>{ev.stopPropagation();selEdge=e;selNode=null;render();});
+  svg.appendChild(p);
+  if(e.label){ const t=document.createElementNS(SVGNS,'text'); t.setAttribute('class','elabel');
+    t.setAttribute('x',mx); t.setAttribute('y',(c1.y+c2.y)/2-6); t.setAttribute('text-anchor','middle');
+    t.textContent=e.label; t.addEventListener('dblclick',()=>{const v=prompt('Edge label',e.label||'');if(v!=null){e.label=v;render();}}); svg.appendChild(t); }
+}
+
+let drag=null;
+function onNodeDown(e,n,el){
+  if(mode==='connect'){ e.stopPropagation();
+    if(!connectFrom){ connectFrom=n; el.classList.add('sel'); showToast('Now click the target step'); }
+    else if(connectFrom.id!==n.id){ state.edges.push({from:connectFrom.id,to:n.id,label:''}); connectFrom=null; setMode(null); render(); }
+    return; }
+  e.stopPropagation(); selNode=n; selEdge=null;
+  document.querySelectorAll('.node').forEach(x=>x.classList.remove('sel')); el.classList.add('sel');
+  drag={n,el,sx:e.clientX,sy:e.clientY,ox:n.x,oy:n.y}; el.setPointerCapture(e.pointerId);
+}
+stage.addEventListener('pointermove',e=>{
+  if(drag){ const dx=(e.clientX-drag.sx)/view.k, dy=(e.clientY-drag.sy)/view.k;
+    drag.n.x=Math.round(drag.ox+dx); drag.n.y=Math.round(drag.oy+dy);
+    drag.el.style.left=drag.n.x+'px'; drag.el.style.top=drag.n.y+'px';
+    [...svg.querySelectorAll('.edge,.elabel')].forEach(x=>x.remove()); state.edges.forEach(drawEdge);
+  } else if(pan){ view.x=pan.vx+(e.clientX-pan.sx); view.y=pan.vy+(e.clientY-pan.sy); applyView(); }
+});
+stage.addEventListener('pointerup',()=>{drag=null;pan=null;stage.style.cursor='grab';});
+let pan=null;
+stage.addEventListener('pointerdown',e=>{ if(e.target===stage||e.target===world||e.target===svg){
+  selNode=null;selEdge=null;render(); pan={sx:e.clientX,sy:e.clientY,vx:view.x,vy:view.y}; stage.style.cursor='grabbing'; }});
+stage.addEventListener('wheel',e=>{ e.preventDefault(); const f=e.deltaY<0?1.1:0.9;
+  view.k=Math.min(2,Math.max(.4,view.k*f)); applyView(); },{passive:false});
+
+function setMode(m){ mode=(mode===m?null:m); connectFrom=null;
+  document.getElementById('connect').classList.toggle('active',mode==='connect');
+  document.getElementById('insert').classList.toggle('active',mode==='insert');
+  document.body.classList.toggle('connecting',mode==='connect');
+  if(mode==='connect') showToast('Click the source step, then the target'); }
+
+function addNode(type){ const n={id:nid(),label:type==='module'?'New module':'New step',type,
+  x:Math.round(120-view.x/view.k+Math.random()*60),y:Math.round(140-view.y/view.k+Math.random()*60),comment:''};
+  state.nodes.push(n); render(); }
+
+function insertOnEdge(){ if(!selEdge){ showToast('Select an edge first',false); return; }
+  const e=selEdge, a=state.nodes.find(n=>n.id===e.from), b=state.nodes.find(n=>n.id===e.to);
+  const n={id:nid(),label:'New step',type:'ui',x:Math.round((a.x+b.x)/2),y:Math.round((a.y+b.y)/2)+8,comment:''};
+  state.nodes.push(n);
+  state.edges.push({from:n.id,to:e.to,label:''}); e.to=n.id; selEdge=null; selNode=n; render(); }
+
+function del(){ if(selNode){ state.nodes=state.nodes.filter(n=>n.id!==selNode.id);
+    state.edges=state.edges.filter(e=>e.from!==selNode.id&&e.to!==selNode.id); selNode=null; render(); }
+  else if(selEdge){ state.edges=state.edges.filter(e=>e!==selEdge); selEdge=null; render(); }
+  else showToast('Nothing selected',false); }
+
+document.querySelectorAll('[data-add]').forEach(btn=>btn.addEventListener('click',()=>addNode(btn.dataset.add)));
+document.getElementById('connect').addEventListener('click',()=>setMode('connect'));
+document.getElementById('insert').addEventListener('click',insertOnEdge);
+document.getElementById('del').addEventListener('click',del);
+document.getElementById('save').addEventListener('click',save);
+document.getElementById('reload').addEventListener('click',load);
+document.addEventListener('keydown',e=>{ if((e.key==='Delete'||e.key==='Backspace')&&!/contenteditable/i.test(document.activeElement?.getAttribute?.('contenteditable')||'')&&document.activeElement.tagName!=='INPUT'){ del(); }
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); save(); } });
+
+applyView(); load();
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# God-Mode SDE
+# VibeGod Tech Team
 
 > Install one plugin and a **whole software company** shows up inside Claude Code — product, design,
 > security, engineering, QA, and release — and turns your idea into a real, production-grade platform.
@@ -11,7 +11,7 @@
 Two kinds of people, one problem: **the idea (or the skill) is there — the rest of the team isn't.**
 
 - 🚀 **You have the vision, not the team.** You can describe a great product, or vibe-code a prototype —
-  but you're not a security engineer *and* a designer *and* a DBA *and* an SRE all at once. God-Mode SDE
+  but you're not a security engineer *and* a designer *and* a DBA *and* an SRE all at once. VibeGod Tech Team
   **is** that team. It turns *"I have an idea"* into shipped software without you needing every expertise.
 - 🧑‍💻 **You're already a strong coder.** You ship fast solo — but solo means no design review, no threat
   model, no QA swarm, no release process. This wraps a senior org around you and turns your pro skills
@@ -57,9 +57,9 @@ Discover → PRD → Journey → Stack & Cost → Modules → Security review
 
 Just talk to it in plain English — nothing to memorize:
 
-> 💬 *"use god-mode-sde to build a booking app for a yoga studio — members sign up, book classes, pay online"*
+> 💬 *"use vibegod-tech-team to build a booking app for a yoga studio — members sign up, book classes, pay online"*
 >
-> 💬 *"use god-mode-sde to add Stripe checkout to this existing app"*  — mid-project; it re-plans and wires it through cleanly
+> 💬 *"use vibegod-tech-team to add Stripe checkout to this existing app"*  — mid-project; it re-plans and wires it through cleanly
 >
 > 💬 *"ask the security-architect to review this auth flow"*  — summon a specialist whenever you want
 
@@ -68,7 +68,7 @@ It plans *with* you and stops at each gate for approval. Prefer commands? `/kick
 
 ## Quick start (cheat-sheet)
 
-- ✅ **Already installed?** Just type `use god-mode-sde to …`, or run `/kickoff`. That's it.
+- ✅ **Already installed?** Just type `use vibegod-tech-team to …`, or run `/kickoff`. That's it.
 - ⬇️ **Not installed yet?** Run the one-liner for your setup (below), restart, then talk to it.
 
 ## Install — pick your setup
@@ -79,17 +79,17 @@ has a terminal twin — prefix it with `claude` (e.g. `claude plugin install …
 
 **🖥️ Terminal (Claude Code CLI)**
 ```text
-/plugin marketplace add StielChancellor/God-Mode-VibeSDE
-/plugin install god-mode-sde@vibe-fde
+/plugin marketplace add StielChancellor/VibeGod-Tech-Team
+/plugin install vibegod-tech-team@vibegod
 ```
 
-**🧩 VS Code (extension)** — type `/plugins` to open the plugin manager → add `StielChancellor/God-Mode-VibeSDE`
-→ install `god-mode-sde`. (Or use the integrated terminal with the commands above.)
+**🧩 VS Code (extension)** — type `/plugins` to open the plugin manager → add `StielChancellor/VibeGod-Tech-Team`
+→ install `vibegod-tech-team`. (Or use the integrated terminal with the commands above.)
 
 **🧠 JetBrains & other IDEs** — open the integrated terminal:
 ```text
-claude plugin marketplace add StielChancellor/God-Mode-VibeSDE
-claude plugin install god-mode-sde@vibe-fde
+claude plugin marketplace add StielChancellor/VibeGod-Tech-Team
+claude plugin install vibegod-tech-team@vibegod
 ```
 
 **💻 Claude Desktop app** — `/plugin` isn't available in the chat, so use the one-line installer (run in a
@@ -97,19 +97,19 @@ terminal, *or* paste it into the Desktop chat and say *"run this"*):
 
 Windows (PowerShell):
 ```powershell
-irm https://raw.githubusercontent.com/StielChancellor/God-Mode-VibeSDE/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/StielChancellor/VibeGod-Tech-Team/main/install.ps1 | iex
 ```
 macOS / Linux (Terminal):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/StielChancellor/God-Mode-VibeSDE/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/StielChancellor/VibeGod-Tech-Team/main/install.sh | bash
 ```
 It finds your Claude CLI (installs it via `npm` if missing), adds the marketplace, installs the plugin,
 and leaves it **off by default** (token-safe). Restart Desktop after.
 
 **Update / uninstall** — from the same surface you installed in:
 ```text
-/plugin update god-mode-sde@vibe-fde       # terminal/Desktop:  claude plugin update god-mode-sde@vibe-fde
-/plugin uninstall god-mode-sde@vibe-fde    # terminal/Desktop:  claude plugin uninstall god-mode-sde@vibe-fde
+/plugin update vibegod-tech-team@vibegod       # terminal/Desktop:  claude plugin update vibegod-tech-team@vibegod
+/plugin uninstall vibegod-tech-team@vibegod    # terminal/Desktop:  claude plugin uninstall vibegod-tech-team@vibegod
 ```
 
 > ⚠️ Never copy the plugin files by hand — always use the commands above, then start a fresh session.
@@ -121,8 +121,8 @@ stay "on call"). **Disabled, it costs 0** — nothing loads. So keep it **off by
 per project:
 
 ```text
-claude plugin disable god-mode-sde@vibe-fde --scope user      # OFF everywhere by default
-claude plugin enable  god-mode-sde@vibe-fde --scope project   # ON for just this project (run inside it)
+claude plugin disable vibegod-tech-team@vibegod --scope user      # OFF everywhere by default
+claude plugin enable  vibegod-tech-team@vibegod --scope project   # ON for just this project (run inside it)
 ```
 
 (In the terminal / VS Code you can also use `/plugin enable|disable`.) Changes apply on the next session —
@@ -137,7 +137,7 @@ claude plugin enable  god-mode-sde@vibe-fde --scope project   # ON for just this
 - **Quality bar everywhere:** TDD and the test pyramid, **OWASP** security and **WCAG 2.2 AA** accessibility
   in build *and* review, and cost-aware stack choices.
 - **Runtime guardrails:** best-effort hooks block secrets-in-code and dangerous shell commands (a safety
-  net, not a hard boundary — fail-open). Soften to warnings with `GODMODE_GUARDRAILS=advisory`.
+  net, not a hard boundary — fail-open). Soften to warnings with `VIBEGOD_GUARDRAILS=advisory`.
 
 ## Meet the team — and when each wakes up
 

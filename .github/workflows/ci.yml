@@ -1,6 +1,6 @@
 name: CI
 
-# Keeps the god-mode-sde plugin green: validates the marketplace/plugin manifests and every
+# Keeps the vibegod-tech-team plugin green: validates the marketplace/plugin manifests and every
 # skill/agent/command frontmatter (zero-dep Node script), cross-checks with the official
 # `claude plugin validate` (catches anything the homegrown linter misses, e.g. YAML that a
 # real parser rejects), and runs the guardrail hook unit tests.
@@ -30,7 +30,7 @@ jobs:
       - name: Cross-check with official Claude plugin validator
         run: |
           npm install -g @anthropic-ai/claude-code
-          claude plugin validate ./plugins/god-mode-sde
+          claude plugin validate ./plugins/vibegod-tech-team
 
       - name: Run guardrail hook unit tests
         run: node ingest/test-hooks.mjs

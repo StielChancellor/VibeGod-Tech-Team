@@ -1,14 +1,14 @@
 {
-  "name": "vibe-fde",
+  "name": "vibegod",
   "owner": {
     "name": "StielChancellor"
   },
-  "description": "God-Mode SDE — a virtual enterprise engineering + product team that guides you through building a platform end-to-end with OWASP/WCAG/OODA baked in and best-effort security/QA guardrails at runtime.",
+  "description": "VibeGod Tech Team — a virtual enterprise engineering + product team that guides you through building a platform end-to-end with OWASP/WCAG/OODA baked in and best-effort security/QA guardrails at runtime.",
   "plugins": [
     {
-      "name": "god-mode-sde",
-      "source": "./plugins/god-mode-sde",
-      "description": "A self-contained, virtual Google/Anthropic-grade SDE team: lead orchestrator + role subagents + battle-tested methodology skills + best-effort security guardrails (heuristic, fail-open — a safety net, not a security boundary). Drives a strict, gated SDLC (PRD -> journey -> stack+cost -> modules -> foundation-first build -> multi-lens QA -> UAT/smoke -> ship).",
+      "name": "vibegod-tech-team",
+      "source": "./plugins/vibegod-tech-team",
+      "description": "A self-contained, virtual Google/Anthropic-grade tech team: lead orchestrator + role subagents + battle-tested methodology skills + best-effort security guardrails (heuristic, fail-open — a safety net, not a security boundary). Drives a strict, gated SDLC (PRD -> journey -> stack+cost -> modules -> foundation-first build -> multi-lens QA -> UAT/smoke -> ship).",
       "category": "development",
       "keywords": [
         "sdlc",

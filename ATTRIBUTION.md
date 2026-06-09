@@ -1,6 +1,6 @@
 # Attribution & Third-Party Notices
 
-God-Mode SDE incorporates ideas and adapted content from the following open-source
+VibeGod Tech Team incorporates ideas and adapted content from the following open-source
 projects. Each was security-scanned before ingestion (see `ingest/reports/`). Licenses
 (MIT / Apache-2.0) and copyright/permission notices are preserved here.
 
@@ -8,7 +8,7 @@ projects. Each was security-scanned before ingestion (see `ingest/reports/`). Li
 Copyright (c) Jesse Vincent (@obra). MIT License.
 Methodology skills (TDD, systematic debugging, planning, code review, parallel-agent
 dispatch, git worktrees, verification-before-completion) are adapted into this plugin's
-`skills/` with modifications for the God-Mode SDE pipeline.
+`skills/` with modifications for the VibeGod Tech Team pipeline.
 
 ## graphify — https://github.com/safishamsi/graphify
 Copyright (c) Safi Shamsi. MIT License.
@@ -17,7 +17,7 @@ auto-install / fallback). The graphify package itself is NOT bundled; users inst
 
 ## andrej-karpathy-skills — https://github.com/multica-ai/andrej-karpathy-skills
 Behavioral coding guidelines (CLAUDE.md) incorporated into
-`skills/_shared/god-mode-principles.md`.
+`skills/_shared/vibegod-principles.md`.
 
 ## Impeccable — https://github.com/pbakaus/impeccable
 **Apache License 2.0, Copyright (c) 2025 Paul Bakaus.** The design-steering TEXT (anti-cliché
