@@ -3,6 +3,7 @@
 > Install one plugin and a **whole software company** shows up inside Claude Code — product, design,
 > security, engineering, QA, and release — and turns your idea into a real, production-grade platform.
 > **You approve. The team does the work.**
+> 27 specialists · 11 departments · 50 skills · 23 commands · **1 coordinator** you talk to.
 
 ---
 
