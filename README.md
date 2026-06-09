@@ -153,19 +153,73 @@ stack — so the system never drifts out of sync.
 
 ### Step 0 · Install (one time)
 Run the two install lines from **[⚡ Quick start](#-quick-start--copy-paste-run-in-claude-code)** above,
-then **start a fresh Claude Code session** so the agents, commands, and guardrails load.
+then **start a fresh Claude Code session**.
 
-### The two ways to drive it
+### 💰 The important bit first: token cost (and how to pay $0)
 
-**A. Just talk to it (easiest).** Open Claude Code in your project folder and say what you want:
+Be smart about this — it's the #1 thing to know:
 
-> *"Build me a web app where small gyms can manage memberships and take payments."*
+- 🟢 **When the team is ON in a project**, it adds **~9.5k tokens to every session** in that project
+  (50 skills load so the whole team is "on call"). The hooks/guardrails are **free** (no token cost).
+- ⚪ **When it's OFF, it costs nothing** — literally 0 tokens. Nothing loads.
 
-The lead coordinator (`sde-orchestrator`) wakes up and walks you through the whole pipeline,
-stopping at each ◆ gate for your approval. You don't need to remember any commands.
+👉 **The move: keep it OFF by default, and flip it ON only in projects where you actually want the
+full dev team.** A quick landing page or a script? Leave it off. Building a real product? Turn it on.
 
-**B. Drive it with commands.** Prefer to steer each stage yourself? Use the slash commands below.
-`/kickoff` is the front door for a brand-new build.
+**Turn it OFF (the money-saving default):**
+```text
+/plugin disable god-mode-sde@vibe-fde
+```
+
+**Turn it ON for a project (when you want the team):**
+```text
+/plugin enable god-mode-sde@vibe-fde
+```
+
+> 🔁 On/off takes effect on the **next** session — **restart Claude Code** after running either.
+> Check anytime: run `claude plugin list` — look for `✔ enabled` or `✘ disabled`.
+
+**Want "off everywhere by default, on only where I choose"?** Do this once:
+```text
+/plugin disable god-mode-sde@vibe-fde --scope user      # off globally by default
+```
+…then inside any project where you want the team:
+```text
+/plugin enable god-mode-sde@vibe-fde --scope project    # on for just this project
+```
+
+### 🆕 Using it from scratch (a brand-new project)
+
+1. Turn it **on** for the project (command above) and restart.
+2. Just say what you want to build — plain English:
+
+> 💬 *"use god-mode-sde to build a booking app for a yoga studio — members sign up, book classes, and pay online"*
+
+Or type `/kickoff`. The team plans it **with you**, gate by gate, before writing any code.
+
+### 🔧 Using it mid-project (you already have code)
+
+You **don't** need to have started with it. Open Claude Code in your existing project, turn it on, restart, then describe the change:
+
+> 💬 *"use god-mode-sde to add Stripe checkout to this app"*
+>
+> 💬 *"use god-mode-sde to fix and harden the login flow"*
+
+Or type `/change-request`. It re-plans and wires the change through your **whole stack** — so you never end up with a half-done feature.
+
+### 🗣️ Engaging with the team
+
+You talk to **one coordinator**, but you can call any specialist by name whenever you want:
+
+> 💬 *"ask the security-architect to review this auth design"*
+>
+> 💬 *"what does the tech-lead say this stack costs to run?"*
+>
+> 💬 *"have the ui-ux-designer make this dashboard less generic"*
+>
+> 💬 *"get the qa-engineer to try and break this feature before we ship"*
+
+It's a front door, not a wall — the coordinator pulls in the right people and reports back.
 
 ### The journey, start to finish
 
@@ -197,17 +251,23 @@ half-wired. `/raid` tracks risks and dependencies across a bigger program; `/gra
 codebase map for accurate "what does this change affect" analysis; `/ingest-scan` security-scans any
 outside skill/repo before you trust it.
 
-### Talking to one specialist
-
-You always talk to the coordinator, but you can ask to hear any specialist directly — e.g.
-*"let me hear the security-architect on this"* or *"what does the tech-lead think about the cost?"*
-It's a front door, not a wall.
-
 ### Tips
 - **You're always in control.** The team never ships past a ◆ gate without your yes.
 - **It won't jump to code.** If you ask it to "just build it", it'll still plan first — that's the point.
 - **Cost is always on the table.** Every expensive choice comes with a cheaper option and what you'd lose.
 - **Security & accessibility are automatic.** You get OWASP + WCAG 2.2 AA without having to ask.
+- **Save tokens:** turn it **off** when you're not building a real product — `/plugin disable god-mode-sde@vibe-fde`.
+
+### 🗑️ Removing it completely
+
+Done with it for good? Uninstall it:
+
+```text
+/plugin uninstall god-mode-sde@vibe-fde
+```
+
+Your projects, code, and files are **untouched** — this only removes the plugin. (Just want a break,
+not a full removal? Use `/plugin disable god-mode-sde@vibe-fde` instead — it keeps it installed but silent.)
 
 ### Every command at a glance
 `/kickoff` · `/triage` · `/prd` · `/journey` · `/stack-and-cost` · `/module-map` · `/design-review` ·
