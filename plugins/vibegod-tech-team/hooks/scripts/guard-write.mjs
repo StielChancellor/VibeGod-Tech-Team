@@ -1,6 +1,10 @@
 // PreToolUse(Edit|Write|MultiEdit): block hardcoded secrets; warn on injection sinks. OWASP A02/A03/A07.
 import { readStdin, hardBlock, advise } from './_lib.mjs';
 
+// Fail OPEN on any unexpected error — never block a legitimate write because the heuristic threw.
+process.on('uncaughtException', () => process.exit(0));
+process.on('unhandledRejection', () => process.exit(0));
+
 const inp = await readStdin();
 const ti = inp?.tool_input ?? {};
 let text = '';
@@ -27,7 +31,7 @@ const secrets = [
   [/\bSG\.[\w-]{22}\.[\w-]{43}\b/, 'SendGrid API key'],
   [/\bnpm_[A-Za-z0-9]{36}\b/, 'npm access token'],
   [/\bsk-[A-Za-z0-9]{32,}\b/, 'OpenAI-style secret key'],
-  [/-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----/, 'Private key block'],
+  [/-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY-----/, 'Private key block'],
 ];
 
 const found = new Set();

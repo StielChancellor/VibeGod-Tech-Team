@@ -3,6 +3,11 @@
 // filtering is inherently bypassable (it widens common-case coverage and fails open).
 import { readStdin, hardBlock, advise } from './_lib.mjs';
 
+// Fail OPEN on any unexpected error — these guards are a best-effort safety net, never a
+// reason to abort a legitimate command because the heuristic itself threw.
+process.on('uncaughtException', () => process.exit(0));
+process.on('unhandledRejection', () => process.exit(0));
+
 const inp = await readStdin();
 const cmd = String(inp?.tool_input?.command ?? '');
 if (!cmd.trim()) process.exit(0);
@@ -42,8 +47,8 @@ if (/--no-preserve-root/.test(cmd) || (recursiveForce && dangerTarget && !buildD
   add('Destructive recursive force-delete (rm -rf) on a root/home/critical/glob target');
 
 // find-based mass delete on a root/critical path
-if ((/\bfind\b[^\n]*\s-delete\b/.test(cmd) || /\bfind\b[^\n]*-exec\s+rm\b/i.test(cmd)) && dangerTarget && !buildDirException)
-  add('Recursive find -delete / find -exec rm on a root/critical path');
+if ((/\bfind\b[^\n]*\s-delete\b/.test(cmd) || /\bfind\b[^\n]*-exec\s+(?:rm|chmod|chown|shred|truncate|dd|mv)\b/i.test(cmd)) && dangerTarget && !buildDirException)
+  add('Recursive find -delete / find -exec (rm|chmod|chown|shred|truncate|dd|mv) on a root/critical path');
 
 // --- Windows / PowerShell destructive deletes (host may be win32) ---
 const winTarget = /(?:[A-Za-z]:\\(?:\*|\s|$|["'`])|[A-Za-z]:\\(?:Windows|System32|Users|Program Files)\b|%SystemRoot%|%USERPROFILE%|%SystemDrive%|\$env:(?:SystemRoot|SystemDrive|USERPROFILE|HOMEPATH)|\$HOME\b|(?:^|\s)~(?:\\|\/|\s|$))/i;
@@ -62,6 +67,12 @@ if (/\bmkfs(?:\.\w+)?\b/.test(cmd) || /\bdd\b[^\n]*\bof=\/dev\/(?:sd|nvme|disk|h
 // fork bomb
 if (/:\s*\(\s*\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;?\s*:/.test(cmd) || /\(\)\s*\{\s*:\|:&\s*\}/.test(cmd))
   add('Fork bomb');
+// fork bomb via an interpreter loop (perl/ruby/php/python) rather than shell syntax
+if (/\b(?:perl|ruby|php)\b[^\n]*\bfork\b[^\n]*\b(?:while|for)\b/i.test(cmd) ||
+    /\bfork\b[^\n]*\bwhile\b[^\n]*\bfork\b/i.test(cmd) ||
+    /while\s+True\s*:[\s\S]*os\.fork\s*\(/i.test(cmd) ||
+    /os\.fork\s*\([\s\S]*\b(?:while|for)\b/i.test(cmd))
+  add('Fork bomb (interpreter loop spawning processes)');
 
 // remote code execution: pipe download to a shell / interpreter.
 // `[^\n]*` (not `[^\n|]*`) tolerates intermediate stages, e.g. `curl x | cat | bash`.
@@ -100,7 +111,7 @@ if (findings.length)
 
 // Advisory (non-blocking): recursive force-delete whose target is a shell variable we can't
 // resolve statically — could expand to / or $HOME. Too noisy to hard-block.
-if (recursiveForce && /\brm\b[^\n]*\s["']?\$\{?\w+\}?/.test(cmd) && !/\$\{?HOME\}?\b/.test(cmd))
-  advise('PreToolUse', '[VIBEGOD advisory] `rm -rf` targets a shell variable — confirm it cannot expand to `/`, `~`, or a critical path before running.');
+if (recursiveForce && (/\brm\b[^\n]*\s["']?\$\{?\w+\}?/.test(cmd) || /\brm\b[^\n]*\$\(/.test(cmd)) && !/\$\{?HOME\}?\b/.test(cmd))
+  advise('PreToolUse', '[VIBEGOD advisory] `rm -rf` targets a shell variable or command substitution — confirm it cannot expand to `/`, `~`, or a critical path before running.');
 
 process.exit(0);
