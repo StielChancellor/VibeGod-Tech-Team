@@ -256,7 +256,7 @@ skills, and pipeline are exactly what makes the team stronger.
 This is **source-available, not a free-for-all** — see [`LICENSE`](LICENSE) for the exact terms. In plain English:
 
 - ✅ **Personal & non-commercial use is free.** Use it, learn from it, build your own projects with it.
-- 💼 **Commercial use is allowed — but you must give visible credit** to the author (ITCHL) with a link back to this repo.
+- 💼 **Commercial use is allowed — but you must give visible credit** to the author with a link back to this repo.
 - 🔁 **Changed the code? Contribute it back.** Any modification to this project's code must be submitted as a pull request to this repository.
 - 🚫 **No rebranding / reselling it as your own** product without permission.
 
