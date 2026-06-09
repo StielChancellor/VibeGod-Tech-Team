@@ -79,6 +79,15 @@ const server = createServer((req, res) => {
   res.writeHead(404); res.end('not found');
 });
 
+server.on('error', (e) => {
+  if (e && e.code === 'EADDRINUSE') {
+    console.error(`\nPort ${PORT} is already in use. Pick another with --port <n> (or set JOURNEY_CANVAS_PORT), then retry.`);
+    process.exit(1);
+  }
+  console.error(`\nCanvas server error: ${e?.message || e}`);
+  process.exit(1);
+});
+
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`\nVibeGod journey canvas → http://localhost:${PORT}`);
   console.log(`Editing: ${STATE_FILE}`);

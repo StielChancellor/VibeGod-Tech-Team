@@ -3,6 +3,23 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.6.1] — Acceptance test: guardrail hardening
+### Fixed (clear-win weak links found by the adversarial hook break-tests)
+- **Guardrails now fail OPEN on internal error.** `guard-bash`/`guard-write` install
+  `uncaughtException`/`unhandledRejection` handlers that exit 0 — a thrown heuristic never aborts a
+  legitimate command/write (they're a best-effort safety net, not a boundary).
+- **`guard-bash`:** `find … -exec (chmod|chown|shred|truncate|dd|mv)` on a critical path now blocks
+  (previously only `-delete`/`-exec rm`); interpreter fork-bombs (`perl/ruby/php/python … fork … while`)
+  now block; `rm -rf $(…)` command-substitution targets now raise an advisory (previously silent).
+- **`guard-write`:** private-key detection extended to `ENCRYPTED PRIVATE KEY` (PKCS#8 encrypted) headers.
+- **`ingest/test-hooks.mjs`:** +4 cases for the above (now **46/46**).
+- **journey canvas server:** handles `EADDRINUSE`/listen errors gracefully (friendly message + exit 1)
+  instead of an unhandled `error` event crash.
+### Accepted (inherent heuristic limits — documented, not "fixed")
+- Fully runtime-resolved indirection (e.g. a dangerous path entirely inside a shell variable, or a
+  base64-decoded command target) can't be statically caught — these now warn where detectable, but the
+  guards remain best-effort and fail-open by design.
+
 ## [0.6.0] — Rebrand: God-Mode SDE → VibeGod Tech Team
 ### Changed
 - **Full rebrand.** Display name `God-Mode SDE` → **`VibeGod Tech Team`**; plugin id `god-mode-sde`
