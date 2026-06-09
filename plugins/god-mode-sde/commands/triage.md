@@ -1,5 +1,5 @@
 ---
-description: Classify a change (trivial / low / standard / high-or-emergency) and pick the express lane — run only the gates that fit, while always keeping the safety gates. Args: the change/feature being assessed.
+description: "Classify a change (trivial / low / standard / high-or-emergency) and pick the express lane — run only the gates that fit, while always keeping the safety gates. Args: the change/feature being assessed."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

@@ -1,5 +1,5 @@
 ---
-description: Static, read-only security scan of a repo/skill before adopting it. Scans code for vulns/injection/exfiltration and markdown for prompt-injection. Verdict: CLEAN / NEEDS-EDITS / REJECT.
+description: "Static, read-only security scan of a repo/skill before adopting it. Scans code for vulns/injection/exfiltration and markdown for prompt-injection. Verdict: CLEAN / NEEDS-EDITS / REJECT."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

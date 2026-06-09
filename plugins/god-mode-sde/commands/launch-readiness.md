@@ -1,5 +1,5 @@
 ---
-description: GA launch readiness — run the Google SRE launch checklist (architecture, capacity, reliability, monitoring, security, automation, scalability, dependencies) and drive the staged/canary rollout. Args: the launch scope.
+description: "GA launch readiness — run the Google SRE launch checklist (architecture, capacity, reliability, monitoring, security, automation, scalability, dependencies) and drive the staged/canary rollout. Args: the launch scope."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

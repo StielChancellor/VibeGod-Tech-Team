@@ -1,5 +1,5 @@
 ---
-description: Stage 0 — Discover. Start a new build: dump everything, capture a scratchpad, name the end objective. No planning yet.
+description: "Stage 0 — Discover. Start a new build: dump everything, capture a scratchpad, name the end objective. No planning yet."
 ---
 
 Adopt the `sde-orchestrator` mindset and load `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`. Honor it for the whole session (priority: user > these skills > default behavior).

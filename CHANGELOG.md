@@ -3,6 +3,26 @@
 All notable changes to the `god-mode-sde` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] — Unreleased (frontmatter integrity fix)
+### Fixed
+- **13 skills/commands silently loaded with EMPTY metadata.** Their YAML frontmatter
+  `description:` values were unquoted but contained a colon-space (`: `) — e.g. "Start a new
+  **build: dump** everything", a trailing "**Args: **…", "**Verdict: **…", or "a hard **gate: **…".
+  A real YAML parser reads `: ` as a nested mapping → "Unexpected token" → it drops the ENTIRE
+  frontmatter, so those commands shipped with no description (blank in the `/` menu) and
+  `build-roadmap` lost its `name`, `description`, AND `allowed-tools`. Affected: `build-roadmap`
+  (skill) + commands `compliance-check, docs-check, incident, ingest-scan, kickoff,
+  launch-readiness, perf-check, polish, raid, release, triage, ux-check`. All values are now
+  quoted (inner quotes escaped). Verified with the official `claude plugin validate` (✔ pass).
+- **Hardened `ingest/validate.mjs`** so this class can't regress: it now rejects unquoted
+  frontmatter scalars a YAML parser would choke on (colon-space, trailing colon, inline `' #'`,
+  or a leading indicator char). Previously its field regex grabbed everything after the first
+  colon, so it reported "clean" while the real parser failed. Mutation-tested (re-breaking a
+  file is now caught).
+- **CI cross-checks with the official validator.** The GitHub Action now also runs
+  `claude plugin validate ./plugins/god-mode-sde` (installs `@anthropic-ai/claude-code`) so
+  anything the homegrown linter misses is caught upstream. Hooks still 42/42.
+
 ## [0.4.0] — Unreleased (enterprise-coverage gaps from the audit)
 ### Added — close the top audit gaps (each research-backed + cited)
 - **Gap #1 — analytics-engineer + `analytics-instrumentation` skill:** tracking-plan-as-contract,

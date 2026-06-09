@@ -1,5 +1,5 @@
 ---
-description: Program/Delivery — stand up and maintain the RAID log (Risks, Assumptions, Issues, Dependencies, Decisions) and track cross-team status. Args: optional focus (a risk, dependency, or milestone).
+description: "Program/Delivery — stand up and maintain the RAID log (Risks, Assumptions, Issues, Dependencies, Decisions) and track cross-team status. Args: optional focus (a risk, dependency, or milestone)."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

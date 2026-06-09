@@ -1,5 +1,5 @@
 ---
-description: Performance & scale gate — load/stress/soak/spike testing vs SLAs (p50/p95/p99, throughput, error rate), perf budgets, capacity planning, Core Web Vitals. Args: the target/scenario.
+description: "Performance & scale gate — load/stress/soak/spike testing vs SLAs (p50/p95/p99, throughput, error rate), perf budgets, capacity planning, Core Web Vitals. Args: the target/scenario."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

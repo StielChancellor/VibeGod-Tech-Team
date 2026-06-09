@@ -1,5 +1,5 @@
 ---
-description: Release coordination — version the release, run change management/CAB, sequence the deployment, write release notes, and make the go/no-go call. Args: the release scope/version.
+description: "Release coordination — version the release, run change management/CAB, sequence the deployment, write release notes, and make the go/no-go call. Args: the release scope/version."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

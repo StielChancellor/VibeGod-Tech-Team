@@ -1,5 +1,5 @@
 ---
-description: Pre-ship Compliance gate — SOC2/ISO27001/GDPR/HIPAA/PCI + VPAT/Section 508 accessibility conformance, audit evidence, data retention, privacy-by-design. Args: scope/frameworks in play.
+description: "Pre-ship Compliance gate — SOC2/ISO27001/GDPR/HIPAA/PCI + VPAT/Section 508 accessibility conformance, audit evidence, data retention, privacy-by-design. Args: scope/frameworks in play."
 ---
 
 Adopt the `sde-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/god-mode-principles.md`.

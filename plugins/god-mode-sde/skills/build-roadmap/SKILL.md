@@ -1,6 +1,6 @@
 ---
 name: build-roadmap
-description: Use to create the foundation-first build plan before any coding starts — the shared base all modules sit on, then the modules, with milestones and explicit TDD, UAT, smoke-test, and QA plans. Trigger on "make the build plan", "what do we build first", "plan the implementation", "roadmap the work". Ends with a hard gate: explicit user go-ahead before the coding agents run.
+description: "Use to create the foundation-first build plan before any coding starts — the shared base all modules sit on, then the modules, with milestones and explicit TDD, UAT, smoke-test, and QA plans. Trigger on \"make the build plan\", \"what do we build first\", \"plan the implementation\", \"roadmap the work\". Ends with a hard gate: explicit user go-ahead before the coding agents run."
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
