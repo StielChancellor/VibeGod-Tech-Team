@@ -1,21 +1,62 @@
-MIT License
+God-Mode SDE License v1.0
+(Source-Available — Personal-Free · Commercial-with-Credit · Contribute-Back)
 
 Copyright (c) 2026 ITCHL
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This is a custom, source-available license. It is NOT an OSI-approved open-source
+license. By using, copying, or modifying this software you agree to these terms.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. DEFINITIONS
+   "Software" means the original God-Mode SDE work in this repository: its agents,
+   skills, commands, hooks, pipeline, and documentation — EXCLUDING the third-party
+   components listed in Section 6.
+   "You" means the individual or entity exercising rights under this license.
+   "Commercial Use" means any use primarily intended for or directed toward commercial
+   advantage or monetary compensation — including use inside a for-profit organization,
+   in a paid product or service, or for paid client work.
+   "Personal Use" means any use that is not Commercial Use — including personal projects,
+   learning, evaluation, research, and non-commercial open-source work.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. PERSONAL USE — FREE
+   You may use, run, and modify the Software for Personal Use free of charge, subject to
+   Sections 4 and 5.
+
+3. COMMERCIAL USE — ALLOWED WITH CREDIT
+   You may use the Software for Commercial Use only if you give clear, visible attribution
+   to the author ("Built with God-Mode SDE by ITCHL") together with a link to this
+   repository, in a reasonable and customary place (e.g. an About page, docs, credits, or
+   repository README). All other terms (Sections 4 and 5) still apply.
+
+4. MODIFICATIONS — CONTRIBUTE BACK
+   If You modify the code of the Software, You must submit those modifications back to this
+   repository as a pull request. You may run and use Your modified version while the pull
+   request is pending. This requirement applies to changes to the Software itself; it does
+   NOT apply to the separate applications, platforms, or products You build BY USING the
+   Software (those are yours).
+
+5. NO REBRANDING OR RESELLING AS YOUR OWN
+   You may not redistribute, republish, or resell the Software — modified or not — as your
+   own product, plugin, or marketplace, or under a different name or branding, without the
+   prior written permission of the author. Using the Software to build and ship your own
+   distinct applications is encouraged and is not "reselling the Software."
+
+6. THIRD-PARTY COMPONENTS
+   The Software incorporates adapted content from third-party open-source projects (see
+   ATTRIBUTION.md), provided under their original licenses (MIT / Apache-2.0). Those
+   components remain governed by their respective licenses, and nothing in this license
+   limits or revokes any right granted to You by those licenses for those components. Their
+   copyright and permission notices are preserved in ATTRIBUTION.md.
+
+7. CONTRIBUTIONS
+   Contributions are welcome. By submitting a contribution (e.g. a pull request) You agree
+   that it is licensed to the project and its users under this same license.
+
+8. DISCLAIMER OF WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+   PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+   OR OTHER DEALINGS IN THE SOFTWARE.
+
+For commercial terms different from the above, open an issue on this repository.
