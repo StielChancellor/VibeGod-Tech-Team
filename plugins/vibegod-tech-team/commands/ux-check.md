@@ -8,11 +8,13 @@ one most recently built/changed).
 Load `vibegod-principles.md` and the `ui-ux-excellence` skill, then delegate to the
 **`ux-design-reviewer`** agent. It must:
 
-1. Render the target across the breakpoint matrix (320 / 375 / 768 / 1024 / 1280 / 1440 / 1920).
-   Preferred: the bundled tool — `node "${CLAUDE_PLUGIN_ROOT}/skills/ui-ux-excellence/tools/visual-check.mjs"
-   --url <url>` (portable Playwright; screenshots + `report.json`, exit 1 if broken; first run needs
-   `npm i -D playwright && npx playwright install chromium`). Else a Preview/Chrome MCP or the project's
-   run/preview skill. If no live rendering is possible, do static analysis and say so.
+1. **Render the target** across the breakpoint matrix (320 / 375 / 768 / 1024 / 1280 / 1440 / 1920) —
+   a live render is **required**, not optional. Use the bundled tool:
+   `node "${CLAUDE_PLUGIN_ROOT}/skills/ui-ux-excellence/tools/visual-check.mjs" --url <url>`
+   (portable Playwright; screenshots + `report.json`, exit 1 if broken). **If Playwright isn't installed,
+   INSTALL it** (`npm i -D playwright && npx playwright install chromium`) — do not skip. Acceptable
+   alternatives: a Preview/Chrome MCP or the project's run/preview skill. **Static analysis can only FAIL a
+   page, never PASS it** — if no live render is possible at all, return **BLOCKED/UNVERIFIED** (not PASS).
 2. Check the `ui-ux-excellence` rules at each width: broken-UI list (overflow/overlap/truncation/broken
    images/off-token/CLS/z-index/contrast/touch targets), usability heuristics, color (60-30-10 + WCAG
    contrast, never color-alone), typography, 8-pt spacing, token consistency, the four states,

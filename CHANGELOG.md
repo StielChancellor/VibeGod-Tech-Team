@@ -3,6 +3,27 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.0] — Mandatory render before "UI done" + machine-enforced visual CI gate
+### Added / Changed
+- **No UI is "ready/complete/looks-right" without a fresh render.** Closes the loophole that let an
+  agent (and the maintainer, this session) skip Playwright and "eyeball" / static-analyze UI:
+  - `verification-before-completion`: new **rule 6** (UI = render it, not describe it; install Playwright
+    if missing; "static analysis" is never appearance evidence; no render possible → UNVERIFIED, never PASS)
+    + Common-Failures and Rationalization rows.
+  - `claim-verifier`: new **check #6** — a UI "done/looks-right" claim with no render is **REFUTED until rendered**.
+  - `ux-design-reviewer` / `ux-check` / `ui-ux-excellence`: a **live render is REQUIRED to PASS**; static
+    analysis can only FAIL; missing Playwright → **install it, don't skip**; no render → **BLOCKED/UNVERIFIED**.
+  - `feature-check`: the `ux-design-reviewer` render is now an explicit **required lens for any UI feature**
+    (was missing inline); a UI feature can't close without the screenshots/`report.json`.
+  - `advise-posttool` hook: editing a UI file (.tsx/.jsx/.vue/.svelte/.css/.scss/.html…) now auto-nudges
+    "render it before calling it done." (+ a hook test; suite green.)
+- **Machine-enforced visual CI gate (the robust, un-forgettable part):** new reusable workflow template
+  `skills/devops-delivery/templates/visual-check.ci.yml` — installs Playwright, builds/serves the app, runs
+  `visual-check.mjs` across breakpoints, uploads screenshots+report, and **fails the build on broken UI**.
+  Wired into `devops-delivery` (Stage-6 CI), and added to the `launch-readiness` + `release` pre-ship gates.
+- Honest limit: the in-session rules are still model-followed (a plugin can't hard-block a "done" claim) —
+  the **CI gate** is the true mechanical enforcement. Bump 0.7.3 → 0.8.0.
+
 ## [0.7.3] — Journey canvas: light-theme background fix
 ### Fixed
 - The light theme (0.7.2) carried over the dark theme's **two radial gradients**, which on a light

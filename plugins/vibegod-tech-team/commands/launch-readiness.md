@@ -10,7 +10,8 @@ Delegate to **release-manager** + **devops-sre** (driven by **release-management
 1. Run the **SRE launch-readiness checklist** (9 categories): architecture, infrastructure, capacity,
    reliability/failover, monitoring/alerting, security, automation, scalability, dependencies.
 2. Confirm must-pass items: critical defects = 0, all gates signed (QA/security/compliance/perf/docs),
-   monitoring + alerts live, **runbooks** written, on-call + **incident** escalation defined.
+   **the visual-check CI gate green for any UI** (cross-breakpoint render passing in CI — not just an
+   agent's say-so), monitoring + alerts live, **runbooks** written, on-call + **incident** escalation defined.
 3. Execute the **staged/canary rollout**: 10% → 25% → 50% → 100% with an observe window at each step and
    error-rate/latency thresholds; **roll back** automatically if a threshold trips.
 4. Declare GA only when every category passes.

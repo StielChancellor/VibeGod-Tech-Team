@@ -1,0 +1,43 @@
+# VibeGod Tech Team — visual-check CI gate (cross-breakpoint UI regression).
+#
+# WHY: a UI regression must not merge just because an agent forgot to render. This runs the
+# visual check on a MACHINE on every push/PR and FAILS the build on broken UI — the un-forgettable gate.
+#
+# SETUP (devops-sre, Stage 6):
+#   1. Vendor the checker into your repo so CI can run it without the plugin cache:
+#        cp "<plugin>/skills/ui-ux-excellence/tools/visual-check.mjs" scripts/visual-check.mjs
+#   2. Fill the three TODOs below (build, start/serve, and the URL/port).
+#   3. Commit this file to .github/workflows/visual-check.yml. Mark the job a required check (branch protection).
+#
+# visual-check.mjs exit codes: 0 = clean · 1 = broken UI (FAILS the job) · 2 = usage error · 3 = Playwright missing.
+name: visual-check
+on:
+  push:
+  pull_request:
+jobs:
+  visual-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright + Chromium
+        run: npm i -D playwright && npx playwright install --with-deps chromium
+      - name: Build the app
+        run: npm run build            # TODO: your build command (or remove if not needed)
+      - name: Start the app (serve a URL in the background)
+        run: |
+          npm run start &             # TODO: your start/preview command (Vite: `npm run preview`, Next: `npm run start`)
+          npx --yes wait-on http://localhost:3000 --timeout 90000   # TODO: your URL/port
+      - name: Visual-check across breakpoints
+        run: node scripts/visual-check.mjs --url http://localhost:3000 --out visual-check-report   # TODO: vendored path + your URL
+      - name: Upload screenshots + report (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-check-report
+          path: visual-check-report
+# The `Visual-check across breakpoints` step exits 1 if ANY breakpoint is broken → the job fails → merge is blocked.

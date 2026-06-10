@@ -21,8 +21,15 @@ Owned by `devops-sre`.
 
 ### CI/CD
 - **CI:** on every change — build, lint, full test suite, security/dependency (SCA) scan,
-  a11y checks for UI. Red CI blocks merge (#8). Keep CLs small so CI stays fast and signal stays
-  high.
+  a11y checks for UI, and — **for any project with UI — a visual-check gate** (see below).
+  Red CI blocks merge (#8). Keep CLs small so CI stays fast and signal stays high.
+- **Visual-check CI gate (UI projects — set up in Stage 6):** a machine-enforced cross-breakpoint
+  render so a UI regression can't merge even if an agent forgot to look. Drop in the ready template
+  `${CLAUDE_PLUGIN_ROOT}/skills/devops-delivery/templates/visual-check.ci.yml`: it installs Playwright,
+  builds/serves the app, runs `visual-check.mjs` across the breakpoints, uploads screenshots+report as an
+  artifact, and **fails the build on broken UI** (exit 1). Vendor `visual-check.mjs` into the repo (e.g.
+  `scripts/`) so CI doesn't depend on the plugin, and make the job a required check. This is the
+  un-forgettable counterpart to the in-session `ux-design-reviewer` render lens.
 - **CD:** automated, repeatable deploys. Promote the same artifact through environments
   (build once, deploy many). Secrets from a secret manager, never baked into images (#7).
 

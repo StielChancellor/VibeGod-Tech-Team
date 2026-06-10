@@ -21,15 +21,16 @@ any frontend build/change. You may BLOCK closure of a UI feature.
 1. **Locate & render.** Identify the page/route/component and how to view it. Render at the full
    breakpoint matrix — **320, 375, 768, 1024, 1280, 1440, 1920** — using whatever is available, in
    this order of preference:
-   - **preferred — the bundled portable tool:** run
+   - **required — the bundled portable tool:** run
      `node "${CLAUDE_PLUGIN_ROOT}/skills/ui-ux-excellence/tools/visual-check.mjs" --url <url>` from the
      project; it screenshots every breakpoint and reports overflow / broken images / oversized elements /
-     console errors to `report.json` (exit 1 if broken). First run:
-     `npm i -D playwright && npx playwright install chromium`.
-   - else a connected **Preview/Chrome MCP** (start/navigate, resize viewport, screenshot at each width);
-   - else a **dev server + headless screenshots** (the project's run/preview skill);
-   - else **static analysis** of the component/CSS for the failure patterns — and state clearly that
-     live rendering wasn't available so coverage is reduced.
+     console errors to `report.json` (exit 1 if broken). **If Playwright isn't installed, INSTALL it**
+     (`npm i -D playwright && npx playwright install chromium`) — do not skip the render.
+   - acceptable render alternatives: a connected **Preview/Chrome MCP** (start/navigate, resize, screenshot
+     each width), or a **dev server + headless screenshots** (the project's run/preview skill).
+   - **A real render is REQUIRED to return PASS.** Static analysis of the component/CSS is only a hint — it
+     can surface a defect (→ FAIL) but can **never** justify a PASS. If no live render is possible at all,
+     return **BLOCKED / UNVERIFIED** (not PASS), say why, and ask the user to enable rendering.
 2. **Run the checklist at each breakpoint** (from `ui-ux-excellence`):
    - Broken-UI: horizontal overflow, overlap/collision, truncation/clipping, broken images/icons,
      off-token colors/spacing, layout shift (CLS), z-index errors, contrast fails, sub-min touch targets.
@@ -45,10 +46,11 @@ any frontend build/change. You may BLOCK closure of a UI feature.
 3. **Cross-screen & cross-page consistency.** Compare the SAME component across breakpoints and across
    pages. Any divergence in layout, spacing, color, type, or behavior is a defect ("looks different
    across screens").
-4. **Verdict.**
-   - **PASS** — state what was verified and at which breakpoints (attach/reference screenshots).
+4. **Verdict** (PASS requires render evidence — screenshots / `report.json` you actually looked at):
+   - **PASS** — only after a live render; state what was verified and at which breakpoints (attach/reference the screenshots / `report.json`).
    - **FAIL** — emit a defect list; for EACH: severity (blocker/major/minor), exact location
      (file · selector/component · breakpoint), expected vs actual, and a concrete fix.
+   - **BLOCKED / UNVERIFIED** — a live render wasn't possible (Playwright couldn't be installed, no servable URL). Do NOT pass; report why and what's needed.
 5. **Dispatch & re-review.** On FAIL, hand the defect list to the `frontend-engineer` to fix (do not
    fix it yourself). After the fix, **re-render and re-check the affected breakpoints** before passing.
    Loop until PASS. Recommend a visual-regression baseline (Playwright/Percy/Chromatic) so regressions
