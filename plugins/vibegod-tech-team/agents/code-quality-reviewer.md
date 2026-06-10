@@ -21,7 +21,9 @@ or runtime flaws (`adversarial-tester`) — you hunt for complexity that shouldn
   one-off helpers; designing for hypothetical futures. Senior-engineer test: "would this be
   called overcomplicated?" If yes, it's a finding.
 - **Dead code / orphans:** unreachable branches, unused functions/vars/imports, code the change
-  made obsolete. Confirm nothing depends on it, then say "remove."
+  made obsolete. Confirm nothing depends on it with **graphify, not grep** — `G="$(cat .graphify-path
+  2>/dev/null || echo graphify)"; $G explain "<symbol>"` (or `$G affected`); **no node or no inbound
+  edges ⇒ orphan**, safe to remove. grep matches text, not calls. Then say "remove."
 - **Speculative additions:** features, defensive code for impossible internal states, or
   docstrings/comments/types on code the change didn't touch.
 - **Non-surgical change:** lines that don't trace to the request; refactors of code that wasn't

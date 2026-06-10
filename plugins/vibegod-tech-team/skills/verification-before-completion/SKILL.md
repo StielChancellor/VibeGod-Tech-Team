@@ -92,11 +92,11 @@ root-cause story, and "fixed / works / passing / non-issue" claim.
 
 **1. Full-path propagation — trace and verify each link:**
 `data model / schema → API / contract / events → frontend / UI → EVERY call site → docs → tests`
-- Search the whole repo for references to the thing you changed (renamed field, removed endpoint, new param). Update them ALL. Show the search.
+- Find every dependent/call site with **graphify, not grep** — `G="$(cat .graphify-path 2>/dev/null || echo graphify)"; $G affected "<symbol>" --depth 2` (grep matches text, not calls). Update them ALL; show the query. No graph yet → `/graph`. (Tool-selection table in `codebase-knowledge-graph`.)
 - A new field exists in the DB AND the API response AND the UI AND its tests — or it isn't done.
 - A removed endpoint is gone from the backend AND every caller AND the docs that advertised it.
 
-**2. No dead / obsolete code:** the change makes some code unreachable (old endpoint, replaced helper, orphaned component, stale flag)? Confirm nothing depends on it, then remove it. Grep proves it's unreferenced.
+**2. No dead / obsolete code:** the change makes some code unreachable (old endpoint, replaced helper, orphaned component, stale flag)? Confirm nothing depends on it with **graphify** (`$G affected/explain "<symbol>"` — **no node / no inbound edges ⇒ orphan**), then remove it. grep matches text, not calls — use it only to confirm a literal string.
 
 **3. UI ↔ backend in sync:** no UI element without a working backend behind it; no backend feature the UI still advertises after removal; no half-wired feature working in one place but broken in another. Verify the round trip, not just one side.
 
@@ -134,7 +134,7 @@ root-cause story, and "fixed / works / passing / non-issue" claim.
 **Build:** `[run build] [see exit 0] "Build passes"` ❌ "Linter passed".
 **Requirements:** `Re-read plan → checklist → verify each → report gaps or completion` ❌ "Tests pass, phase complete".
 **Agent delegation:** `Agent reports success → check VCS diff → verify changes → report actual state` ❌ trust the report.
-**Consistency:** `Grep every call site → update all → remove dead code → verify UI↔backend round trip → confirm PRD→...→code propagation` ❌ "I changed the one file I was looking at".
+**Consistency:** `graphify the impact set (affected/explain) → update every call site → remove dead code (no inbound edges) → verify UI↔backend round trip → confirm PRD→...→code propagation` ❌ "I grepped the one symbol I was looking at".
 
 ## When To Apply
 

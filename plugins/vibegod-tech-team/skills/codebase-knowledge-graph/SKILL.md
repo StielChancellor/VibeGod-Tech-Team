@@ -18,20 +18,37 @@ Investigate before asserting impact: query the graph, don't guess what depends o
 ## On invocation — detect, then choose a path
 
 ### 1. Detect
-Check whether graphify is installed:
+Check whether graphify is installed (try both — on Windows, pip often installs it OFF the PATH):
 ```
 graphify --version
+python -m graphify --version
 ```
-- If it responds → use graphify (skip to "Using graphify").
+- If either responds → **resolve & persist the invocation (step 1b)**, then go to "Using graphify".
 - If not found → present the two options below. Don't silently pick.
+
+### 1b. Resolve & persist the invocation (the step that stops agents falling back to grep)
+The #1 reason a built graph goes unused is a bare `graphify` that isn't on the PATH — on Windows pip
+drops it in `%APPDATA%\Python\Python3xx\Scripts\graphify.exe`, so `graphify` "command not found" and the
+agent reaches for grep instead. Resolve a command that actually runs, in this order:
+1. `graphify` (already on PATH) · 2. `python -m graphify` (PATH-independent) · 3. the absolute exe —
+   Windows: `%APPDATA%\Python\Python3*\Scripts\graphify.exe`; POSIX: `~/.local/bin/graphify`.
+
+Write that working invocation (one line) to **`.graphify-path`** at the repo root, and **add
+`.graphify-path` to `.gitignore`** (it's machine-specific). Every later step and subagent reads it:
+```
+G="$(cat .graphify-path 2>/dev/null || echo graphify)"   # the resolved graphify invocation
+$G --version
+```
+A bare-command failure must NEVER be the reason to fall back to grep — re-resolve, or run `/graph`.
 
 ### 2a. Offer to auto-install the latest
 Offer to install graphify and CONFIRM it succeeded:
 ```
 pip install git+https://github.com/safishamsi/graphify.git
 ```
-After installing, re-run `graphify --version` to **confirm success** before relying on it. If
-the install fails (no network, no pip, error), report it honestly and fall back to 2b.
+After installing, re-run `graphify --version` (or `python -m graphify --version`) to **confirm success**,
+then **persist the resolved invocation (step 1b)**. If the install fails (no network, no pip, error),
+report it honestly and fall back to 2b.
 
 ### 2b. Offer to proceed WITHOUT graphify (lighter built-in fallback)
 Also offer to proceed without installing. If the user chooses this, use the lighter fallback and
@@ -48,12 +65,32 @@ best-effort map, not a real program-analysis graph.
   would catch. Recommend installing graphify when the codebase grows.
 
 ## Using graphify
-- Build/refresh the graph for the repo, then query it for the **impact set** of a change (what
-  depends on the symbol/module being changed). Feed that set into `change-propagation` so every
-  dependent and call site is updated — no orphans.
-- Refresh after each change so the graph stays current; a stale graph gives false confidence.
+Always invoke via the resolved command: `G="$(cat .graphify-path 2>/dev/null || echo graphify)"`.
+Build/refresh the graph, then **QUERY it** — don't grep for call sites:
+```
+$G affected "<symbol>" --depth 2   # blast radius: everything that (transitively) depends on <symbol>
+$G explain "<symbol>"              # what <symbol> is + its direct callers/callees (dependents)
+$G query "<question>"              # natural language, e.g. "what depends on the auth middleware?"
+$G path "<A>" "<B>"                # the dependency path from A to B
+```
+(Confirm exact subcommand names with `$G --help` if one differs.) Reading the result:
+- **Orphan / dead code** = the symbol has **no node**, or **no inbound edges** (nothing depends on it).
+- **Impact set** of a change = the `affected` set — feed it into `change-propagation` so every dependent
+  and call site is updated. Refresh after each change; a stale graph gives false confidence.
+
+## Which tool for which question — graphify is for the GRAPH, grep is for TEXT
+| Question / task | Use | Not |
+|---|---|---|
+| "what depends on X / who calls X / call sites of X" | graphify `affected` / `explain` | grep — it matches *text*, not calls |
+| orphan / dead-code / "is this used anywhere?" | graphify (no node / no inbound edges ⇒ orphan) | grep — misses dynamic/indirect refs |
+| blast radius / impact of a change | graphify `affected --depth N` | memory / guessing |
+| exact line, string, or literal-text confirmation | `grep` / `Read` | graphify |
+| lint / format · run tests · dependency CVEs | ruff/eslint · pytest/vitest · pip-audit/npm audit | grep |
+
+Use grep only to **confirm a literal string** after graphify has given you the impact set — never as the
+primary way to find dependents or to prove something is unused.
 
 ## Discipline
-- Honesty over polish: never imply the fallback equals graphify. Cross-check graph results with a
-  repo search when the stakes are high (deletions, contract changes). The graph informs the
-  change; the consistency/no-orphans check at Stage 7 still verifies it.
+- Honesty over polish: never imply the fallback equals graphify. For high-stakes changes (deletions,
+  contract changes), cross-check the graph result with a targeted grep — the graph informs the change;
+  the consistency/no-orphans check at Stage 7 still verifies it.

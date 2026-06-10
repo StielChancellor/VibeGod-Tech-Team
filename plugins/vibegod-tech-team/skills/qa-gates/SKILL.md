@@ -24,11 +24,14 @@ Before a feature is marked done, dispatch these agents **in parallel**; all must
 3. **`adversarial-tester`** — flaw-finding: attack the feature, hunt edge cases, boundary
    conditions, race conditions, malformed input; find and fix defects.
 4. **`qa-engineer`** — functional QA from frontend, backend, USER, and code perspectives. Verifies
-   it works as intended AND runs the **consistency / no-orphans check**:
+   it works as intended AND runs the **consistency / no-orphans check** — using **graphify, NOT grep**,
+   for every call-site/dependency/orphan/impact question (`G="$(cat .graphify-path 2>/dev/null || echo
+   graphify)"; $G affected/explain "<symbol>"`; grep only confirms a literal string; no graph → `/graph`;
+   see `codebase-knowledge-graph`):
    - UI ↔ backend in sync (no UI element without a working backend; no removed backend the UI
      still advertises).
-   - Every call site of changed code updated; no half-wired feature.
-   - No dead/orphaned code the change left behind.
+   - Every call site of changed code updated (graphify `affected`); no half-wired feature.
+   - No dead/orphaned code the change left behind (graphify: a symbol with no node / no inbound edges).
    - Accessibility (WCAG 2.2 AA) + cross-browser/perf budgets for UI.
 5. **`ux-design-reviewer`** (UI features only) — first confirm the feature passed **`/polish`**
    (`design-refinement`), then render across the breakpoint matrix and gate on `ui-ux-excellence`:
