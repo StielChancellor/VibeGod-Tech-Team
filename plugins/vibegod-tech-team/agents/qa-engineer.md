@@ -24,9 +24,12 @@ This is the most common failure. Verify:
 - UI ↔ backend in sync: every UI element has a working backend; no backend feature the UI still
   advertises after removal; no half-wired feature working in one place but not another.
 - The full path is updated: data model → API → frontend → **every call site** → docs → tests.
-  Search the repo for stragglers.
+  Find call sites/dependents with **graphify, not grep** (`G="$(cat .graphify-path 2>/dev/null || echo
+  graphify)"; $G affected "<symbol>" --depth 2`); grep matches text, not calls — use it only to confirm
+  a literal string. No graph yet → run `/graph`.
 - The change propagated through artifacts: PRD → blueprint → roadmap → graphify → code.
-- No dead code the change orphaned. Flag any orphan you find as a blocker.
+- No dead code the change orphaned (graphify: a symbol with **no node / no inbound edges** has no
+  dependents ⇒ orphan). Flag any orphan you find as a blocker.
 
 ## QA best practices (#14)
 Test pyramid, deterministic tests (no flaky/time-dependent), coverage on critical paths,

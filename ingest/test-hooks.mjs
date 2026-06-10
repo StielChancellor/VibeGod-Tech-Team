@@ -2,6 +2,8 @@
 import { spawnSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 
 const S = join(dirname(fileURLToPath(import.meta.url)), '..', 'plugins', 'vibegod-tech-team', 'hooks', 'scripts');
 let pass = 0, fail = 0;
@@ -72,6 +74,19 @@ check('advises on code edit', ap.status === 0 && /propagate end-to-end/.test(ap.
 const apui = run('advise-posttool.mjs', { tool_input: { file_path: 'src/Button.css' } });
 check('nudges UI render on UI edit', apui.status === 0 && /RENDER it/.test(apui.out) && /visual-check/.test(apui.out));
 check('silent on non-code', run('advise-posttool.mjs', { tool_input: { file_path: 'README.md' } }).out.trim() === '');
+
+console.log('nudge-graphify:');
+const gdir = mkdtempSync(join(tmpdir(), 'vg-graphify-'));   // graphify "installed" (marker present)
+writeFileSync(join(gdir, '.graphify-path'), 'graphify');
+const ndir = mkdtempSync(join(tmpdir(), 'vg-nograph-'));    // no marker
+const nGrep = run('nudge-graphify.mjs', { tool_input: { pattern: 'getUserById' } }, { CLAUDE_PROJECT_DIR: gdir });
+check('nudges on bare-symbol Grep when graphify installed', nGrep.status === 0 && /graphify/.test(nGrep.out) && /affected/.test(nGrep.out));
+check('silent on literal-phrase Grep', run('nudge-graphify.mjs', { tool_input: { pattern: 'TODO fix this later' } }, { CLAUDE_PROJECT_DIR: gdir }).out.trim() === '');
+check('silent on regex Grep', run('nudge-graphify.mjs', { tool_input: { pattern: 'foo|bar' } }, { CLAUDE_PROJECT_DIR: gdir }).out.trim() === '');
+check('silent when graphify NOT installed (no marker)', run('nudge-graphify.mjs', { tool_input: { pattern: 'getUserById' } }, { CLAUDE_PROJECT_DIR: ndir }).out.trim() === '');
+const nBash = run('nudge-graphify.mjs', { tool_input: { command: 'grep -rn parseConfig src/' } }, { CLAUDE_PROJECT_DIR: gdir });
+check('nudges on bash grep of a bare symbol', nBash.status === 0 && /graphify/.test(nBash.out));
+check('silent on non-grep bash', run('nudge-graphify.mjs', { tool_input: { command: 'npm test' } }, { CLAUDE_PROJECT_DIR: gdir }).out.trim() === '');
 
 console.log('session-start:');
 const ss = run('session-start.mjs', { hook_event_name: 'SessionStart' });

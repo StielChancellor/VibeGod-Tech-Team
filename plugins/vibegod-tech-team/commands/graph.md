@@ -9,11 +9,12 @@ Refresh the **codebase knowledge graph** so change propagation operates on facts
 Scope (optional — module/path/symbol): $ARGUMENTS
 
 Do this:
-1. **Detect** whether graphify is installed (`graphify --version`).
+1. **Detect** whether graphify is installed — try `graphify --version` AND `python -m graphify --version` (on Windows pip often installs it OFF the PATH).
 2. If not installed, **do not silently pick** — offer both:
    - **Auto-install** the latest, then re-run `graphify --version` to **confirm success** before relying on it.
    - **Proceed without it** using the lighter built-in fallback (markdown change-log + module/dependency map + `Grep`/`Glob` call-site enumeration), stating honestly that it covers only a fraction of what graphify does.
-3. **Refresh the graph** for the repo (scoped to `$ARGUMENTS` if given). Query the **impact set** of the change — every dependent and call site — and feed it into `change-propagation` so nothing is orphaned.
-4. For high-stakes changes (deletions, contract changes), cross-check graph results with a repo search. The graph informs the change; the Stage 7 consistency/no-orphans check still verifies it.
+3. **Persist the resolved invocation** so every later step and subagent runs graphify (not grep): resolve a command that actually runs — `graphify` → `python -m graphify` → the absolute exe (`%APPDATA%\Python\Python3*\Scripts\graphify.exe` / `~/.local/bin/graphify`) — and write it to **`.graphify-path`** at the repo root; **gitignore it** (machine-specific). Downstream reads `G="$(cat .graphify-path 2>/dev/null || echo graphify)"`. A bare-command failure must never push agents back to grep. (See `codebase-knowledge-graph` step 1b.)
+4. **Refresh the graph** for the repo (scoped to `$ARGUMENTS` if given). Query the **impact set** of the change — every dependent and call site — and feed it into `change-propagation` so nothing is orphaned.
+5. For high-stakes changes (deletions, contract changes), cross-check graph results with a repo search. The graph informs the change; the Stage 7 consistency/no-orphans check still verifies it.
 
 Report the refreshed map / impact set. If invoked as part of `/change-request`, return control there for the in-code propagation step.

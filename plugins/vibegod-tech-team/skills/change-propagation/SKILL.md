@@ -32,14 +32,18 @@ Every add/change/delete flows through, in this order:
 
 ## In-code propagation — update EVERY reference
 Treat the codebase as a graph, not a file:
-1. **Find all references** — search the whole repo for the symbol/endpoint/event/UI string being
-   changed (use graphify's impact set; cross-check with Grep). Don't trust memory.
+1. **Find all dependents/call sites with graphify, not grep** — query the impact set:
+   `G="$(cat .graphify-path 2>/dev/null || echo graphify)"; $G affected "<symbol>" --depth 2` (and
+   `$G explain "<symbol>"`). grep matches *text*, not calls, and misses dynamic/indirect refs — use it
+   only to **confirm a literal string** after graphify gives you the set. (No graph yet → run `/graph`.)
+   See the tool-selection table in `codebase-knowledge-graph`. Don't trust memory.
 2. **Trace the full path:** data model → API/contract → frontend → **every call site** → docs →
    tests. Update them all in the same change.
 3. **UI ↔ backend sync:** no UI element without a working backend; no backend feature the UI
    still advertises after removal; no feature working in one place but not another.
 4. **Remove orphans the change created:** delete code made unreachable by the change, after
-   confirming nothing depends on it. Surgical — don't delete unrelated code.
+   confirming nothing depends on it (graphify: a symbol with **no inbound edges** has no dependents).
+   Surgical — don't delete unrelated code.
 5. **Verify:** tests green, no dangling references, the consistency/no-orphans lens passes (this
    is exactly what `qa-engineer` checks at Stage 7).
 

@@ -3,6 +3,35 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.0] — Use graphify (not grep) for dependency / orphan / impact
+### Fixed (from field feedback — graphify built ~1k nodes/8.5k edges but went unused)
+- **The graphify invocation is now persisted, so a built graph actually gets used.** Root cause of the
+  agents falling back to grep: a bare `graphify` that isn't on the PATH (Windows pip drops it in
+  `%APPDATA%\Python\Python3xx\Scripts\graphify.exe`) → "command not found" → grep. Now `/graph` +
+  `codebase-knowledge-graph` resolve a working command (`graphify` → `python -m graphify` → the absolute
+  exe) and write it to a gitignored **`.graphify-path`** marker; every step/subagent reads
+  `G="$(cat .graphify-path 2>/dev/null || echo graphify)"`. A bare-command failure no longer pushes agents to grep.
+### Added / Changed
+- **`codebase-knowledge-graph/SKILL.md`:** Windows non-PATH detection + persistence (step 1b), a
+  **tool-selection table** (graphify = the GRAPH: depends/orphans/blast-radius; grep/Read = exact TEXT;
+  ruff/pytest/pip-audit = lint/tests/CVEs), and a fleshed-out **"Using graphify"** with copy-paste
+  queries — `$G affected "<sym>" --depth 2`, `$G explain`, `$G query`, `$G path` — plus the orphan rule:
+  **no node / no inbound edges ⇒ orphan**.
+- **The no-orphans lenses are now graphify-aware** (they named grep before): `qa-gates`, `feature-check`,
+  `qa-engineer` (was "search the repo for stragglers"), and `code-quality-reviewer` (orphan confirm via
+  `$G explain/affected`) now say *use graphify for call-site/dependency/orphan/impact; grep only confirms
+  literal text.* `change-propagation` + `verification-before-completion` strengthened to graphify-first and
+  reference the table.
+- **Optional guardrail hook (tight heuristic):** new `nudge-graphify.mjs` (PostToolUse on `Grep|Bash`)
+  fires ONLY when graphify is installed (`.graphify-path` exists) AND the search term is a **bare
+  identifier** (a symbol/call-site lookup, not literal text/regex) — nudging toward `graphify affected/
+  explain`. Silent otherwise; fail-open. Same PostToolUse event (no new hook type — load profile
+  unchanged). `ingest/test-hooks.mjs` +6 cases (now 53/53).
+- Honest limit: the lens-prompt changes are still model-followed; the **path-persistence** (mechanical)
+  and the **grep nudge** (forcing-function) are the teeth. End-to-end "agents query graphify in a live
+  run" needs a real project with graphify installed — verified here: persistence logic, prompts/table/
+  examples present, and the hook fires/stays-silent correctly. Bump 0.8.0 → 0.9.0.
+
 ## [0.8.0] — Mandatory render before "UI done" + machine-enforced visual CI gate
 ### Added / Changed
 - **No UI is "ready/complete/looks-right" without a fresh render.** Closes the loophole that let an
