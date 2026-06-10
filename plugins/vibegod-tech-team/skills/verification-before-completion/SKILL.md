@@ -42,7 +42,7 @@ Skip any step = lying, not verifying
 
 ## Verify the Real Signal — Anti-Hallucination Rules (MANDATORY)
 
-A confident, well-argued conclusion can still be wrong. These five rules exist because the worst
+A confident, well-argued conclusion can still be wrong. These rules exist because the worst
 errors are *verified against the wrong thing*, not unverified. They apply to every diagnosis,
 root-cause story, and "fixed / works / passing / non-issue" claim.
 
@@ -61,6 +61,14 @@ root-cause story, and "fixed / works / passing / non-issue" claim.
 5. **Escalate high-stakes/contested claims to `claim-verifier`.** For any conclusion that overrides
    prior evidence, removes something as "safe", or declares a hard-to-see bug fixed, dispatch the
    `claim-verifier` agent for an independent falsification pass before presenting it as fact.
+6. **UI/visual = render it, don't describe it.** A UI/visual feature is NOT "ready / complete /
+   looks-right" until you have a FRESH browser render — run the bundled `visual-check` tool
+   (`${CLAUDE_PLUGIN_ROOT}/skills/ui-ux-excellence/tools/visual-check.mjs --url <url>`) across the
+   breakpoints and confirm **PASS** (`report.json`, 0 console errors), or an equivalent live
+   render/screenshot you actually look at. Reading the code, a DOM-only check (jsdom), or "static
+   analysis" is **NOT** evidence of appearance. **If Playwright is missing, install it**
+   (`npm i -D playwright && npx playwright install chromium`) — do not skip. If a live render is
+   genuinely impossible, the verdict is **UNVERIFIED/BLOCKED, never PASS** — say so and ask the user.
 
 ## Common Failures
 
@@ -76,6 +84,7 @@ root-cause story, and "fixed / works / passing / non-issue" claim.
 | Feature fully wired | Consistency/no-orphans check (below) | Backend works in isolation |
 | "It works / it loads" | The user-observable end state (e.g. `plugin list` load status) | A proxy/inventory that merely correlates (`plugin details`) |
 | "X is a non-issue / safe to remove" | Reproduced the reported symptom both ways | A theoretical argument that contradicts someone's hands-on result |
+| "UI looks right / is done" | A fresh render — `visual-check` PASS across breakpoints (screenshots + report) you looked at | Reading the code/CSS, a jsdom/DOM-only check, "static analysis" |
 
 ## Consistency & No-Orphans (MANDATORY — blocks completion)
 
@@ -115,6 +124,8 @@ root-cause story, and "fixed / works / passing / non-issue" claim.
 | "I only changed one place" | Search the repo. Every call site, or it's an orphan. |
 | "The inventory/count looks right" | Counts ≠ outcome. Verify the real end state the user sees. |
 | "My reasoning says the other agent is wrong" | Reproduce their observation. Argument ≠ evidence. |
+| "Playwright isn't installed, I'll eyeball it" | Install it (`npm i -D playwright`), then render. Don't skip. |
+| "Static analysis of the UI is enough" | Appearance is only proven by a render. Run `visual-check`. |
 
 ## Key Patterns
 

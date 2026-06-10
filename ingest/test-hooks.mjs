@@ -69,6 +69,8 @@ check('allows env placeholder', run('guard-write.mjs', { tool_input: { file_path
 console.log('advise-posttool:');
 const ap = run('advise-posttool.mjs', { tool_input: { file_path: 'src/app.ts' } });
 check('advises on code edit', ap.status === 0 && /propagate end-to-end/.test(ap.out));
+const apui = run('advise-posttool.mjs', { tool_input: { file_path: 'src/Button.css' } });
+check('nudges UI render on UI edit', apui.status === 0 && /RENDER it/.test(apui.out) && /visual-check/.test(apui.out));
 check('silent on non-code', run('advise-posttool.mjs', { tool_input: { file_path: 'README.md' } }).out.trim() === '');
 
 console.log('session-start:');
