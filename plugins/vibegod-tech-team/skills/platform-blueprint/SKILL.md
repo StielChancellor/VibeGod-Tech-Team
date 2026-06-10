@@ -42,11 +42,16 @@ Alternatives considered: each with the reason it lost.
 Record only consequential decisions (data store, sync vs async, monolith vs services, auth
 model). Don't ADR trivia. Every ADR must trace to an NFR or PRD requirement.
 
-### 3. C4-style views (text/Mermaid — pick the lowest level that communicates)
-- **Context:** the system + its users + external systems.
-- **Container:** deployable/runnable units (web app, API, worker, DB, queue) and how they talk.
-- **Component:** inside a container, the major modules — this is the seed for Stage 4.
-Stop at the level that conveys the decision. Don't draw class diagrams nobody asked for.
+### 3. C4 views — a Container diagram is REQUIRED (Mermaid)
+Always produce the **Container view as a Mermaid diagram**, rendered per the shared
+`${CLAUDE_PLUGIN_ROOT}/skills/_shared/c4-mermaid-convention.md` (consistent shapes/colors + a legend,
+edges labeled `mechanism: contract`, async dashed, trust boundary as a `subgraph`). **Commit it inside
+the blueprint markdown** (a ```mermaid``` block) so it renders in GitHub PRs / IDE / docs — that's the
+whole point of a diagram. Keep it ≤ ~10–12 boxes; split by bounded context if denser.
+- **Container (required):** deployable/runnable units (web app, API, worker, DB, queue) and how they talk.
+- **Context (optional):** the system + its users + external systems — add when the boundary isn't obvious.
+- **Component (only when it adds signal):** inside a container, the major modules — the seed for Stage 4.
+Don't draw class diagrams nobody asked for.
 
 ### 4. Threat-model hook
 For any internet-facing or data-handling system, run a lightweight STRIDE pass over the trust
@@ -61,5 +66,6 @@ one propagates to dependents. The component view names the modules and their con
 — senior-engineer test: "Would this be called overcomplicated?" If yes, keep it modular-monolith.
 
 ## Gate
-The blueprint (NFRs + ADRs + C4 views + threat boundaries) is reviewed with the user before the
-stack is chosen. Surface the load-bearing tradeoffs; don't bury them.
+The blueprint (NFRs + ADRs + the **required C4 Container diagram** in Mermaid per the shared
+convention + threat boundaries) is reviewed with the user before the stack is chosen. Surface the
+load-bearing tradeoffs; don't bury them.

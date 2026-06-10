@@ -46,9 +46,14 @@ rule**: when a module's contract changes, every dependent is identified and upda
 compatibility/version strategy (semver, contract tests, deprecation window) prevents silent breaks.
 This is the structural backbone the `change-propagation` skill relies on at Stage 9.
 
-### 4. Boundary diagram
-A Mermaid graph of modules as nodes and contracts as labeled edges (API/event/protocol). Mark
-trust boundaries for the `security-engineer`.
+### 4. Boundary diagram (required, Mermaid)
+A **required** Mermaid graph of modules as nodes and contracts as labeled edges, rendered per the
+shared `${CLAUDE_PLUGIN_ROOT}/skills/_shared/c4-mermaid-convention.md` — same visual language as the
+blueprint's Container view: typed node shapes/colors, every edge labeled `mechanism: contract`
+(`REST`/`event`/`gRPC` + the endpoint/event name), **async dashed**, and **trust boundaries as a
+`subgraph`** for the `security-engineer`. **Commit it inside the module-map markdown** so it renders in
+PRs/IDE. Keep it ≤ ~12 module nodes (don't over-decompose). Every PRD requirement/journey step must
+land in exactly one module node — so the diagram doubles as the no-orphans check (below).
 
 ## Consistency check
 Every PRD requirement and journey step must land in exactly one owning module — no orphaned
