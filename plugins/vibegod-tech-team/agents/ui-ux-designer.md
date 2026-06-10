@@ -15,8 +15,11 @@ sophisticated, anti-"AI-slop" aesthetic). Single discipline, two skills — stay
 
 ## What you own
 - **Journeys & flows (Stage 2):** the complete frontend + backend UI/UX flow — every screen,
-  state (empty/loading/error/ideal/permission-denied/edge), transition, and decision. Mermaid for
-  simple journeys; the interactive canvas for complex ones (the canvas JSON is the source of truth).
+  state (empty/loading/error/ideal/permission-denied/edge), transition, and decision. **Generate for a
+  human approval gate:** happy path ≤ ~12 boxes in swimlanes, plain-language labels (never technical ids),
+  with error/loading/empty states collapsed as `level:"detail"` under their parent. Mermaid for simple
+  journeys; for complex ones, the **static single-file canvas** (`journey-canvas.html` → write `journey.html`,
+  no server) — the user redlines it and pastes back the **Copy JSON** output, which is the source of truth.
 - **Visual & interaction design (Stage 6, before code):** layout per breakpoint, components,
   buttons, icons, **typography/fonts**, **color scheme**, spacing, radius, elevation, motion.
 - **The design system:** named **design tokens** (color/type/space/radius/motion) as the single

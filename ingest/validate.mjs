@@ -122,5 +122,19 @@ for (const file of walkMd(PLUGIN)) {
 }
 console.log(`  -> ${refs} path refs checked`);
 
+// Journey canvas (static, server-less) regression guard: the template must carry exactly one
+// __JOURNEY_DATA__ injection token (outside HTML comments) and a Copy-JSON control.
+console.log('Journey canvas:');
+const canvas = join(PLUGIN, 'skills', 'journey-mapping', 'canvas', 'journey-canvas.html');
+if (!existsSync(canvas)) err('journey-mapping/canvas/journey-canvas.html: missing');
+else {
+  const c = readFileSync(canvas, 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+  const tokens = (c.match(/__JOURNEY_DATA__/g) || []).length;
+  if (tokens !== 1) err(`journey-canvas.html: expected exactly 1 __JOURNEY_DATA__ token outside comments, found ${tokens}`);
+  if (!/id=["']copy["']/.test(c)) err('journey-canvas.html: missing the Copy JSON control (id="copy")');
+  if (existsSync(join(PLUGIN, 'skills', 'journey-mapping', 'canvas', 'server.mjs'))) err('journey-mapping/canvas/server.mjs still present — the canvas is server-less now');
+  console.log('  ✓ static template OK (1 injection token, Copy JSON control, no server)');
+}
+
 console.log(`\n${errors ? '✗' : '✓'} ${errors} errors, ${warns} warnings`);
 process.exit(errors ? 1 : 0);

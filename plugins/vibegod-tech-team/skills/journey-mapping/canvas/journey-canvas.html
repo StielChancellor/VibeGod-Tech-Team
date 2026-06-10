@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VibeGod Tech Team — Journey Canvas</title>
+<!--
+  Self-contained, server-less journey canvas. Open it directly in a browser (file://) — no server.
+  The agent injects the journey by replacing the placeholder token (the only one in the file,
+  inside the journey-data script block below) with a JSON object of this shape:
+
+  { "title": "…",
+    "lanes": [ { "id":"user","label":"User" }, { "id":"ui","label":"App / UI" }, … ],
+    "nodes": [ { "id":"…", "label":"Plain language", "lane":"ui",
+                 "kind":"step|decision|error|loading|empty",   // default step
+                 "level":"happy|detail",                       // default happy; detail = hidden until expanded
+                 "parent":"nodeId|null",                       // detail states collapse under their parent
+                 "comment":"…", "x":0, "y":0 } ],              // x/y optional (drag overrides auto-layout)
+    "edges": [ { "from":"id", "to":"id", "label":"…" } ] }
+
+  Edit here, then click "Copy JSON" and paste it back into the chat — the agent reads it as the approved journey.
+-->
+<script id="journey-data" type="application/json">__JOURNEY_DATA__</script>
+<style>
+  :root{
+    --bg:#0b1020; --bg2:#131a33; --ink:#e8ecf8; --muted:#8a93b2; --line:#2a3358;
+    --card:#1a2240; --sel:#f472b6; --edge:#5b6791; --lane:#161d3a; --laneink:#aab3d6;
+    --step:#60a5fa; --decision:#a78bfa; --error:#f87171; --loading:#fbbf24; --empty:#9ca3af;
+    --font-display:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --font-ui:"IBM Plex Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:
+    radial-gradient(1200px 700px at 80% -10%,#1c2750 0,transparent 60%),
+    radial-gradient(900px 600px at -10% 110%,#241640 0,transparent 55%),
+    var(--bg);color:var(--ink);font-family:var(--font-ui);overflow:hidden}
+  header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);
+    position:relative;z-index:5;flex-wrap:wrap}
+  header h1{font-family:var(--font-display);font-weight:600;font-size:18px;margin:0 8px 0 0;
+    background:linear-gradient(90deg,#fff,#9fb4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #title{background:var(--bg2);border:1px solid var(--line);color:var(--ink);font-family:var(--font-ui);
+    padding:6px 10px;border-radius:8px;font-size:13px;min-width:180px}
+  .tools{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  button{font-family:var(--font-ui);font-size:12px;color:var(--ink);background:var(--bg2);
+    border:1px solid var(--line);padding:7px 10px;border-radius:8px;cursor:pointer}
+  button:hover{border-color:#3c4a86}
+  button.active{border-color:var(--sel);color:#fff;background:#2a1d33}
+  button.primary{background:linear-gradient(90deg,#2563eb,#7c3aed);border:none}
+  @media (prefers-reduced-motion: no-preference){ button{transition:border-color .12s ease,background .12s ease} }
+  #stage{position:absolute;inset:54px 0 0 0;overflow:auto;cursor:grab}
+  #world{position:relative;width:6000px;height:3000px;transform-origin:0 0}
+  .laneband{position:absolute;left:0;right:0;border-top:1px dashed var(--line)}
+  .laneband:nth-child(even){background:rgba(255,255,255,.015)}
+  .lanelabel{position:sticky;left:8px;display:inline-block;margin:6px 0 0 8px;font-size:11px;
+    letter-spacing:.5px;text-transform:uppercase;color:var(--laneink);background:var(--lane);
+    border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+  svg{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  .edge{stroke:var(--edge);stroke-width:2;fill:none;pointer-events:stroke;cursor:pointer}
+  .edge.sel{stroke:var(--sel);stroke-width:3}
+  .elabel{font-family:var(--font-ui);font-size:11px;fill:var(--muted)}
+  .node{position:absolute;width:184px;background:linear-gradient(180deg,var(--card),#161d3a);
+    border:1px solid var(--line);border-left:4px solid var(--step);border-radius:11px;padding:9px 11px;
+    cursor:grab;box-shadow:0 8px 20px rgba(0,0,0,.32);user-select:none}
+  .node:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 2px var(--sel)}
+  .node.sel{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel),0 8px 20px rgba(0,0,0,.4)}
+  .node.k-decision{border-left-color:var(--decision)} .node.k-error{border-left-color:var(--error)}
+  .node.k-loading{border-left-color:var(--loading)} .node.k-empty{border-left-color:var(--empty)}
+  .node.detail{opacity:.96;width:172px;background:linear-gradient(180deg,#171e3c,#141a33);border-style:dashed}
+  .chip{display:inline-block;font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:1px 6px;
+    border-radius:999px;margin-bottom:6px;color:#0b1020;font-weight:700}
+  .chip.step{background:var(--step)} .chip.decision{background:var(--decision)} .chip.error{background:var(--error)}
+  .chip.loading{background:var(--loading)} .chip.empty{background:var(--empty)}
+  .lab{font-size:13px;font-weight:600;line-height:1.25;outline:none}
+  .cmt{font-size:11px;color:var(--muted);margin-top:5px;outline:none;min-height:13px}
+  .cmt:empty:before{content:"+ note";opacity:.45}
+  .toggle{position:absolute;right:-10px;bottom:-10px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;
+    background:#222c52;border:1px solid var(--line);color:var(--ink);font-size:10px;cursor:pointer;display:none}
+  .node.haschildren .toggle{display:inline-block}
+  #hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);
+    background:rgba(10,14,30,.8);padding:6px 13px;border-radius:999px;border:1px solid var(--line);z-index:5}
+  #toast{position:absolute;top:64px;right:16px;background:#10341f;color:#a7f3d0;border:1px solid #1f6b40;
+    padding:9px 13px;border-radius:9px;font-size:12px;opacity:0;transition:opacity .25s;z-index:6}
+  #toast.show{opacity:1}
+  #help{position:absolute;inset:0;background:rgba(7,10,22,.86);z-index:9;display:none;
+    align-items:center;justify-content:center}
+  #help.show{display:flex}
+  #help .panel{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:22px 26px;
+    max-width:560px;font-size:13px;line-height:1.7}
+  #help kbd{background:#0b1020;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:11px}
+  #io{position:absolute;inset:0;background:rgba(7,10,22,.86);z-index:9;display:none;align-items:center;justify-content:center}
+  #io.show{display:flex}
+  #io .panel{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:18px;width:min(640px,92vw)}
+  #io textarea{width:100%;height:200px;background:#0b1020;color:var(--ink);border:1px solid var(--line);
+    border-radius:8px;font-family:var(--font-ui);font-size:12px;padding:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Journey</h1>
+  <input id="title" placeholder="Journey title" aria-label="Journey title" />
+  <div class="tools">
+    <button id="detail" aria-pressed="false" title="Show/hide error, loading & edge-case states">Show detail</button>
+    <button id="arrange" title="Re-run swimlane auto-layout">Auto-arrange</button>
+    <button data-add="step">+ Step</button>
+    <button id="connect" aria-pressed="false">Connect</button>
+    <button id="del">Delete</button>
+    <button id="copy" class="primary" title="Copy the journey JSON to paste back into the chat">Copy JSON</button>
+    <button id="download">Download</button>
+    <button id="loadbtn">Load</button>
+    <button id="helpbtn" aria-label="Help" title="Keyboard help">?</button>
+  </div>
+</header>
+<div id="stage" tabindex="0" aria-label="Journey canvas. Tab to focus a step, arrow keys move it, Enter edits, Delete removes.">
+  <div id="world">
+    <svg id="edges"><defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--edge)"/></marker>
+    </defs></svg>
+  </div>
+</div>
+<div id="hint">Tab to a step • arrows move • Enter edit • C connect • Del remove • click ▸ to expand states • <b>Copy JSON</b> → paste in chat</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="help"><div class="panel">
+  <h2 style="margin-top:0;font-family:var(--font-display)">Keyboard & tips</h2>
+  <p><kbd>Tab</kbd> focus next step · <kbd>↑↓←→</kbd> move focused step · <kbd>Enter</kbd> edit label ·
+  <kbd>Esc</kbd> cancel · <kbd>Del</kbd> delete · <kbd>C</kbd> connect from focused step · <kbd>?</kbd> this help.</p>
+  <p><b>Show detail</b> reveals error/loading/empty states (hidden by default so the happy path stays readable).
+  Click a step's <b>▸</b> badge to expand just its states.</p>
+  <p><b>Copy JSON</b> copies the whole journey — paste it back into the chat and the team treats it as approved.
+  <b>Download</b> saves a backup; <b>Load</b> reopens a saved JSON.</p>
+  <p style="text-align:right"><button onclick="document.getElementById('help').classList.remove('show')">Close</button></p>
+</div></div>
+<div id="io"><div class="panel">
+  <p style="margin-top:0">Paste a journey JSON and Load, or copy the current one:</p>
+  <textarea id="iotext" aria-label="Journey JSON"></textarea>
+  <p style="text-align:right;margin-bottom:0">
+    <button onclick="document.getElementById('io').classList.remove('show')">Cancel</button>
+    <button class="primary" id="ioload">Load this JSON</button></p>
+</div></div>
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+const stage=$('stage'), world=$('world'), svg=$('edges'), titleEl=$('title'), toast=$('toast');
+const LANE_H=156, COL_W=224, MARGIN_X=120, NODE_W=184, CARD_H=64, LS_KEY='vibegod.journey';
+
+const DEFAULT={ title:"Sample journey (replace me)",
+  lanes:[{id:"user",label:"User"},{id:"ui",label:"App / UI"},{id:"backend",label:"Backend / AI"},{id:"data",label:"Data"}],
+  nodes:[
+    {id:"a",label:"Open app",lane:"user",kind:"step",level:"happy"},
+    {id:"b",label:"Sign in",lane:"ui",kind:"step",level:"happy"},
+    {id:"c",label:"Verify credentials",lane:"backend",kind:"step",level:"happy"},
+    {id:"d",label:"Show dashboard",lane:"ui",kind:"step",level:"happy"},
+    {id:"e",label:"Wrong password",lane:"ui",kind:"error",level:"detail",parent:"b"},
+    {id:"f",label:"Loading…",lane:"ui",kind:"loading",level:"detail",parent:"d"}],
+  edges:[{from:"a",to:"b",label:""},{from:"b",to:"c",label:"submit"},{from:"c",to:"d",label:"ok"}] };
+
+let state, showDetail=false, mode=null, connectFrom=null, sel=null, selEdge=null, focusId=null;
+
+function loadInitial(){
+  let embedded=null;
+  try{ embedded=JSON.parse($('journey-data').textContent.trim()); }catch{ embedded=null; }
+  let saved=null;
+  try{ const s=localStorage.getItem(LS_KEY); if(s) saved=JSON.parse(s); }catch{}
+  state=normalize(saved||embedded||DEFAULT);
+  titleEl.value=state.title;
+  layout(); render();
+}
+function normalize(s){
+  s=s||{}; const lanes=(s.lanes&&s.lanes.length)?s.lanes:DEFAULT.lanes.slice();
+  const laneIds=new Set(lanes.map(l=>l.id));
+  const nodes=(s.nodes||[]).map(n=>({
+    id:String(n.id), label:n.label||'Step', lane:laneIds.has(n.lane)?n.lane:lanes[0].id,
+    kind:n.kind||'step', level:n.level==='detail'?'detail':'happy', parent:n.parent||null,
+    comment:n.comment||'', x:Number.isFinite(n.x)?n.x:null, y:Number.isFinite(n.y)?n.y:null }));
+  return { title:s.title||'Journey', lanes, nodes, edges:(s.edges||[]).map(e=>({from:String(e.from),to:String(e.to),label:e.label||''})) };
+}
+function persist(){ state.title=titleEl.value.trim()||'Journey'; try{ localStorage.setItem(LS_KEY,JSON.stringify(serialize())); }catch{} }
+function serialize(){ return { title:state.title, lanes:state.lanes,
+  nodes:state.nodes.map(n=>{ const o={id:n.id,label:n.label,lane:n.lane,kind:n.kind,level:n.level};
+    if(n.parent)o.parent=n.parent; if(n.comment)o.comment=n.comment; if(n.x!=null){o.x=n.x;o.y=n.y;} return o; }),
+  edges:state.edges }; }
+
+function laneIndex(id){ const i=state.lanes.findIndex(l=>l.id===id); return i<0?0:i; }
+function laneTop(id){ return laneIndex(id)*LANE_H+30; }
+function visible(n){ if(n.level!=='detail') return true; if(showDetail) return true;
+  return n.parent && expanded.has(n.parent); }
+const expanded=new Set();
+
+// auto-layout: column = longest-path layer over happy edges; row = lane band. detail nodes sit under parent.
+function layout(){
+  const happy=state.nodes.filter(n=>n.level!=='detail');
+  const col={}; happy.forEach(n=>col[n.id]=0);
+  const succ={}; state.edges.forEach(e=>{ if(col[e.from]!=null&&col[e.to]!=null){ (succ[e.from]=succ[e.from]||[]).push(e.to);} });
+  for(let i=0;i<happy.length;i++){ let ch=false;
+    state.edges.forEach(e=>{ if(col[e.from]!=null&&col[e.to]!=null&&col[e.to]<col[e.from]+1){ col[e.to]=col[e.from]+1; ch=true; } });
+    if(!ch) break; }
+  // nodes with no incoming happy edge but appearing later in array keep array-order fallback
+  const seenCol={};
+  happy.forEach((n,i)=>{ if(col[n.id]===0){ /* keep */ } });
+  happy.forEach(n=>{ if(n.x==null){ const c=col[n.id]||0; n._col=c; } });
+  // resolve stack within same (lane,col)
+  const slot={};
+  happy.forEach(n=>{ if(n.x!=null) return; const c=n._col||0; const key=n.lane+':'+c; const k=slot[key]=(slot[key]||0);
+    n.x=MARGIN_X+c*COL_W; n.y=laneTop(n.lane)+18+k*(CARD_H+10); slot[key]=k+1; });
+  // detail children: place near parent, stacked downward
+  const dslot={};
+  state.nodes.filter(n=>n.level==='detail').forEach(n=>{ if(n.x!=null) return;
+    const p=state.nodes.find(m=>m.id===n.parent); const base=p?{x:p.x,y:p.y}:{x:MARGIN_X,y:laneTop(n.lane)+18};
+    const key=n.parent||'_'; const k=dslot[key]=(dslot[key]||0); n.x=(base.x||MARGIN_X)+24; n.y=(base.y||0)+CARD_H+14+k*(CARD_H+8); dslot[key]=k+1; });
+  const maxCol=Math.max(0,...happy.map(n=>n._col||0));
+  world.style.width=Math.max(1400,MARGIN_X*2+(maxCol+1)*COL_W)+'px';
+  world.style.height=Math.max(900,state.lanes.length*LANE_H+80)+'px';
+}
+
+function render(){
+  [...world.querySelectorAll('.node,.laneband,.lanelabel')].forEach(n=>n.remove());
+  [...svg.querySelectorAll('.edge,.elabel')].forEach(n=>n.remove());
+  state.lanes.forEach((l,i)=>{ const b=document.createElement('div'); b.className='laneband';
+    b.style.top=(i*LANE_H+24)+'px'; b.style.height=LANE_H+'px'; world.appendChild(b);
+    const lab=document.createElement('div'); lab.className='lanelabel'; lab.textContent=l.label; lab.style.top=(i*LANE_H+24)+'px'; lab.style.position='absolute';
+    world.appendChild(lab); });
+  state.edges.forEach(drawEdge);
+  state.nodes.forEach(n=>{ if(visible(n)) world.appendChild(nodeEl(n)); });
+  $('detail').setAttribute('aria-pressed',String(showDetail));
+  $('connect').setAttribute('aria-pressed',String(mode==='connect'));
+  document.body.classList.toggle('connecting',mode==='connect');
+}
+function childrenOf(id){ return state.nodes.filter(n=>n.level==='detail'&&n.parent===id); }
+function nodeEl(n){
+  const el=document.createElement('div'); el.className='node k-'+n.kind+(n.level==='detail'?' detail':'')+(sel===n?' sel':'');
+  el.dataset.id=n.id; el.tabIndex=0; el.setAttribute('role','group');
+  el.setAttribute('aria-label',`${n.kind} in ${state.lanes.find(l=>l.id===n.lane)?.label||n.lane}: ${n.label}`);
+  el.style.left=n.x+'px'; el.style.top=n.y+'px';
+  const chip=document.createElement('span'); chip.className='chip '+n.kind; chip.textContent=n.kind; el.appendChild(chip);
+  const lab=document.createElement('div'); lab.className='lab'; lab.textContent=n.label; el.appendChild(lab);
+  const cmt=document.createElement('div'); cmt.className='cmt'; cmt.textContent=n.comment||''; el.appendChild(cmt);
+  const kids=childrenOf(n.id);
+  if(kids.length){ el.classList.add('haschildren'); const t=document.createElement('button'); t.className='toggle';
+    t.textContent=(expanded.has(n.id)||showDetail?'▾':'▸')+kids.length; t.title='Expand/collapse states';
+    t.addEventListener('click',ev=>{ ev.stopPropagation(); expanded.has(n.id)?expanded.delete(n.id):expanded.add(n.id); render(); });
+    el.appendChild(t); }
+  lab.addEventListener('dblclick',e=>{e.stopPropagation();editText(lab,v=>{n.label=v;persist();});});
+  cmt.addEventListener('dblclick',e=>{e.stopPropagation();editText(cmt,v=>{n.comment=v;persist();});});
+  el.addEventListener('pointerdown',e=>onDown(e,n,el));
+  el.addEventListener('focus',()=>{focusId=n.id;});
+  el.addEventListener('keydown',e=>onNodeKey(e,n,el));
+  return el;
+}
+function editText(el,commit){
+  const orig=el.textContent; el.setAttribute('contenteditable','true'); el.focus();
+  const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+  const fin=(save)=>{ el.removeAttribute('contenteditable'); el.removeEventListener('blur',onBlur);
+    if(save) commit(el.textContent.trim()); else el.textContent=orig; };
+  const onBlur=()=>fin(true); el.addEventListener('blur',onBlur);
+  el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();el.blur();}
+    else if(e.key==='Escape'){e.preventDefault();el.removeEventListener('blur',onBlur);fin(false);} });
+}
+function nodeCenter(n){ return {x:n.x+NODE_W/2, y:n.y+CARD_H/2}; }
+function drawEdge(e){
+  const a=state.nodes.find(n=>n.id===e.from), b=state.nodes.find(n=>n.id===e.to);
+  if(!a||!b||!visible(a)||!visible(b)) return;
+  const c1=nodeCenter(a),c2=nodeCenter(b),mx=(c1.x+c2.x)/2;
+  const p=document.createElementNS(SVGNS,'path');
+  p.setAttribute('d',`M${c1.x},${c1.y} C${mx},${c1.y} ${mx},${c2.y} ${c2.x},${c2.y}`);
+  p.setAttribute('class','edge'+(selEdge===e?' sel':'')); p.setAttribute('marker-end','url(#arrow)');
+  p.addEventListener('click',ev=>{ev.stopPropagation();selEdge=e;sel=null;render();});
+  svg.appendChild(p);
+  if(e.label){ const t=document.createElementNS(SVGNS,'text'); t.setAttribute('class','elabel');
+    t.setAttribute('x',mx); t.setAttribute('y',(c1.y+c2.y)/2-6); t.setAttribute('text-anchor','middle');
+    t.textContent=e.label; t.style.pointerEvents='auto'; t.style.cursor='pointer';
+    t.addEventListener('dblclick',()=>{const v=prompt('Edge label',e.label||'');if(v!=null){e.label=v;persist();render();}}); svg.appendChild(t); }
+}
+
+let drag=null;
+function onDown(e,n,el){
+  if(mode==='connect'){ e.stopPropagation();
+    if(!connectFrom){ connectFrom=n; el.classList.add('sel'); toastMsg('Now click the target step'); }
+    else if(connectFrom.id!==n.id){ state.edges.push({from:connectFrom.id,to:n.id,label:''}); connectFrom=null; setMode(null); persist(); render(); }
+    return; }
+  e.stopPropagation(); sel=n; selEdge=null; el.focus();
+  document.querySelectorAll('.node').forEach(x=>x.classList.remove('sel')); el.classList.add('sel');
+  drag={n,el,sx:e.clientX,sy:e.clientY,ox:n.x,oy:n.y}; el.setPointerCapture(e.pointerId);
+}
+document.addEventListener('pointermove',e=>{ if(!drag)return;
+  drag.n.x=Math.round(drag.ox+(e.clientX-drag.sx)); drag.n.y=Math.round(drag.oy+(e.clientY-drag.sy));
+  drag.el.style.left=drag.n.x+'px'; drag.el.style.top=drag.n.y+'px';
+  [...svg.querySelectorAll('.edge,.elabel')].forEach(x=>x.remove()); state.edges.forEach(drawEdge); });
+document.addEventListener('pointerup',()=>{ if(drag){persist();} drag=null; });
+stage.addEventListener('pointerdown',e=>{ if(e.target===stage||e.target===world||e.target===svg){ sel=null;selEdge=null;render(); }});
+
+function onNodeKey(e,n,el){
+  const STEP=e.shiftKey?4:24;
+  if(e.key==='Enter'){ e.preventDefault(); el.querySelector('.lab').dispatchEvent(new MouseEvent('dblclick',{bubbles:true})); }
+  else if(e.key==='Delete'||e.key==='Backspace'){ e.preventDefault(); sel=n; del(); }
+  else if(e.key==='c'||e.key==='C'){ e.preventDefault(); if(!connectFrom){connectFrom=n;setMode('connect');toastMsg('Now click/Tab+C the target');} else if(connectFrom.id!==n.id){state.edges.push({from:connectFrom.id,to:n.id,label:''});connectFrom=null;setMode(null);persist();render();} }
+  else if(e.key.startsWith('Arrow')){ e.preventDefault();
+    n.x=(n.x||0)+(e.key==='ArrowRight'?STEP:e.key==='ArrowLeft'?-STEP:0);
+    n.y=(n.y||0)+(e.key==='ArrowDown'?STEP:e.key==='ArrowUp'?-STEP:0);
+    el.style.left=n.x+'px'; el.style.top=n.y+'px'; persist();
+    [...svg.querySelectorAll('.edge,.elabel')].forEach(x=>x.remove()); state.edges.forEach(drawEdge); }
+}
+function setMode(m){ mode=(m&&mode===m)?null:m; if(mode!=='connect')connectFrom=null;
+  $('connect').classList.toggle('active',mode==='connect'); document.body.classList.toggle('connecting',mode==='connect');
+  $('connect').setAttribute('aria-pressed',String(mode==='connect')); }
+function addNode(){ const lane=(sel&&sel.lane)||state.lanes[0].id; let id,i=1; do{id='n'+(i++);}while(state.nodes.some(n=>n.id===id));
+  const n={id,label:'New step',lane,kind:'step',level:'happy',parent:null,comment:'',x:null,y:null};
+  state.nodes.push(n); layout(); persist(); render(); }
+function del(){ if(sel){ const id=sel.id; state.nodes=state.nodes.filter(n=>n.id!==id&&n.parent!==id);
+    state.edges=state.edges.filter(e=>e.from!==id&&e.to!==id); sel=null; persist(); render(); }
+  else if(selEdge){ state.edges=state.edges.filter(e=>e!==selEdge); selEdge=null; persist(); render(); }
+  else toastMsg('Nothing selected',false); }
+function toastMsg(m,ok=true){ toast.textContent=m; toast.style.background=ok?'#10341f':'#3a1320';
+  toast.style.color=ok?'#a7f3d0':'#fecaca'; toast.style.borderColor=ok?'#1f6b40':'#7f1d1d';
+  toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1900); }
+
+async function copyJSON(){ persist(); const txt=JSON.stringify(serialize(),null,2);
+  try{ await navigator.clipboard.writeText(txt); toastMsg('Copied ✓ — paste it into the chat'); }
+  catch{ $('iotext').value=txt; $('io').classList.add('show'); $('iotext').select(); toastMsg('Select-all + copy from the box',false); } }
+function downloadJSON(){ persist(); const blob=new Blob([JSON.stringify(serialize(),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='journey.json'; a.click(); URL.revokeObjectURL(a.href); }
+
+$('detail').addEventListener('click',()=>{ showDetail=!showDetail; $('detail').classList.toggle('active',showDetail); render(); });
+$('arrange').addEventListener('click',()=>{ state.nodes.forEach(n=>{n.x=null;n.y=null;}); layout(); persist(); render(); toastMsg('Re-arranged'); });
+$('connect').addEventListener('click',()=>setMode('connect'));
+$('del').addEventListener('click',del);
+$('copy').addEventListener('click',copyJSON);
+$('download').addEventListener('click',downloadJSON);
+$('helpbtn').addEventListener('click',()=>$('help').classList.add('show'));
+$('loadbtn').addEventListener('click',()=>{ $('iotext').value=JSON.stringify(serialize(),null,2); $('io').classList.add('show'); });
+$('ioload').addEventListener('click',()=>{ try{ state=normalize(JSON.parse($('iotext').value)); titleEl.value=state.title; expanded.clear();
+  layout(); persist(); render(); $('io').classList.remove('show'); toastMsg('Loaded ✓'); }catch(e){ toastMsg('Invalid JSON: '+e.message,false); } });
+document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',addNode));
+titleEl.addEventListener('change',persist);
+document.addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.getAttribute('contenteditable')==='true') return;
+  if((e.ctrlKey||e.metaKey)&&e.key==='c'&&!getSelection().toString()){ e.preventDefault(); copyJSON(); }
+  else if(e.key==='?'){ $('help').classList.toggle('show'); }
+  else if(e.key==='Escape'){ setMode(null); $('help').classList.remove('show'); $('io').classList.remove('show'); } });
+
+loadInitial();
+</script>
+</body>
+</html>

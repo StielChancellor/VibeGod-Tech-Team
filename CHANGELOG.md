@@ -3,6 +3,26 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.0] — Journey canvas (Stage 2): readable + server-less
+### Fixed (from field feedback)
+- **The canvas server no longer dies.** The old `canvas/server.mjs` was launched inside the
+  ui-ux-designer subagent and reaped on return (dead port). **Retired the server entirely** — the
+  canvas is now a **self-contained single-file HTML** (`canvas/journey-canvas.html`) the agent injects
+  the journey into (`__JOURNEY_DATA__` token) and writes as `journey.html`; the user opens it directly
+  (`file://`), no process to keep alive. Deleted `server.mjs` and the old fetch-based `index.html`.
+- **Readable by default (was 68 nodes on one plane).** New `journey-mapping` generation rules: **happy
+  path ≤ ~12 boxes**, **swimlanes**, **plain-language labels** (never technical ids like `b_ai_trigger`),
+  and error/loading/empty states as `level:"detail"` **collapsed under their parent** with progressive
+  disclosure. The canvas renders swimlanes, shows the happy path by default, and expands detail on demand.
+### Changed
+- **Journey JSON schema v2:** added `lanes[]`, and per-node `lane` / `kind` / `level` / `parent`
+  (backward-tolerant defaults). `x`/`y` are now optional drag overrides (auto-layout by lane + sequence).
+- **Read-back is now Copy-JSON → paste in chat** (no server, no file to locate). Always also commit a
+  happy-path Mermaid snapshot for diffability. `journey.md` + `ui-ux-designer` updated.
+- Canvas is **keyboard-accessible** (Tab/arrows/Enter/Del, ARIA, focus ring) and respects reduced-motion.
+- `ingest/validate.mjs` guards the new template (1 injection token, Copy-JSON control, no leftover server).
+  Verified in jsdom: renders 4 lanes, happy-path-only by default, progressive-disclosure toggle, 0 runtime errors. Bump 0.6.1 → 0.7.0.
+
 ## [0.6.1] — Acceptance test: guardrail hardening
 ### Fixed (clear-win weak links found by the adversarial hook break-tests)
 - **Guardrails now fail OPEN on internal error.** `guard-bash`/`guard-write` install
