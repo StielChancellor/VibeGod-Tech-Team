@@ -3,6 +3,15 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.3] — Journey canvas: light-theme background fix
+### Fixed
+- The light theme (0.7.2) carried over the dark theme's **two radial gradients**, which on a light
+  background looked like mismatched colored blotches ("looks broken"). Replaced with a **flat, uniform
+  light canvas**; removed the alternating lane-band tint (which formed a stray "panel" rectangle) — lanes
+  are now clean dashed separators. **Fit** now keeps the lane-label gutter in view (labels were clipped).
+- **Verified visually this time** with a real Playwright render + screenshot (not just jsdom): uniform
+  background, all four lane labels visible, readable cards/edges, 0 console errors. Bump 0.7.2 → 0.7.3.
+
 ## [0.7.2] — Journey canvas: light theme
 ### Changed
 - Switched the journey canvas to a **light theme** (was dark): light page/surfaces, dark navy ink,

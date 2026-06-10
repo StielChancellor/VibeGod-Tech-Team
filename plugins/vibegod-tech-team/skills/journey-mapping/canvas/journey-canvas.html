@@ -30,10 +30,9 @@
     --font-ui:"IBM Plex Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;background:
-    radial-gradient(1200px 700px at 80% -10%,#e7edfd 0,transparent 60%),
-    radial-gradient(900px 600px at -10% 110%,#f1e9fb 0,transparent 55%),
-    var(--bg);color:var(--ink);font-family:var(--font-ui);overflow:hidden}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-ui);overflow:hidden}
+  /* one calm, uniform canvas surface — the swimlane bands provide the only structure */
+  #stage{background:var(--bg)}
   header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);
     position:relative;z-index:5;flex-wrap:wrap;background:rgba(255,255,255,.6)}
   header h1{font-family:var(--font-display);font-weight:600;font-size:18px;margin:0 8px 0 0;
@@ -58,7 +57,7 @@
   #stage.grabbing{cursor:grabbing}
   #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
   .laneband{position:absolute;left:0;right:0;border-top:1px dashed var(--line)}
-  .laneband:nth-child(even){background:rgba(30,45,90,.03)}
+  .laneband:nth-child(even){background:transparent}
   .lanelabel{position:absolute;left:12px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;
     color:var(--laneink);background:var(--lane);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
   svg{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
@@ -309,6 +308,7 @@ function fit(){
   if(!vis.length){ view={x:60,y:40,k:1}; applyView(); return; }
   let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;
   vis.forEach(n=>{ minX=Math.min(minX,n.x); minY=Math.min(minY,n.y); maxX=Math.max(maxX,n.x+NODE_W); maxY=Math.max(maxY,n.y+CARD_H); });
+  minX=Math.min(minX,0); minY=Math.min(minY,24);   // keep the lane-label gutter + first lane in view
   const pad=70, k=clamp(Math.min((r.width)/(maxX-minX+pad*2),(r.height)/(maxY-minY+pad*2)),0.3,1.6);
   view.k=k; view.x=r.width/2-((minX+maxX)/2)*k; view.y=r.height/2-((minY+maxY)/2)*k; applyView();
 }

@@ -1,7 +1,7 @@
 {
   "name": "vibegod-tech-team",
   "displayName": "VibeGod Tech Team",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "A virtual enterprise tech team (lead orchestrator + role subagents + methodology skills) that drives a strict, gated SDLC with OWASP/WCAG/OODA compliance and best-effort (heuristic, fail-open) runtime security/QA guardrails.",
   "author": {
     "name": "StielChancellor"
