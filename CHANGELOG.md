@@ -3,6 +3,20 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.1] — Journey canvas: fluid interactions restored
+### Changed (from field feedback — v0.7.0 felt less fluid than the old server canvas)
+- Re-added the **pan/zoom "infinite canvas"** layer the readability rebuild had dropped, kept fully
+  client-side (still server-less): **mouse-wheel zoom anchored at the cursor**, **grab-to-pan** empty
+  space (replaces scrollbars; `#stage` is `overflow:hidden` again), `+`/`−`/**Fit** controls, and
+  node drag that divides by zoom so it tracks the cursor at any scale. Auto-fits on load.
+- **Drag-from-handle connect:** hover a step → drag its pink ● port onto another step (rubber-band
+  preview). The Connect button + keyboard `C` remain as the accessible fallback.
+- Restored node **entrance/hover animations** (inside `prefers-reduced-motion: no-preference`).
+- Lane labels now ride inside the pan/zoom world (sticky doesn't survive a transformed ancestor); Fit re-frames.
+- Readability (swimlanes, happy-path default, progressive-disclosure collapse) is unchanged.
+- Verified in jsdom: 0 runtime errors, lanes + happy-path-default + Show-detail counts hold, pan/zoom
+  transform active, zoom/fit callable. Bump 0.7.0 → 0.7.1.
+
 ## [0.7.0] — Journey canvas (Stage 2): readable + server-less
 ### Fixed (from field feedback)
 - **The canvas server no longer dies.** The old `canvas/server.mjs` was launched inside the
