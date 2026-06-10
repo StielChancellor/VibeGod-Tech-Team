@@ -27,6 +27,8 @@ prototypes never become products. This brings the whole org.
 - 🏢 **A coordinated expert team**, not a lone assistant — it plans → designs → builds → tests → ships.
 - 🛡️ **Security (OWASP) & accessibility (WCAG 2.2 AA) automatic** — built into build *and* review, not bolted on.
 - 🎨 **Design that isn't "AI slop"** — real fonts, a committed color story, distinctive UI by default.
+- 🗺️ **A drag-and-drop journey map** — `/journey` builds an interactive canvas (pan/zoom · swimlanes ·
+  drag-to-connect) you open in your browser to *see* and reshape the whole user flow before any code.
 - 🧱 **End-to-end consistency** — every change flows DB → API → UI → docs with *no orphans left behind*.
 - 💸 **Cost-aware** — every tech choice shows the price tag *and* a cheaper alternative.
 - 🔍 **Self-checking** — a verifier agent tries to prove the team's own conclusions wrong before you see them.
