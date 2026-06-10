@@ -3,6 +3,27 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.1] — Always-on, consistent C4 Mermaid blueprint (no new UI)
+### Added / Changed
+- **The architecture blueprint now always ships a clean, consistent diagram** — and it renders where
+  architecture is actually reviewed (GitHub PRs / IDE / docs), at near-zero cost. New shared
+  **`skills/_shared/c4-mermaid-convention.md`** defines one visual language: typed node shapes/colors
+  (actor / app / service / worker / datastore / cache / queue / external), edges labeled
+  `mechanism: contract` (async dashed), trust boundaries as `subgraph`, a legend, a ≤~12-box size rule,
+  and a copy-paste starter template.
+- **`platform-blueprint`:** the C4 **Container diagram is now REQUIRED** (was "pick the lowest level
+  that communicates" — so it was often skipped), rendered per the shared convention and **committed
+  inside the blueprint markdown**. Context/Component stay optional. Gate updated.
+- **`module-architecture` + `/module-map`:** the module-boundary diagram is **required** and uses the
+  **same** convention (so blueprint and module map look identical), surfaced at the ◆ gate.
+  `solution-architect` output list names the diagram explicitly.
+- Verified: validate 0/0, hooks 53/53 (unchanged), the canonical Mermaid template renders cleanly
+  (mermaid-cli PNG, inspected — distinct shapes/colors, legible labels, visible trust boundary).
+- Context: a drag-and-drop architecture canvas was considered and **rejected** (architecture is
+  authored ~once; the load-bearing detail is prose; a `file://` canvas doesn't render in PRs; a second
+  bespoke canvas doubles the render-gate/maintenance tax). Hardening Mermaid captures ~80% of the value
+  at ~0 cost. Read-only by design — no new UI, dependencies, or render gate. Bump 0.9.0 → 0.9.1.
+
 ## [0.9.0] — Use graphify (not grep) for dependency / orphan / impact
 ### Fixed (from field feedback — graphify built ~1k nodes/8.5k edges but went unused)
 - **The graphify invocation is now persisted, so a built graph actually gets used.** Root cause of the

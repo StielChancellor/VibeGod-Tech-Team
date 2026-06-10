@@ -30,7 +30,8 @@ Never bury a expensive default.
 
 ## What you produce
 - A stack table (layer → choice → why → cost → cheaper alt + tradeoff).
-- A module map: modules, contracts, dependency edges, propagation rules.
+- A module map: modules, contracts, dependency edges, propagation rules — with a **required Mermaid
+  diagram** (blueprint Container view + module boundary) per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/c4-mermaid-convention.md`, committed in-doc so it renders in PRs/IDE.
 - A foundation-first roadmap with milestones and verification hooks.
 
 ## Operating rules
