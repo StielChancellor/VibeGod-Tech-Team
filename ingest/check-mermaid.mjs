@@ -33,9 +33,23 @@ if (!blocks.length) { console.log('No fenced mermaid blocks found — nothing to
 console.log(`Mermaid render check — ${blocks.length} fenced block(s):`);
 
 const work = mkdtempSync(join(tmpdir(), 'vg-mermaid-'));
-// Chromium in CI containers needs --no-sandbox; harmless locally.
+// Chromium in CI containers needs --no-sandbox; harmless locally. Prefer a SYSTEM Chrome when one
+// exists (GitHub runners preinstall google-chrome) — puppeteer's own browser download doesn't run
+// under npx on npm 11 / Node 24, which strands the launcher with no executable.
+function findChrome() {
+  for (const env of ['PUPPETEER_EXECUTABLE_PATH', 'CHROME_BIN']) if (process.env[env]) return process.env[env];
+  if (process.platform === 'win32') return null; // local Windows: use puppeteer's cached browser
+  for (const c of ['google-chrome-stable', 'google-chrome', 'chromium-browser', 'chromium']) {
+    const r = spawnSync('which', [c], { encoding: 'utf8' });
+    if (r.status === 0 && r.stdout.trim()) return r.stdout.trim();
+  }
+  return null;
+}
+const cfg = { args: ['--no-sandbox'] };
+const chrome = findChrome();
+if (chrome) { cfg.executablePath = chrome; console.log(`  (using system Chrome: ${chrome})`); }
 const pptr = join(work, 'puppeteer.json');
-writeFileSync(pptr, JSON.stringify({ args: ['--no-sandbox'] }));
+writeFileSync(pptr, JSON.stringify(cfg));
 
 let failed = 0;
 blocks.forEach((b, i) => {
