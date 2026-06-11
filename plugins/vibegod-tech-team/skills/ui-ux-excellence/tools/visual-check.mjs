@@ -36,7 +36,7 @@ const outDir = (() => {
   return isAbsolute(o) ? o : join(process.cwd(), o);
 })();
 const breakpoints = typeof args.breakpoints === 'string'
-  ? args.breakpoints.split(',').map((n) => parseInt(n.trim(), 10)).filter(Boolean)
+  ? args.breakpoints.split(',').map((n) => parseInt(n.trim(), 10)).filter((n) => Number.isFinite(n) && n > 0)
   : DEFAULT_BREAKPOINTS;
 const fullPage = String(args.full ?? 'true') !== 'false';
 // Guard against bare flags (`--timeout` with no value parses to boolean `true` → NaN).

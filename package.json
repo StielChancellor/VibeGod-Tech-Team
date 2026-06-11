@@ -1,0 +1,14 @@
+{
+  "name": "vibegod-tech-team-repo",
+  "version": "0.9.2",
+  "private": true,
+  "description": "Dev tooling for the VibeGod Tech Team Claude Code plugin — validation + guardrail-hook tests (zero runtime dependencies).",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "validate": "node ingest/validate.mjs",
+    "test": "node ingest/test-hooks.mjs",
+    "check": "node ingest/validate.mjs && node ingest/test-hooks.mjs"
+  }
+}

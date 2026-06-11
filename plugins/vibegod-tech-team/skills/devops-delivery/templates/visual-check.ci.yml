@@ -6,7 +6,7 @@
 # SETUP (devops-sre, Stage 6):
 #   1. Vendor the checker into your repo so CI can run it without the plugin cache:
 #        cp "<plugin>/skills/ui-ux-excellence/tools/visual-check.mjs" scripts/visual-check.mjs
-#   2. Fill the three TODOs below (build, start/serve, and the URL/port).
+#   2. Fill the TODOs below (build, start/serve, the URL/port, and the vendored checker path).
 #   3. Commit this file to .github/workflows/visual-check.yml. Mark the job a required check (branch protection).
 #
 # visual-check.mjs exit codes: 0 = clean · 1 = broken UI (FAILS the job) · 2 = usage error · 3 = Playwright missing.

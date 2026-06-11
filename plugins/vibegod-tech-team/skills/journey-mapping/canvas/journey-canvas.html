@@ -168,7 +168,7 @@ let drag=null, pan=null, linking=null, tempPath=null;
 const expanded=new Set();
 
 function loadInitial(){
-  let embedded=null; try{ embedded=JSON.parse($('journey-data').textContent.trim()); }catch{ embedded=null; }
+  let embedded=null; try{ embedded=JSON.parse($('journey-data').textContent.trim()); }catch(e){ embedded=null; console.warn('Journey data injection failed — falling back to sample journey:', e.message); }
   let saved=null; try{ const s=localStorage.getItem(LS_KEY); if(s) saved=JSON.parse(s); }catch{}
   state=normalize(saved||embedded||DEFAULT);
   titleEl.value=state.title; layout(); render(); fit();

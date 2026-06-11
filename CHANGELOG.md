@@ -3,6 +3,30 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.2] — Repo-audit cleanup (loose ends + polish)
+### Fixed
+- **`.gitignore` now ignores `.graphify-path`** (the machine-specific marker `/graph` writes since v0.9.0).
+- **`ingest/validate.mjs` path-ref check now covers `.yml`/`.yaml`** — the `visual-check.ci.yml` template
+  reference was silently unchecked, so a future move/delete couldn't be caught by CI.
+- **Lens-count drift fixed:** `feature-check` frontmatter said "4 QA lenses" and `qa-gates` description
+  omitted `performance-engineer`, while both bodies gate on up to 6 (4 core + UX render for UI +
+  performance for perf-sensitive). Descriptions + "dispatch the four lenses" line now match reality.
+- **CHANGELOG:** removed stale "Unreleased" markers from 8 shipped entries (0.1.0–0.5.1).
+- `visual-check.mjs`: a `0` (or junk) in `--breakpoints` is now filtered explicitly (`> 0`) instead of
+  silently via `filter(Boolean)`. Journey canvas: a bad `__JOURNEY_DATA__` injection now logs a
+  `console.warn` instead of silently falling back to the sample journey. `visual-check.ci.yml` header
+  TODO count wording corrected.
+### Added
+- **Root `package.json`** (`private: true`, `engines >=18`, zero deps) with `npm run validate` /
+  `npm test` / `npm run check` so contributors and CI have one obvious entry point.
+- **graphify field notes** in `codebase-knowledge-graph`: the pip distribution is named `graphifyy`
+  (double-y) so `pip show graphify` misleads — detect via `--version`; and `graphify claude install`
+  (graphify's own integration) is compatible with this skill, not a conflict.
+### Noted (audit follow-through)
+- Audit false-positives verified and dismissed: the force-push guard already covers both argument orders
+  (`guard-bash.mjs` lines 91–92, exercised live), and `install.sh` already guards the empty-CLI case.
+  Bump 0.9.1 → 0.9.2.
+
 ## [0.9.1] — Always-on, consistent C4 Mermaid blueprint (no new UI)
 ### Added / Changed
 - **The architecture blueprint now always ships a clean, consistent diagram** — and it renders where
@@ -155,7 +179,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   `god-mode-sde@vibe-fde`; reinstall under the new name. License id `LicenseRef-GodModeSDE-1.0` →
   `LicenseRef-VibeGodTechTeam-1.0`. Validation clean; hooks 42/42.
 
-## [0.5.1] — Unreleased (README rewrite + source-available license)
+## [0.5.1] — README rewrite + source-available license
 ### Changed
 - **README fully rewritten for clarity and audience.** Leads with the problem vibe-coders feel
   (AI-slop look, security holes, no tests, spaghetti-at-scale), the USPs, then "one plugin = a
@@ -171,7 +195,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   licenses (Section 6 + `ATTRIBUTION.md`) — those rights are unaffected. Project open for contribution.
 - plugin.json `license` field updated accordingly; validation clean, official `claude plugin validate` ✔.
 
-## [0.5.0] — Unreleased (anti-hallucination — claim-verifier agent)
+## [0.5.0] — anti-hallucination — claim-verifier agent
 ### Added
 - **`claim-verifier` agent (27th specialist).** An epistemic red-team that independently
   FALSIFIES the team's CLAIMS — diagnoses, root-cause stories, and "fixed / works / non-issue"
@@ -193,7 +217,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   as ground truth, a contradicting hands-on result dismissed by argument), not a knowledge gap —
   so the fix is process, enforced by a dedicated lens.
 
-## [0.4.2] — Unreleased (plugin load fix — duplicate hooks)
+## [0.4.2] — plugin load fix — duplicate hooks
 ### Fixed
 - **The plugin failed to load (`✘ failed to load`).** `plugin.json` declared
   `"hooks": "./hooks/hooks.json"`, but Claude Code already auto-loads `hooks/hooks.json` by
@@ -211,7 +235,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   `✘ failed to load`), NOT `claude plugin details` — `details` prints the static inventory
   (e.g. `Hooks (3)`) even for a plugin that fails to load.
 
-## [0.4.1] — Unreleased (frontmatter integrity fix)
+## [0.4.1] — frontmatter integrity fix
 ### Fixed
 - **13 skills/commands silently loaded with EMPTY metadata.** Their YAML frontmatter
   `description:` values were unquoted but contained a colon-space (`: `) — e.g. "Start a new
@@ -231,7 +255,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   `claude plugin validate ./plugins/god-mode-sde` (installs `@anthropic-ai/claude-code`) so
   anything the homegrown linter misses is caught upstream. Hooks still 42/42.
 
-## [0.4.0] — Unreleased (enterprise-coverage gaps from the audit)
+## [0.4.0] — enterprise-coverage gaps from the audit
 ### Added — close the top audit gaps (each research-backed + cited)
 - **Gap #1 — analytics-engineer + `analytics-instrumentation` skill:** tracking-plan-as-contract,
   Object-Action events, server-preferred instrumentation + identity stitching + idempotency, North Star
@@ -260,7 +284,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   `ingest/fix-frontmatter.mjs`; reclaimed the gitignored scratch (172 MB → 126 KB).
 - Totals: **26 agents, 50 skills, 23 commands.** Validation clean; hooks 42/42. Bump to 0.4.0.
 
-## [0.3.0] — Unreleased (design refinement — kill the "AI-slop" look)
+## [0.3.0] — design refinement — kill the "AI-slop" look
 ### Added
 - **`design-refinement` skill** (adapted from Impeccable, pbakaus/impeccable, Apache-2.0 — TEXT only,
   no scripts; credits Bakaus + Anthropic frontend-design + ehmo): register (brand vs product), the
@@ -279,7 +303,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   generic centered card. Visual gate caught a 320px overflow → fixed → 7/7 clean.
 - 45 skills / 22 agents / 21 commands; validation clean.
 
-## [0.2.0] — Unreleased (enterprise org expansion)
+## [0.2.0] — enterprise org expansion
 ### Added — full internal product org (departments → lead + specialists) + enterprise gates
 - **8 new research-backed agents** (each ≤2 skills, one role, cited best-practices + guardrails):
   `delivery-manager` (TPM/RAID), `release-manager` (release trains/CAB/go-no-go),
@@ -316,7 +340,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Totals: **22 agents, 44 skills, 20 commands.** Validation clean; guardrail hooks 42/42
   (after the runtime-hardening pass).
 
-## [0.1.0] — Unreleased (Phase A complete)
+## [0.1.0] — Phase A complete
 ### Added
 - Marketplace (`vibe-fde`) + plugin (`god-mode-sde`).
 - `sde-orchestrator` lead skill driving the gated enterprise SDLC pipeline (FLOW-SPEC).

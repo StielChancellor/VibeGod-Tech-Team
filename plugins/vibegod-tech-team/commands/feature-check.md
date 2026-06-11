@@ -1,5 +1,5 @@
 ---
-description: Stage 7 — Run the 4 QA lenses IN PARALLEL (security, quality, adversarial, functional+no-orphans). Advance only when all pass.
+description: Stage 7 — Run the QA lenses IN PARALLEL — 4 core (security, quality, adversarial, functional+no-orphans) plus the ux-design-reviewer render for UI features and performance-engineer for perf-sensitive ones. Advance only when every applicable lens passes.
 ---
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.

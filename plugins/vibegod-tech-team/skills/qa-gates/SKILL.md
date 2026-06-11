@@ -1,6 +1,6 @@
 ---
 name: qa-gates
-description: Use to run the multi-lens QA model that gates every feature and the final ship. Trigger before closing any feature ("is this feature done", "QA this", "feature check") and before shipping ("ship check", "final QA", "ready to release"). Per feature, dispatch security-engineer + code-quality-reviewer + adversarial-tester + qa-engineer (plus ux-design-reviewer for UI) in PARALLEL — all must pass. Final gate adds a best-practices pass + UAT + smoke before ship.
+description: Use to run the multi-lens QA model that gates every feature and the final ship. Trigger before closing any feature ("is this feature done", "QA this", "feature check") and before shipping ("ship check", "final QA", "ready to release"). Per feature, dispatch security-engineer + code-quality-reviewer + adversarial-tester + qa-engineer (plus ux-design-reviewer for any UI feature and performance-engineer for perf-sensitive ones) in PARALLEL — all applicable lenses must pass. Final gate adds a best-practices pass + UAT + smoke before ship.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -66,7 +66,7 @@ and the swarm move to the next task. A single failing lens blocks the feature.
 ◆ Present the acceptance result + all gates green-with-evidence; the **user gives the final go/no-go**, then ship.
 
 ## How to run it
-- Dispatch the four Stage-7 lenses concurrently (one agent per lens) — don't serialize them.
+- Dispatch the Stage-7 lenses concurrently (one agent per lens; the 4 core + UX/perf where applicable) — don't serialize them.
 - Aggregate: report per-lens pass/fail with evidence (test output, scan results, screenshots for
   a11y). Surface any blocker plainly; don't paper over a fail to advance.
 - Re-run after fixes until clean. "Green" means actually green, observed.

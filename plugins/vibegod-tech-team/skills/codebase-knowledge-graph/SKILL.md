@@ -25,6 +25,10 @@ python -m graphify --version
 ```
 - If either responds → **resolve & persist the invocation (step 1b)**, then go to "Using graphify".
 - If not found → present the two options below. Don't silently pick.
+- Field notes: the pip distribution is named **`graphifyy`** (double-y), so `pip show graphify` reports
+  "not found" even when installed — detect via `--version`, never via pip. And if the user already ran
+  `graphify claude install` (graphify's own Claude Code integration), that's compatible — this skill's
+  flow and the grep-nudge hook push the same direction; don't treat the duplicate CLAUDE.md section as an error.
 
 ### 1b. Resolve & persist the invocation (the step that stops agents falling back to grep)
 The #1 reason a built graph goes unused is a bare `graphify` that isn't on the PATH — on Windows pip

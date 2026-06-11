@@ -113,7 +113,7 @@ function walkMd(dir) {
 let refs = 0;
 for (const file of walkMd(PLUGIN)) {
   const t = readFileSync(file, 'utf8');
-  const re = /\$\{CLAUDE_PLUGIN_ROOT\}\/([A-Za-z0-9._/-]+\.(?:md|mjs|json|js|html))/g;
+  const re = /\$\{CLAUDE_PLUGIN_ROOT\}\/([A-Za-z0-9._/-]+\.(?:md|mjs|json|js|html|yml|yaml))/g;
   let m;
   while ((m = re.exec(t))) {
     refs++;
