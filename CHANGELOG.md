@@ -3,6 +3,37 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] — /doctor + maker–checker + pipeline state + ERD + update nudge
+### Added
+- **`/doctor` + `toolchain-health` skill + `toolchain-doctor` agent (28th specialist).** One bundled,
+  zero-dep script (`skills/toolchain-health/tools/doctor.mjs`) health-checks every external tool the
+  pipeline assumes — Node ≥18, git, Claude CLI, **Playwright** (the render mandate), **graphify**
+  (incl. a stale `.graphify-path` = BROKEN → re-run `/graph`), mermaid-cli, guardrails mode — with a
+  ✓/–/✗ table, a FIX per finding, and exit 0/1. Run at `/kickoff`, before the Stage-5 go, or on any
+  tool failure. The agent is new because `devops-sre` is at the ≤2-skill cap; it reports into
+  Reliability/Ops, and `claim-verifier` is its checker. Verified live both ways (healthy → exit 0;
+  planted stale marker → ✗ exit 1).
+- **Maker–Checker (four-eyes) protocol** in `vibegod-orchestrator`: a 12-row matrix mapping every
+  load-bearing artifact (PRD, journey, blueprint, stack/cost, roadmap, code, tests, release plan,
+  docs, incident actions, toolchain health, any high-stakes claim) to its independent checker. Rules:
+  no agent checks its own work; checkers run in PARALLEL; a FAIL returns to the maker with precise
+  findings; nothing reaches a ◆ gate unchecked.
+- **Hand-offs + pipeline state:** every delegation returns a 3-line handover (**DONE** with evidence /
+  **OPEN** / **NEXT**), and **`VIBEGOD-STATE.md`** at the project root is the pipeline's persistent
+  memory — created by `/kickoff`, updated at every stage transition and ◆ gate, read FIRST on
+  invocation so a fresh session (or a parallel swarm) RESUMES instead of re-discovering. SessionStart
+  banner now says so.
+- **ER-diagram convention** appended to `_shared/c4-mermaid-convention.md` (singular UpperCamel
+  entities, PK/FK/UK, verb-labeled relationships, ≤~10 entities, committed in the schema/migration
+  doc) and required from `data-engineering` on every schema design/change. The template is covered by
+  the 0.9.3 mermaid render gate (3/3 blocks render).
+- **Update nudge** in `session-start.mjs`: compares the installed version to the GitHub manifest at
+  most once per 24h (tmpdir cache, 1.5s timeout, fully fail-open; `VIBEGOD_NO_UPDATE_CHECK=1` skips)
+  and prints a one-line `claude plugin update` hint when newer. Banner lens-count drift fixed
+  ("4 parallel lenses" → "4 core + UX/perf where applicable"). +2 session-start tests.
+- Totals now **28 agents · 51 skills · 24 commands** (README + orchestrator updated).
+  Bump 0.9.3 → 0.10.0.
+
 ## [0.9.3] — Validator hardening + Mermaid render gate in CI
 ### Added
 - **`ingest/validate.mjs` now also catches:** duplicate frontmatter `name`s (skills + agents) and

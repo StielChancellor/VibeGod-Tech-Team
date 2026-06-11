@@ -24,6 +24,11 @@ and treat PII as a first-class constraint (#7). The data layer is part of the fo
   enforce invariants, don't rely on app code alone.
 - Index for the real query patterns; don't speculatively index everything.
 - Parameterized access only — never string-concat SQL (#7).
+- **Commit a Mermaid `erDiagram` with every schema design/change** — inside the schema/migration
+  doc so it renders in review, per the shared convention's ER section
+  (`${CLAUDE_PLUGIN_ROOT}/skills/_shared/c4-mermaid-convention.md`): singular UpperCamel entities,
+  `PK`/`FK`/`UK` marks, verb-labeled relationships, cardinality matching the migration, ≤ ~10
+  entities per diagram (split by bounded context).
 
 ## Migrations — safe and reversible
 - **Every migration is reversible** (a real down path), or the irreversibility is called out

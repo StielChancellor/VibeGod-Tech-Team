@@ -3,7 +3,7 @@
 > Install one plugin and a **whole software company** shows up inside Claude Code — product, design,
 > security, engineering, QA, and release — and turns your idea into a real, production-grade platform.
 > **You approve. The team does the work.**
-> 27 specialists · 11 departments · 50 skills · 23 commands · **1 coordinator** you talk to.
+> 28 specialists · 11 departments · 51 skills · 24 commands · **1 coordinator** you talk to.
 
 ---
 
@@ -46,7 +46,7 @@ carries the distilled knowledge of a senior expert in that exact field** — not
 real vertical-specific know-how. As the work moves, **they hand off to each other**, and a **project
 manager oversees the whole thing**. The flow just happens. Your only job: **approve at each ◆ gate.**
 
-**Under the hood:** 27 specialists · 11 departments · 50 skills · 23 commands · **1 coordinator** you talk to.
+**Under the hood:** 28 specialists · 11 departments · 51 skills · 24 commands · **1 coordinator** you talk to.
 
 The gated flow (you approve every ◆; any change re-enters at the PRD and propagates cleanly downstream):
 
@@ -171,7 +171,7 @@ You *can* still summon a specialist directly, e.g.:
 `/kickoff` · `/triage` · `/prd` · `/journey` · `/stack-and-cost` · `/module-map` · `/design-review` ·
 `/build-plan` · `/build` · `/feature-check` · `/ux-check` · `/polish` · `/ship-check` ·
 `/compliance-check` · `/perf-check` · `/docs-check` · `/release` · `/launch-readiness` ·
-`/change-request` · `/raid` · `/incident` · `/ingest-scan` · `/graph`
+`/change-request` · `/raid` · `/incident` · `/ingest-scan` · `/graph` · `/doctor`
 
 ## 🙏 Credits & acknowledgements
 
