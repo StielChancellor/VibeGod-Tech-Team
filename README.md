@@ -1,18 +1,38 @@
 # VibeGod Tech Team
 
-> Install one plugin and a **whole software company** shows up inside Claude Code — product, design,
-> security, engineering, QA, and release — and turns your idea into a real, production-grade platform.
+> **One install. A whole world-class software company shows up inside Claude Code — and it works for you.**
+> 28 seasoned specialists — product, design, architecture, engineering, QA, security, release — who plan,
+> design, build, test, and ship your idea as a real, production-grade platform.
 > **You approve. The team does the work.**
+>
 > 28 specialists · 11 departments · 51 skills · 24 commands · **1 coordinator** you talk to.
 
 ---
+
+## ⚡ 60-second start
+
+**Install** (paste into Claude Code):
+```text
+/plugin marketplace add StielChancellor/VibeGod-Tech-Team
+/plugin install vibegod-tech-team@vibegod
+```
+**Turn it on for a project** (token-safe — see [Save tokens](#-save-tokens--on-only-where-you-need-it)), restart, then just say:
+
+> 💬 *"use vibegod-tech-team to build a booking app for a yoga studio — members sign up, book classes, pay online"*
+
+**Update / uninstall** anytime:
+```text
+/plugin update vibegod-tech-team@vibegod
+/plugin uninstall vibegod-tech-team@vibegod
+```
+Not in a surface with `/plugin`? Every command has a terminal twin — prefix with `claude` — and there are one-line installers in [Install](#-install--pick-your-setup).
 
 ## Who it's for
 
 Two kinds of people, one problem: **the idea (or the skill) is there — the rest of the team isn't.**
 
 - 🚀 **You have the vision, not the team.** You can describe a great product, or vibe-code a prototype —
-  but you're not a security engineer *and* a designer *and* a DBA *and* an SRE all at once. VibeGod Tech Team
+  but you're not a security engineer *and* a designer *and* a DBA *and* an SRE at once. VibeGod Tech Team
   **is** that team. It turns *"I have an idea"* into shipped software without you needing every expertise.
 - 🧑‍💻 **You're already a strong coder.** You ship fast solo — but solo means no design review, no threat
   model, no QA swarm, no release process. This wraps a senior org around you and turns your pro skills
@@ -22,6 +42,66 @@ Two kinds of people, one problem: **the idea (or the skill) is there — the res
 accessibility, tests, performance, docs, and a safe release. Doing all of that alone is why most
 prototypes never become products. This brings the whole org.
 
+## 👥 Meet your team
+
+These aren't generic helpers. **Each agent carries the distilled judgment of a senior expert in one
+exact field** — the standards, the failure modes, the taste — and stays strictly in its lane. Eight
+departments work for you:
+
+- **Product** — a PM and a UX researcher who turn your idea into a sharp PRD with real success metrics,
+  and push back when scope creeps.
+- **Design** — a designer who maps your user journeys, picks real fonts and a committed color story, and
+  **refuses "AI-slop" UI**; a design reviewer who renders every screen at 7 breakpoints before calling it good.
+- **Architecture** — a solution architect and security architect who blueprint the system, pin module
+  contracts, and threat-model the design *before* a line of code exists.
+- **Engineering** — frontend, backend, data, AI/agents, auth & multi-tenant, integrations, and infra
+  engineers who build foundation-first with TDD.
+- **Quality** — parallel QA lenses (functional · code-quality · adversarial · performance) plus a
+  **claim-verifier** whose only job is to prove the team's own conclusions wrong before you see them.
+- **Security & Compliance** — OWASP code review on every feature; SOC 2 / GDPR / HIPAA / PCI when you need it.
+- **Delivery / Release / Ops** — a TPM who tracks risk, a release manager who runs go/no-go, an SRE for
+  safe rollouts, an incident commander for when production burns, and a **toolchain doctor** (`/doctor`)
+  who verifies your environment before the build depends on it.
+- **Docs** — a technical writer for guides, API reference, and runbooks.
+
+You *can* summon anyone directly, anytime:
+- *"have the security-architect threat-model this"*
+- *"ask the tech-lead what this stack costs to run"*
+- *"get the ui-ux-designer to make this screen less generic"*
+- *"will this scale? ask the performance-engineer"*
+- *"production's down — run an incident"*
+- *"have the claim-verifier double-check that's really fixed"*
+
+## 🤝 How they work for you
+
+**Once it's live, you don't manage anyone.** Describe what you want and the right specialist activates
+itself — mention anything security-related and the security engineer wakes up; touch the database and
+the data engineer steps in. As work moves, **they hand off to each other** (every handover states what's
+done — with evidence — what's open, and who's next), while a **project manager keeps the whole program
+on track**. Your only job: **approve at each ◆ gate.**
+
+Four disciplines make this a team you can trust, not a single model talking to itself:
+
+- 🔍 **Maker–checker on everything.** Every artifact — PRD, design, blueprint, code, tests, release plan —
+  is checked by a *different* specialist than the one who made it. No agent grades its own homework, and
+  nothing reaches your gate unchecked.
+- 📸 **Proof, not promises.** UI isn't "done" until it's actually **rendered in a real browser** across
+  the breakpoint matrix (Playwright) — and a CI gate template keeps it that way after launch. Claims of
+  "tests pass" require the test output, not optimism.
+- 🧭 **Nothing gets orphaned.** Every change propagates end-to-end — DB → API → UI → docs → every call
+  site (impact-checked with a code knowledge graph, not guesswork) — so you never ship a button with no
+  backend or dead code nobody noticed.
+- 💾 **The pipeline remembers.** Progress lives in `VIBEGOD-STATE.md`, so a new session (or a parallel
+  agent swarm) **resumes exactly where the team stood** instead of starting over.
+
+The gated flow (you approve every ◆; any change re-enters at the PRD and propagates cleanly downstream):
+
+```
+Discover → PRD → Journey → Stack & Cost → Modules → Security review
+   → Build → Per-feature QA (parallel lenses: 4 core + UX/perf) → UAT & Smoke
+   → Compliance / Performance / Docs → Release → Operate
+```
+
 ## What you get
 
 - 🏢 **A coordinated expert team**, not a lone assistant — it plans → designs → builds → tests → ships.
@@ -29,32 +109,12 @@ prototypes never become products. This brings the whole org.
 - 🎨 **Design that isn't "AI slop"** — real fonts, a committed color story, distinctive UI by default.
 - 🗺️ **A drag-and-drop journey map** — `/journey` builds an interactive canvas (pan/zoom · swimlanes ·
   drag-to-connect) you open in your browser to *see* and reshape the whole user flow before any code.
-- 🧱 **End-to-end consistency** — every change flows DB → API → UI → docs with *no orphans left behind*.
-- 💸 **Cost-aware** — every tech choice shows the price tag *and* a cheaper alternative.
-- 🔍 **Self-checking** — a verifier agent tries to prove the team's own conclusions wrong before you see them.
+- 📐 **Architecture you can actually see** — every blueprint ships a clean C4 diagram (and data models an
+  ER diagram) that renders right in GitHub, your IDE, and PRs.
+- 💸 **Cost-aware** — every tech choice shows the price tag *and* a cheaper alternative with what you'd lose.
 - 🚦 **You stay in control** — it never jumps straight to code, and pauses at every decision gate for your yes.
-
-**The org, by department:** Product · Design · Architecture · Engineering · Quality · Security & Compliance · Delivery/Release/Ops · Docs.
-
-## How it works — install it, and the team just runs
-
-Here's the part that matters: **once it's live, you don't manage anyone.**
-
-Describe what you want, and the **right specialist activates itself** — mention anything security-related
-and the security expert wakes up; talk about the database and the data engineer steps in. **Each agent
-carries the distilled knowledge of a senior expert in that exact field** — not a generalist guessing, but
-real vertical-specific know-how. As the work moves, **they hand off to each other**, and a **project
-manager oversees the whole thing**. The flow just happens. Your only job: **approve at each ◆ gate.**
-
-**Under the hood:** 28 specialists · 11 departments · 51 skills · 24 commands · **1 coordinator** you talk to.
-
-The gated flow (you approve every ◆; any change re-enters at the PRD and propagates cleanly downstream):
-
-```
-Discover → PRD → Journey → Stack & Cost → Modules → Security review
-   → Build → Per-feature QA (4 lenses in parallel) → UAT & Smoke
-   → Compliance / Performance / Docs → Release → Operate
-```
+- 🩺 **It checks its own toolchain** — `/doctor` verifies Node, Playwright, the code graph, and more
+  before the build relies on them, and the team nudges you when a newer plugin version ships.
 
 ## Using it (once it's installed)
 
@@ -69,12 +129,7 @@ Just talk to it in plain English — nothing to memorize:
 It plans *with* you and stops at each gate for approval. Prefer commands? `/kickoff` starts a new build
 (full list near the end).
 
-## Quick start (cheat-sheet)
-
-- ✅ **Already installed?** Just type `use vibegod-tech-team to …`, or run `/kickoff`. That's it.
-- ⬇️ **Not installed yet?** Run the one-liner for your setup (below), restart, then talk to it.
-
-## Install — pick your setup
+## 📦 Install — pick your setup
 
 `/plugin` only exists in some Claude surfaces, so pick yours. **Rule of thumb:** any `/plugin …` command
 has a terminal twin — prefix it with `claude` (e.g. `claude plugin install …`). Everything lives in
@@ -117,7 +172,7 @@ and leaves it **off by default** (token-safe). Restart Desktop after.
 
 > ⚠️ Never copy the plugin files by hand — always use the commands above, then start a fresh session.
 
-## Save tokens — turn it on only where you need it
+## 💰 Save tokens — on only where you need it
 
 The team is powerful but not free: while **enabled**, it adds **~9.5k tokens to every session** (the skills
 stay "on call"). **Disabled, it costs 0** — nothing loads. So keep it **off by default** and switch it on
@@ -131,7 +186,7 @@ claude plugin enable  vibegod-tech-team@vibegod --scope project   # ON for just 
 (In the terminal / VS Code you can also use `/plugin enable|disable`.) Changes apply on the next session —
 **restart** after. Check with `claude plugin list` (`✔ enabled` / `✘ disabled`).
 
-## Languages & platform
+## 🛠️ Languages & platform
 
 - **Languages:** TypeScript/JS, Python, Go, Rust, Java/Kotlin — idiomatic style, strict typing, boundary
   validation, and per-language security pitfalls.
@@ -142,31 +197,7 @@ claude plugin enable  vibegod-tech-team@vibegod --scope project   # ON for just 
 - **Runtime guardrails:** best-effort hooks block secrets-in-code and dangerous shell commands (a safety
   net, not a hard boundary — fail-open). Soften to warnings with `VIBEGOD_GUARDRAILS=advisory`.
 
-## Meet the team — and when each wakes up
-
-**You rarely call anyone by name.** Describe the work and the relevant expert self-activates, hands off to
-the next as the job moves, while the **project manager keeps it on track** and brings you the decisions.
-The eight teams:
-
-- **Product** — turns your idea into a clear PRD, user research, and success metrics.
-- **Design** — journeys, screens, fonts, color, motion; reviews every build across screen sizes.
-- **Architecture** — system blueprint, module contracts, and the security design *up front*.
-- **Engineering** — frontend, backend, data, AI/agents, auth & multi-tenant, integrations, infra.
-- **Quality** — four parallel lenses (functional · code-quality · adversarial · performance) + a
-  claim-verifier that catches confident-but-wrong conclusions.
-- **Security & Compliance** — OWASP code review + SOC 2 / GDPR / HIPAA / PCI when you need it.
-- **Delivery / Release / Ops** — keeps the program on track, ships with safe rollouts, runs incidents.
-- **Docs** — guides, API reference, and runbooks.
-
-You *can* still summon a specialist directly, e.g.:
-- *"have the security-architect threat-model this"*
-- *"ask the tech-lead what this stack costs to run"*
-- *"get the ui-ux-designer to make this screen less generic"*
-- *"will this scale? ask the performance-engineer"*
-- *"production's down — run an incident"*
-- *"have the claim-verifier double-check that's really fixed"*
-
-## Commands
+## ⌨️ Commands
 
 `/kickoff` · `/triage` · `/prd` · `/journey` · `/stack-and-cost` · `/module-map` · `/design-review` ·
 `/build-plan` · `/build` · `/feature-check` · `/ux-check` · `/polish` · `/ship-check` ·
