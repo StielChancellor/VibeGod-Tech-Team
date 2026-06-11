@@ -68,6 +68,36 @@ the module map (`REST`/`event`/`gRPC` + the endpoint/event name), dashed for asy
 inside a trust boundary in a `subgraph`. Every PRD requirement/journey step must land in exactly one
 module node — so the diagram doubles as the no-orphans check.
 
+## ER diagrams (data models — Stage 4/6, owned by data-engineering)
+Same philosophy for schemas: when a data model is designed or changed, commit a Mermaid `erDiagram`
+**inside the schema/migration doc** so it renders in review. Conventions: entity names singular
+UpperCamel; mark keys with `PK` / `FK` / `UK`; every relationship labeled with a verb; cardinality
+must match the migration that ships with it. Keep it ≤ ~10 entities per diagram — split by bounded
+context, exactly like the Container rule.
+```mermaid
+erDiagram
+  User ||--o{ Booking : makes
+  YogaClass ||--o{ Booking : "is booked as"
+  User {
+    uuid id PK
+    string email UK
+    string name
+  }
+  Booking {
+    uuid id PK
+    uuid user_id FK
+    uuid class_id FK
+    datetime starts_at
+  }
+  YogaClass {
+    uuid id PK
+    string title
+    int capacity
+  }
+```
+(Heads-up: bare ALL-CAPS words like `CLASS` collide with mermaid's ER style keywords — another
+reason for the UpperCamel rule.)
+
 ## Why read-only (and what this is NOT)
 This is deliberately a **rendered, committed diagram**, not an interactive editor. A drag-and-drop
 canvas for architecture was considered and rejected: architecture is authored ~once, the load-bearing

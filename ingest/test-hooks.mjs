@@ -89,8 +89,10 @@ check('nudges on bash grep of a bare symbol', nBash.status === 0 && /graphify/.t
 check('silent on non-grep bash', run('nudge-graphify.mjs', { tool_input: { command: 'npm test' } }, { CLAUDE_PROJECT_DIR: gdir }).out.trim() === '');
 
 console.log('session-start:');
-const ss = run('session-start.mjs', { hook_event_name: 'SessionStart' });
+const ss = run('session-start.mjs', { hook_event_name: 'SessionStart' }, { VIBEGOD_NO_UPDATE_CHECK: '1' });
 check('emits posture banner', ss.status === 0 && /PRIME DIRECTIVE/.test(ss.out));
+check('mentions resume + doctor', /VIBEGOD-STATE\.md/.test(ss.out) && /\/doctor/.test(ss.out));
+check('no update line when check disabled', !/UPDATE available/.test(ss.out));
 
 console.log(`\n${fail ? '✗' : '✓'} ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
