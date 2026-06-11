@@ -3,6 +3,19 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.3] — Validator hardening + Mermaid render gate in CI
+### Added
+- **`ingest/validate.mjs` now also catches:** duplicate frontmatter `name`s (skills + agents) and
+  name-vs-location mismatches (a skill's `name` must equal its directory; an agent's its filename);
+  unknown agent `model:` values (whitelist `opus/sonnet/haiku/inherit`); unknown tools in
+  `allowed-tools` (catches typos like `Reads`) for skills AND commands.
+- **NEW `ingest/check-mermaid.mjs` + CI step:** extracts every line-start ```` ```mermaid ```` fence
+  shipped in the plugin (the canonical C4 convention template + the journey-mapping example) and
+  **renders each via mermaid-cli** (chromium, `--no-sandbox` for CI). A diagram that stops parsing
+  fails the build — the same "machine-enforced, un-forgettable gate" philosophy as the visual-check
+  CI gate (v0.8.0). Inline prose mentions of ```` ```mermaid ```` are ignored (line-start fences only).
+  `npm run check:mermaid` runs it locally. Bump 0.9.2 → 0.9.3.
+
 ## [0.9.2] — Repo-audit cleanup (loose ends + polish)
 ### Fixed
 - **`.gitignore` now ignores `.graphify-path`** (the machine-specific marker `/graph` writes since v0.9.0).

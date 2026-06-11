@@ -34,3 +34,8 @@ jobs:
 
       - name: Run guardrail hook unit tests
         run: node ingest/test-hooks.mjs
+
+      # Render-check every shipped mermaid diagram (esp. the canonical C4 convention template) —
+      # a diagram that no longer parses/renders fails the build, not the next user.
+      - name: Render-check shipped Mermaid diagrams
+        run: node ingest/check-mermaid.mjs
