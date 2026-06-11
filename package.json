@@ -9,6 +9,7 @@
   "scripts": {
     "validate": "node ingest/validate.mjs",
     "test": "node ingest/test-hooks.mjs",
+    "check:mermaid": "node ingest/check-mermaid.mjs",
     "check": "node ingest/validate.mjs && node ingest/test-hooks.mjs"
   }
 }

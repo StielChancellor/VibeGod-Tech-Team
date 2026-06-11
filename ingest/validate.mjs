@@ -57,9 +57,20 @@ for (const f of ['.claude-plugin/marketplace.json', 'plugins/vibegod-tech-team/.
   }
 }
 
+// Tools Claude Code actually exposes — catches typos like `Reads` in allowed-tools.
+const VALID_TOOLS = new Set(['Read', 'Write', 'Edit', 'MultiEdit', 'NotebookEdit', 'Glob', 'Grep',
+  'Bash', 'WebFetch', 'WebSearch', 'Task', 'Agent', 'TodoWrite', 'AskUserQuestion', 'Skill', 'SlashCommand']);
+function checkAllowedTools(fm, label) {
+  if (!fm['allowed-tools']) return;
+  for (const t of fm['allowed-tools'].replace(/^["']|["']$/g, '').split(',').map((s) => s.trim()).filter(Boolean)) {
+    if (!VALID_TOOLS.has(t)) err(`${label}: allowed-tools lists unknown tool '${t}'`);
+  }
+}
+
 console.log('Skills:');
 const skillsDir = join(PLUGIN, 'skills');
 const skillNames = new Set();
+const seenSkillFmNames = new Map();
 for (const name of readdirSync(skillsDir)) {
   const dir = join(skillsDir, name);
   if (!statSync(dir).isDirectory() || name === '_shared') continue;
@@ -69,18 +80,35 @@ for (const name of readdirSync(skillsDir)) {
   if (!fm) { err(`skill ${name}: no frontmatter`); continue; }
   if (!fm.description) err(`skill ${name}: missing description`);
   if (fm.description && fm.description.length < 30) warn(`skill ${name}: thin description`);
+  // Name integrity: the frontmatter name is the skill's identity — it must match the dir and be unique.
+  if (fm.name && fm.name !== name) err(`skill ${name}: frontmatter name '${fm.name}' != directory name`);
+  if (fm.name) {
+    if (seenSkillFmNames.has(fm.name)) err(`skill ${name}: duplicate frontmatter name '${fm.name}' (also in ${seenSkillFmNames.get(fm.name)})`);
+    seenSkillFmNames.set(fm.name, name);
+  }
+  checkAllowedTools(fm, `skill ${name}`);
   skillNames.add(name);
 }
 console.log(`  -> ${skillNames.size} skills`);
 
 console.log('Agents:');
+const VALID_MODELS = new Set(['opus', 'sonnet', 'haiku', 'inherit']);
 const agentsDir = join(PLUGIN, 'agents');
+const seenAgentNames = new Map();
 let agentCount = 0;
 if (existsSync(agentsDir)) for (const f of readdirSync(agentsDir)) {
   if (!f.endsWith('.md')) continue;
   const fm = frontmatter(join(agentsDir, f));
   if (!fm) { err(`agents/${f}: no frontmatter`); continue; }
   for (const r of ['description', 'model']) if (!fm[r]) err(`agents/${f}: missing ${r}`);
+  if (fm.model && !VALID_MODELS.has(fm.model)) err(`agents/${f}: model '${fm.model}' is not a known value (${[...VALID_MODELS].join('/')})`);
+  // Name integrity: must match the filename and be unique across agents.
+  const base = f.replace(/\.md$/, '');
+  if (fm.name && fm.name !== base) err(`agents/${f}: frontmatter name '${fm.name}' != filename`);
+  if (fm.name) {
+    if (seenAgentNames.has(fm.name)) err(`agents/${f}: duplicate agent name '${fm.name}' (also in ${seenAgentNames.get(fm.name)})`);
+    seenAgentNames.set(fm.name, f);
+  }
   const bound = (fm.skills || '').split(',').map((s) => s.trim()).filter(Boolean);
   if (bound.length > 2) err(`agents/${f}: binds ${bound.length} skills (max 2)`);
   for (const s of bound) if (!skillNames.has(s)) err(`agents/${f}: bound skill '${s}' does not exist`);
@@ -96,6 +124,7 @@ if (existsSync(cmdDir)) for (const f of readdirSync(cmdDir)) {
   const fm = frontmatter(join(cmdDir, f));
   if (!fm) { err(`commands/${f}: no frontmatter`); continue; }
   if (!fm.description) err(`commands/${f}: missing description`);
+  checkAllowedTools(fm, `commands/${f}`);
   cmdCount++;
 }
 console.log(`  -> ${cmdCount} commands`);
