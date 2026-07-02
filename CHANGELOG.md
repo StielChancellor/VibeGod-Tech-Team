@@ -3,6 +3,28 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.11.1] — Honesty + update-nudge injection fix
+### Security
+- **Update-nudge prompt-injection closed (U15).** The SessionStart hook fetches the latest plugin version
+  from GitHub and caches it in a **world-writable** tmpdir file, then previously interpolated that `version`
+  string **verbatim** into the posture banner — the highest-trust channel. A multi-line / instruction-bearing
+  "version" (from the network *or* a locally-poisoned cache) could become standing instructions every session.
+  A new `cleanVersion()` now runs the value through the SAME boundary as untrusted recipe fields
+  (`stripInvisible` → strict `^\d+\.\d+\.\d+$` semver → shared `looksInjected` scan) on **both** the cache-read
+  and fetch paths; an unclean value is never cached, compared, or shown, and a fresh-but-poisoned cache falls
+  back to the local version with **no nudge** (and no refetch). Independently maker-checked (security-engineer,
+  no bypass found).
+### Changed (honesty)
+- **Posture banner reworded** — `Security guardrails: ENFORCING` → `Guardrails: … best-effort heuristics,
+  fail-open; a safety net, not a security boundary`. The ENFORCING/ADVISORY block-vs-warn toggle is unchanged;
+  the wording no longer implies a completeness the fail-open regex hooks don't deliver.
+- **README** — added a **"What's enforced vs guided"** table that separates the mechanical hooks (secret /
+  dangerous-command hard-block, recipe lint, structural `validate.mjs`) from the model-followed doctrine
+  (the gated pipeline, maker-checker, no-orphans, OWASP/WCAG), so the two kinds of promise aren't conflated.
+### Tests
+- +2 hermetic, offline regression tests (a poisoned update cache is neutralized — no injection, no nudge;
+  a clean newer cached version still nudges). Suite **80 → 82** passing; `validate.mjs` clean.
+
 ## [0.11.0] — Recipes (Tier-1 codified flows) — replay a proven flow, don't re-derive it
 ### Added
 - **`recipes` skill + `/recipe` command** — capture a *proven, recurring* flow as a committed markdown

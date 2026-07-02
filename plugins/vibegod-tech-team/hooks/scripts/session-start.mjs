@@ -22,19 +22,32 @@ const newer = (a, b) => { // true if b > a (semver-ish)
   for (let i = 0; i < 3; i++) { if ((pb[i] || 0) > (pa[i] || 0)) return true; if ((pb[i] || 0) < (pa[i] || 0)) return false; }
   return false;
 };
+// Only a bare dotted-numeric version may reach the (highest-trust) posture banner. The version string
+// arrives from the network AND a world-writable tmpdir cache, so it gets the SAME distrust as untrusted
+// recipe fields: strip invisibles, require strict semver, and run the shared injection scan. Anything
+// else (multi-line payloads, injected instructions, non-ASCII) -> null, so it can never be interpolated.
+function cleanVersion(v) {
+  const s = stripInvisible(String(v ?? '')).trim();
+  if (!/^\d{1,4}(?:\.\d{1,4}){2}$/.test(s)) return null;
+  if (looksInjected(s)) return null; // defense-in-depth; shares the recipe-path boundary
+  return s;
+}
 async function updateNudge() {
   if (process.env.VIBEGOD_NO_UPDATE_CHECK) return '';
   try {
     const local = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', '.claude-plugin', 'plugin.json'), 'utf8')).version;
     const cacheFile = join(tmpdir(), 'vibegod-update-check.json');
-    let latest = null;
+    let latest = null, haveFresh = false;
     if (existsSync(cacheFile)) {
       const c = JSON.parse(readFileSync(cacheFile, 'utf8'));
-      if (Date.now() - c.ts < 24 * 60 * 60 * 1000) latest = c.latest;
+      // A fresh-but-poisoned cache (the tmpdir file is world-writable) is neutralized, not trusted:
+      // an unclean cached version falls back to `local` (no nudge) instead of reaching the banner.
+      if (Date.now() - c.ts < 24 * 60 * 60 * 1000) { latest = cleanVersion(c.latest) || local; haveFresh = true; }
     }
-    if (latest === null) {
+    if (!haveFresh) {
       const res = await fetch(RAW_MANIFEST, { signal: AbortSignal.timeout(1500) });
-      latest = res.ok ? (await res.json()).version : local;
+      // Sanitize BEFORE caching or comparing — never persist or trust an unclean version string.
+      latest = cleanVersion(res.ok ? (await res.json()).version : local) || local;
       writeFileSync(cacheFile, JSON.stringify({ ts: Date.now(), latest }));
     }
     if (newer(local, latest)) return `\nUPDATE available: vibegod-tech-team v${latest} (you have v${local}) — run: claude plugin update vibegod-tech-team@vibegod`;
@@ -96,5 +109,6 @@ advise('SessionStart',
   `Honor vibegod-principles: investigate-before-answering, simplicity/anti-overeagerness, surgical changes, general-correct ` +
   `solutions (don't code to the test), OWASP security, WCAG 2.2 AA, consistency/no-orphans, maker–checker (no agent checks ` +
   `its own work), and cost-awareness (always surface cheaper alternatives + tradeoffs).\n` +
-  `Security guardrails: ${mode}. Use /kickoff to start a build, /change-request to change one, /doctor to health-check the toolchain.` +
+  `Guardrails: ${mode} — best-effort heuristics, fail-open; a safety net, not a security boundary. ` +
+  `Use /kickoff to start a build, /change-request to change one, /doctor to health-check the toolchain.` +
   nudge + recipes);

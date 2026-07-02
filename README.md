@@ -197,6 +197,25 @@ claude plugin enable  vibegod-tech-team@vibegod --scope project   # ON for just 
 - **Runtime guardrails:** best-effort hooks block secrets-in-code and dangerous shell commands (a safety
   net, not a hard boundary — fail-open). Soften to warnings with `VIBEGOD_GUARDRAILS=advisory`.
 
+## 🔒 What's enforced vs what's guided
+
+Two kinds of promises, and it's worth being honest about which is which. **Enforced** = a mechanical hook
+that actually blocks or fails, independent of the model. **Guided** = doctrine the model is *instructed*
+to follow — strong and load-bearing, but not a hard boundary (a model under pressure can be argued out of
+it). Most of this plugin's rigor is *guided*; the *enforced* layer is a deliberately small safety net.
+
+| Enforced (mechanical hooks/scripts) | Guided (model-followed doctrine) |
+|---|---|
+| Hard-block on hardcoded secrets in a write — `guard-write` (fail-open) | The gated pipeline & every ◆ approval gate |
+| Hard-block on dangerous shell — `rm -rf /`, `curl\|bash`, force-push to `main`, disk wipes — `guard-bash` (fail-open) | Maker–checker ("no agent checks its own work") |
+| SessionStart posture banner + a sanitized, bounded, proven-only recipe index | Consistency / no-orphans end-to-end propagation |
+| Recipe lint (prose-only, injection-marker scan) + structural `validate.mjs` | OWASP secure-coding & WCAG 2.2 AA in build + review |
+| The hooks' own test suite (`ingest/test-hooks.mjs`) | Cost-awareness · TDD · verification-before-completion |
+
+The guardrail hooks are **best-effort heuristics that fail open** — regex command-filtering is inherently
+bypassable, so treat it as coverage-widening, not a security boundary. Everything in the *guided* column
+holds only as far as the model follows its instructions; it is not mechanically enforced.
+
 ## ⌨️ Commands
 
 `/kickoff` · `/triage` · `/prd` · `/journey` · `/stack-and-cost` · `/module-map` · `/design-review` ·
