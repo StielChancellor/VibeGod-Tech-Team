@@ -208,7 +208,8 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 |---|---|
 | Hard-block on hardcoded secrets in a write — `guard-write` (fail-open) | The gated pipeline & every ◆ approval gate |
 | Hard-block on dangerous shell — `rm -rf /`, `curl\|bash`, force-push to `main`, disk wipes — `guard-bash` (fail-open) | Maker–checker ("no agent checks its own work") |
-| SessionStart posture banner + a sanitized, bounded, proven-only recipe index | Consistency / no-orphans end-to-end propagation |
+| Hard-block on edits to the frozen `## GOAL` block of `VIBEGOD-STATE.md` — `guard-state` (fail-open) | Consistency / no-orphans end-to-end propagation |
+| SessionStart posture banner + a sanitized, bounded, proven-only recipe index | Surgical changes · investigate-before-answering · single front-door |
 | Recipe lint (prose-only, injection-marker scan) + structural `validate.mjs` | OWASP secure-coding & WCAG 2.2 AA in build + review |
 | The hooks' own test suite (`ingest/test-hooks.mjs`) | Cost-awareness · TDD · verification-before-completion |
 

@@ -11,6 +11,7 @@ Requested change: $ARGUMENTS
 Do this:
 1. State the stage and that the change re-enters at the PRD. Delegate to the **product-manager** subagent and drive the propagation with the **change-propagation** skill.
 2. **Edit the full PRD** (and the remaining downstream artifacts) to reflect the add/change/delete — not just a patch note. Update goals/non-goals, requirements, and journey impact.
+   - If the change alters the **Stage-0 objective or acceptance criteria**, re-baseline the frozen `## GOAL` block in `VIBEGOD-STATE.md` **deliberately** — recreate it from `${CLAUDE_PLUGIN_ROOT}/skills/_shared/VIBEGOD-STATE.template.md` with the user's sign-off. The `guard-state` hook blocks in-place GOAL edits by design, so a goal change stays a conscious Stage-9 act, never silent drift.
 3. Propagate the change **in order, end to end**:
    **PRD → blueprint → code roadmap → graphify → actual code.**
    - Update the PRD (product-manager) and the blueprint/module map (solution-architect, `module-architecture`).

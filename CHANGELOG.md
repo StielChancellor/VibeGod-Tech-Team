@@ -3,6 +3,33 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.0] — Frozen GOAL block: VIBEGOD-STATE.md becomes a real, enforced state file
+### Added
+- **Frozen `## GOAL` block + a committed state template** (`skills/_shared/VIBEGOD-STATE.template.md`).
+  `/kickoff` now instantiates the template and fills a **write-once GOAL block** — the Stage-0 objective +
+  **machine-checkable acceptance criteria** (each naming the test/render/scan that proves it) + hard
+  constraints + non-goals. It is the pipeline's north-star and the anti-goalpost-moving anchor: a
+  machine-checkable definition of "done" the user signs off *against*, not the agent's prose. Valuable even
+  in pure human-gated mode; it is also the substrate a future autonomous loop / drift check would read.
+- **`guard-state.mjs` — a new hard-block hook** that keeps the GOAL block write-once. Only acceptance-criteria
+  checkboxes may flip (`[ ] -> [x]`, and only when an agent-independent signal proves the criterion); any edit
+  to the objective / criteria / constraints / non-goals is blocked, so a real goal change is a **deliberate
+  Stage-9 change-request** (re-baseline from the template with user sign-off), never silent drift. Fail-open,
+  cross-platform, zero-dep; downgrade with `VIBEGOD_GUARDRAILS=advisory`. Block extraction is **fence-aware**
+  (a `## `-prefixed line inside a code fence in the GOAL body cannot truncate the frozen region).
+### Changed
+- Orchestrator "pipeline state" section documents the frozen GOAL block + the write-once rule + maker
+  (`product-manager`) / checker (`claim-verifier` — each `[x]` must trace to reproduced real signal, not self-report).
+- `change-request.md` (Stage 9) documents the sanctioned GOAL re-baseline path (recreate from template with sign-off).
+- README "What's enforced vs guided" table gains the `guard-state` hard-block row.
+### Tests
+- +10 hook tests (the guard-state freeze/allow matrix, incl. **two fence-bypass regression cases**). Suite **82 → 92**.
+### Gate / process
+- Built via the plugin's own express-lane discipline — maker + independent maker-checker (no agent checks its own
+  work). The **adversarial-tester** lens found and fixed a fenced-`## ` GOAL-truncation **bypass** under TDD
+  (red-before-green); the **code-quality-reviewer** lens caught the change-request re-baseline propagation gap.
+  Both closed before ship.
+
 ## [0.11.1] — Honesty + update-nudge injection fix
 ### Security
 - **Update-nudge prompt-injection closed (U15).** The SessionStart hook fetches the latest plugin version

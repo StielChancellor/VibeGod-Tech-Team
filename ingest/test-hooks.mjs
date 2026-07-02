@@ -172,5 +172,47 @@ writeFileSync(join(ufresh, 'vibegod-update-check.json'), JSON.stringify({ ts: Da
 const nudged = run('session-start.mjs', {}, { TMPDIR: ufresh, TEMP: ufresh, TMP: ufresh });
 check('clean newer cached version still nudges', nudged.status === 0 && /UPDATE available/.test(nudged.out) && /99\.0\.0/.test(nudged.out));
 
+console.log('guard-state:');
+const STATE = [
+  '## GOAL (frozen at kickoff - do not edit; only flip acceptance-criteria [ ] -> [x])',
+  'Objective: Ship a yoga booking app where members sign up, book classes, and pay online.',
+  'Acceptance criteria (machine-checkable):',
+  '- [ ] AC-1: members can book a class. proof: e2e booking test passes',
+  '- [ ] AC-2: payment succeeds. proof: stripe test-mode charge test passes',
+  'Hard constraints: OWASP Top 10, WCAG 2.2 AA',
+  'Non-goals: native mobile app',
+  '',
+  '## STATUS',
+  'Stage: 0 - Discover',
+  'Triage tier: standard',
+  '',
+  '## NEXT ACTION',
+  'Run /prd to begin Stage 1.',
+  '',
+].join('\n');
+function stateFile() { const f = join(mkdtempSync(join(tmpdir(), 'vg-state-')), 'VIBEGOD-STATE.md'); writeFileSync(f, STATE); return f; }
+const OBJ = 'Objective: Ship a yoga booking app where members sign up, book classes, and pay online.';
+const AC1 = '- [ ] AC-1: members can book a class. proof: e2e booking test passes';
+check('allows flipping an acceptance-criteria checkbox', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: AC1, new_string: AC1.replace('[ ]', '[x]') } }).status === 0);
+check('blocks editing the frozen objective', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: OBJ, new_string: 'Objective: Ship a completely different social network.' } }).status === 2);
+check('blocks editing an acceptance-criterion text', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: '- [ ] AC-2: payment succeeds. proof: stripe test-mode charge test passes', new_string: '- [ ] AC-2: payment optional. proof: none' } }).status === 2);
+check('allows overwrite that only advances status + flips a checkbox', run('guard-state.mjs', { tool_input: { file_path: stateFile(), content: STATE.replace('Stage: 0 - Discover', 'Stage: 1 - PRD').replace('- [ ] AC-1', '- [x] AC-1') } }).status === 0);
+check('blocks overwrite that mutates the GOAL block', run('guard-state.mjs', { tool_input: { file_path: stateFile(), content: STATE.replace('book classes, and pay online', 'do something entirely different') } }).status === 2);
+check('ignores non-STATE files', run('guard-state.mjs', { tool_input: { file_path: join(tmpdir(), 'notes.md'), content: '## GOAL\nObjective: whatever' } }).status === 0);
+const newStatePath = join(mkdtempSync(join(tmpdir(), 'vg-state-new-')), 'VIBEGOD-STATE.md');
+check('allows creating VIBEGOD-STATE.md when none exists', run('guard-state.mjs', { tool_input: { file_path: newStatePath, content: STATE } }).status === 0);
+const advSt = run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: OBJ, new_string: 'Objective: Ship something else.' } }, { VIBEGOD_GUARDRAILS: 'advisory' });
+check('advisory downgrades GOAL-freeze block', advSt.status === 0 && /would BLOCK/.test(advSt.out));
+// A fenced/quoted "## "-prefixed line inside the GOAL body (e.g. a proof snippet or example output)
+// must not be treated as the section boundary — otherwise everything after it (constraints,
+// non-goals) silently falls outside the frozen-block comparison and becomes freely editable.
+const STATE_FENCE = STATE.replace(
+  'Hard constraints: OWASP Top 10, WCAG 2.2 AA',
+  '```\n## looks like a heading inside a proof snippet\n```\nHard constraints: OWASP Top 10, WCAG 2.2 AA',
+);
+function fenceStateFile() { const f = join(mkdtempSync(join(tmpdir(), 'vg-state-fence-')), 'VIBEGOD-STATE.md'); writeFileSync(f, STATE_FENCE); return f; }
+check('blocks mutating constraints that sit after a "## "-prefixed line inside a fenced block', run('guard-state.mjs', { tool_input: { file_path: fenceStateFile(), old_string: 'Hard constraints: OWASP Top 10, WCAG 2.2 AA', new_string: 'Hard constraints: NONE, ship anything' } }).status === 2);
+check('blocks mutating non-goals that sit after a "## "-prefixed line inside a fenced block', run('guard-state.mjs', { tool_input: { file_path: fenceStateFile(), old_string: 'Non-goals: native mobile app', new_string: 'Non-goals: nothing is out of scope' } }).status === 2);
+
 console.log(`\n${fail ? '✗' : '✓'} ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
