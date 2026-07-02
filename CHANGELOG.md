@@ -3,6 +3,21 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.1] — Frozen GOAL survives context compaction (north-star re-injection)
+### Added
+- **`reinforce-goal.mjs` — a `SessionStart` `compact`-matcher hook** that re-injects the frozen `## GOAL`
+  block from `VIBEGOD-STATE.md` (objective + acceptance criteria) after context compaction, so the
+  north-star isn't lost when the summarizer drops standing context. Grounded in governance-decay research:
+  post-compaction, dropped constraints push violation 0% → 30-59%; re-pinning the goal restores it toward 0%.
+  Inject-only, fail-open, symlink-guarded, length-bounded; the goal is framed as data to **serve** (not new
+  instructions), with invisibles stripped. `PreCompact` cannot persist context into the post-compaction
+  window, so the supported channel is `SessionStart` + `compact` matcher — **verified against the live Claude
+  Code hook contract** before building (which also confirmed token/$/wall-clock budgets are NOT hook-visible,
+  so the loop-budget brake belongs with a future opt-in autonomous mode, not a standalone hook).
+### Tests
+- +6 reinforce-goal tests (re-injects the goal; frames as data not instructions; skips STATUS/comments;
+  silent when absent / no GOAL block; strips invisibles). Suite **92 → 98**.
+
 ## [0.12.0] — Frozen GOAL block: VIBEGOD-STATE.md becomes a real, enforced state file
 ### Added
 - **Frozen `## GOAL` block + a committed state template** (`skills/_shared/VIBEGOD-STATE.template.md`).
