@@ -87,7 +87,9 @@ Four disciplines make this a team you can trust, not a single model talking to i
   nothing reaches your gate unchecked.
 - 📸 **Proof, not promises.** UI isn't "done" until it's actually **rendered in a real browser** across
   the breakpoint matrix (Playwright) — and a CI gate template keeps it that way after launch. Claims of
-  "tests pass" require the test output, not optimism.
+  "tests pass" require the test output, not optimism. And the product isn't **"done"** until every
+  acceptance criterion in the frozen GOAL is checked off with **reproduced evidence** — a machine-checkable
+  definition of done the plugin enforces, not a self-report.
 - 🧭 **Nothing gets orphaned.** Every change propagates end-to-end — DB → API → UI → docs → every call
   site (impact-checked with a code knowledge graph, not guesswork) — so you never ship a button with no
   backend or dead code nobody noticed.
@@ -208,7 +210,7 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 |---|---|
 | Hard-block on hardcoded secrets in a write — `guard-write` (fail-open) | The gated pipeline & every ◆ approval gate |
 | Hard-block on dangerous shell — `rm -rf /`, `curl\|bash`, force-push to `main`, disk wipes — `guard-bash` (fail-open) | Maker–checker ("no agent checks its own work") |
-| Hard-block on edits to the frozen `## GOAL` block of `VIBEGOD-STATE.md` — `guard-state` (fail-open) | Consistency / no-orphans end-to-end propagation |
+| Hard-block on edits to the frozen `## GOAL` block **and on checking a GOAL criterion "done" without reproduced `verified:` evidence** — `guard-state` (fail-open) | Consistency / no-orphans end-to-end propagation |
 | SessionStart posture banner + a sanitized, bounded, proven-only recipe index | Surgical changes · investigate-before-answering · single front-door |
 | Recipe lint (prose-only, injection-marker scan) + structural `validate.mjs` | OWASP secure-coding & WCAG 2.2 AA in build + review |
 | The hooks' own test suite (`ingest/test-hooks.mjs`) | Cost-awareness · TDD · verification-before-completion |
