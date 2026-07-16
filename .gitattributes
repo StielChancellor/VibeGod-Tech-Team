@@ -1,3 +1,8 @@
+# Normalize line endings: store all text as LF in the repo so Windows/WSL
+# checkouts don't produce phantom CRLF diffs. Binary files are auto-detected
+# by Git and left untouched.
+* text=auto
+
 # Shell installers must stay LF so `curl … | bash` works on macOS/Linux
 # (CRLF would produce `/usr/bin/env: bash\r` errors).
 *.sh text eol=lf
