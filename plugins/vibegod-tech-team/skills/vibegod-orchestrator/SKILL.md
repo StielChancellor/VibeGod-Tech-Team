@@ -205,13 +205,16 @@ a FAIL goes back to the maker with precise findings, and only checked artifacts 
   decision), per-feature lens status at Stage 7, open handovers (maker → checker → owner), and the next
   action. Commit it with the work so a fresh session — or a parallel swarm — resumes exactly where the
   pipeline stood instead of re-discovering it.
-- **The GOAL block is write-once (enforced).** `guard-state` (a PreToolUse hook) hard-blocks any edit
-  to the frozen objective/criteria/constraints/non-goals — only the acceptance-criteria checkboxes may
-  flip `[ ] → [x]`, and only when an agent-independent signal (a passing test/render/scan) proves the
-  criterion. This is the anti-goalpost-moving anchor: a real goal change is a **Stage-9 change-request**
-  (re-baseline deliberately with user sign-off), never a silent in-place edit. Fail-open; downgrade with
-  `VIBEGOD_GUARDRAILS=advisory`. Maker of the GOAL block = `product-manager`; the checker that each
-  criterion's `[x]` traces to reproduced real signal (not self-report) = `claim-verifier`.
+- **The GOAL block is write-once, and "done" is evidence-gated (enforced).** `guard-state` (a PreToolUse
+  hook) hard-blocks any edit to the frozen objective/criteria/constraints/non-goals — only the
+  acceptance-criteria checkboxes and their `verified:` slot may change. A criterion may flip `[ ] → [x]`
+  **only with a reproduced, agent-independent signal recorded in that line's `verified:` slot**; guard-state
+  mechanically refuses a `[x]` flip that lacks one. This is the anti-goalpost-moving + anti-false-done
+  anchor: a real goal change is a **Stage-9 change-request** (re-baseline deliberately with user sign-off),
+  never a silent in-place edit. Fail-open; downgrade with `VIBEGOD_GUARDRAILS=advisory`. Maker of the GOAL
+  block = `product-manager`; the checker that each criterion's `verified:` signal is REAL (reproduced, not
+  self-report) = `claim-verifier`. **Whole-product DONE predicate = every GOAL criterion is `[x]` with
+  recorded evidence** — the machine-checkable definition of done the user's final sign-off is made against.
 
 ## When invoked
 1. **If `VIBEGOD-STATE.md` exists, read it FIRST and resume from the recorded stage** — don't

@@ -3,16 +3,18 @@
      transition and every ◆ gate. Commit it with the work.
 
      The `## GOAL` block below is FROZEN at kickoff: the objective, acceptance criteria, hard
-     constraints, and non-goals are write-once. Only the acceptance-criteria checkboxes may change
-     ([ ] -> [x], and only when a real, agent-independent signal proves the criterion). `guard-state`
-     hard-blocks any other edit to this block (fail-open; downgrade with VIBEGOD_GUARDRAILS=advisory).
-     Changing the goal itself is a Stage-9 change-request — re-baseline deliberately, with user sign-off. -->
+     constraints, and non-goals are write-once. Only the acceptance-criteria checkboxes and their
+     `verified:` evidence slot may change — flip [ ] -> [x] ONLY with a claim-verifier-reproduced
+     signal recorded in `verified:` (real proof, not self-report). `guard-state` hard-blocks any other
+     edit to this block AND any [x] flip that lacks a `verified:` reference (fail-open; downgrade with
+     VIBEGOD_GUARDRAILS=advisory). Changing the goal itself is a Stage-9 change-request — re-baseline
+     deliberately, with user sign-off. -->
 
 ## GOAL (frozen at kickoff — do not edit; only flip acceptance-criteria [ ] -> [x])
 Objective: <the Stage-0 end objective, verbatim — one or two sentences: what "done" looks like for the end user>
-Acceptance criteria (machine-checkable; each names the test / render / scan that proves it):
-- [ ] AC-1: <criterion> — proof: <command / visual-check render / scan that verifies it>
-- [ ] AC-2: <criterion> — proof: <...>
+Acceptance criteria (machine-checkable; mark [x] ONLY with a claim-verifier-reproduced signal in `verified:` — proof, not self-report):
+- [ ] AC-1: <criterion> — proof: <command / visual-check render / scan that verifies it> — verified: —
+- [ ] AC-2: <criterion> — proof: <...> — verified: —
 Hard constraints: OWASP Top 10 · WCAG 2.2 AA · the 4 safety gates (CI+tests · secret scan · >=1 non-author review · consistency/no-orphans) · <cost ceiling if any>
 Non-goals: <explicitly out of scope>
 

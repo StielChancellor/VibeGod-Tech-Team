@@ -3,6 +3,27 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.13.0] — Evidence-gated "done": a GOAL criterion can't be checked off without proof
+### Added
+- **`guard-state` now enforces evidence on completion (the mechanical DONE predicate).** Flipping a frozen-GOAL
+  acceptance criterion `[ ] → [x]` is hard-blocked unless that line carries a real, non-placeholder `verified:`
+  reference (a `claim-verifier`-reproduced signal, not self-report). The checkbox and the `verified:` value are
+  now the only mutable status in the otherwise write-once GOAL block — objective / criteria / proof / constraints
+  / non-goals stay frozen. The plugin enforces evidence **presence**; `claim-verifier` + the ship gate certify the
+  evidence is **true**. Fail-open; downgrade with `VIBEGOD_GUARDRAILS=advisory`.
+- **Whole-product DONE predicate** wired into the orchestrator + `/ship-check` (Stage 8): `claim-verifier`
+  reproduces each criterion's proof, records the signal in `verified:`, and flips `[x]`; ship only when **every**
+  GOAL criterion is `[x]`-with-evidence — the machine-checkable "done" the user's final sign-off is made against.
+- State template gains the `verified:` slot + an updated freeze note.
+### Tests
+- guard-state gains the evidence-gate matrix (block `[x]` without evidence / with a `TBD` placeholder; allow `[x]`
+  with a `verified:` reference; allow recording evidence without flipping). Suite **104 → 109**.
+### Gate / process
+- Maker-checker (adversarial-tester) found & fixed **two real bypasses** before ship: the evidence/freeze regex
+  matched the *first* `verified:` on a line, so a criterion whose `proof:` prose contained the literal token
+  `verified:` could both fake a done-flip and mask a frozen-text mutation. Fixed by anchoring `norm`/`lineKey`/
+  `hasEvidence` to the **last** `verified:` (negative-lookahead), with 2 regression tests. No agent checks its own work.
+
 ## [0.12.1] — Frozen GOAL survives context compaction (north-star re-injection)
 ### Added
 - **`reinforce-goal.mjs` — a `SessionStart` `compact`-matcher hook** that re-injects the frozen `## GOAL`

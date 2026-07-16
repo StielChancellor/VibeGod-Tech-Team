@@ -177,8 +177,8 @@ const STATE = [
   '## GOAL (frozen at kickoff - do not edit; only flip acceptance-criteria [ ] -> [x])',
   'Objective: Ship a yoga booking app where members sign up, book classes, and pay online.',
   'Acceptance criteria (machine-checkable):',
-  '- [ ] AC-1: members can book a class. proof: e2e booking test passes',
-  '- [ ] AC-2: payment succeeds. proof: stripe test-mode charge test passes',
+  '- [ ] AC-1: members can book a class. proof: e2e booking test passes. verified: -',
+  '- [ ] AC-2: payment succeeds. proof: stripe test-mode charge test passes. verified: -',
   'Hard constraints: OWASP Top 10, WCAG 2.2 AA',
   'Non-goals: native mobile app',
   '',
@@ -192,12 +192,17 @@ const STATE = [
 ].join('\n');
 function stateFile() { const f = join(mkdtempSync(join(tmpdir(), 'vg-state-')), 'VIBEGOD-STATE.md'); writeFileSync(f, STATE); return f; }
 const OBJ = 'Objective: Ship a yoga booking app where members sign up, book classes, and pay online.';
-const AC1 = '- [ ] AC-1: members can book a class. proof: e2e booking test passes';
-check('allows flipping an acceptance-criteria checkbox', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: AC1, new_string: AC1.replace('[ ]', '[x]') } }).status === 0);
+const AC1 = '- [ ] AC-1: members can book a class. proof: e2e booking test passes. verified: -';
+const AC1_DONE = '- [x] AC-1: members can book a class. proof: e2e booking test passes. verified: reproduced green e2e on commit abc1234';
 check('blocks editing the frozen objective', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: OBJ, new_string: 'Objective: Ship a completely different social network.' } }).status === 2);
-check('blocks editing an acceptance-criterion text', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: '- [ ] AC-2: payment succeeds. proof: stripe test-mode charge test passes', new_string: '- [ ] AC-2: payment optional. proof: none' } }).status === 2);
-check('allows overwrite that only advances status + flips a checkbox', run('guard-state.mjs', { tool_input: { file_path: stateFile(), content: STATE.replace('Stage: 0 - Discover', 'Stage: 1 - PRD').replace('- [ ] AC-1', '- [x] AC-1') } }).status === 0);
+check('blocks editing an acceptance-criterion text', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: '- [ ] AC-2: payment succeeds. proof: stripe test-mode charge test passes. verified: -', new_string: '- [ ] AC-2: payment optional. proof: none. verified: -' } }).status === 2);
 check('blocks overwrite that mutates the GOAL block', run('guard-state.mjs', { tool_input: { file_path: stateFile(), content: STATE.replace('book classes, and pay online', 'do something entirely different') } }).status === 2);
+// evidence-gated done: a [ ] -> [x] flip requires a real `verified:` reference on that line
+check('allows marking a criterion [x] WITH a verified: reference', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: AC1, new_string: AC1_DONE } }).status === 0);
+check('blocks marking a criterion [x] WITHOUT evidence', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: AC1, new_string: AC1.replace('[ ]', '[x]') } }).status === 2);
+check('blocks [x] with a placeholder verified (TBD)', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: AC1, new_string: AC1.replace('[ ]', '[x]').replace('verified: -', 'verified: TBD') } }).status === 2);
+check('allows recording verified evidence without flipping (progress)', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: AC1, new_string: AC1.replace('verified: -', 'verified: partial repro on commit abc1234') } }).status === 0);
+check('allows overwrite that advances status + marks a criterion done with evidence', run('guard-state.mjs', { tool_input: { file_path: stateFile(), content: STATE.replace('Stage: 0 - Discover', 'Stage: 1 - PRD').replace(AC1, AC1_DONE) } }).status === 0);
 check('ignores non-STATE files', run('guard-state.mjs', { tool_input: { file_path: join(tmpdir(), 'notes.md'), content: '## GOAL\nObjective: whatever' } }).status === 0);
 const newStatePath = join(mkdtempSync(join(tmpdir(), 'vg-state-new-')), 'VIBEGOD-STATE.md');
 check('allows creating VIBEGOD-STATE.md when none exists', run('guard-state.mjs', { tool_input: { file_path: newStatePath, content: STATE } }).status === 0);
@@ -213,6 +218,19 @@ const STATE_FENCE = STATE.replace(
 function fenceStateFile() { const f = join(mkdtempSync(join(tmpdir(), 'vg-state-fence-')), 'VIBEGOD-STATE.md'); writeFileSync(f, STATE_FENCE); return f; }
 check('blocks mutating constraints that sit after a "## "-prefixed line inside a fenced block', run('guard-state.mjs', { tool_input: { file_path: fenceStateFile(), old_string: 'Hard constraints: OWASP Top 10, WCAG 2.2 AA', new_string: 'Hard constraints: NONE, ship anything' } }).status === 2);
 check('blocks mutating non-goals that sit after a "## "-prefixed line inside a fenced block', run('guard-state.mjs', { tool_input: { file_path: fenceStateFile(), old_string: 'Non-goals: native mobile app', new_string: 'Non-goals: nothing is out of scope' } }).status === 2);
+// A criterion's own `proof:` prose can legitimately contain the substring "verified:" (e.g. "proof:
+// manually verified: by QA on staging"). norm()/hasEvidence()/lineKey() must anchor to the LAST
+// `verified:` on the line (the real evidence field the template appends at line-end) — matching the
+// FIRST occurrence instead lets that prose swallow everything after it, including the real evidence
+// field, hiding both a missing-evidence flip and a frozen-text mutation from the checks below.
+const AC_PROSE_VERIFIED = '- [ ] AC-1: members can book a class. proof: manually verified: by QA on staging. verified: -';
+function proseVerifiedStateFile() {
+  const f = join(mkdtempSync(join(tmpdir(), 'vg-state-prose-')), 'VIBEGOD-STATE.md');
+  writeFileSync(f, STATE.replace(AC1, AC_PROSE_VERIFIED));
+  return f;
+}
+check('blocks [x] flip with no real evidence when proof prose contains "verified:" earlier on the line', run('guard-state.mjs', { tool_input: { file_path: proseVerifiedStateFile(), old_string: AC_PROSE_VERIFIED, new_string: AC_PROSE_VERIFIED.replace('[ ]', '[x]') } }).status === 2);
+check('blocks mutating proof text hidden after an earlier "verified:" in the prose', run('guard-state.mjs', { tool_input: { file_path: proseVerifiedStateFile(), old_string: AC_PROSE_VERIFIED, new_string: AC_PROSE_VERIFIED.replace('by QA on staging', 'SKIPPED, no QA needed, ship it') } }).status === 2);
 
 console.log('reinforce-goal:');
 function projWithState(content) {
