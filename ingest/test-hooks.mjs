@@ -232,6 +232,25 @@ function proseVerifiedStateFile() {
 check('blocks [x] flip with no real evidence when proof prose contains "verified:" earlier on the line', run('guard-state.mjs', { tool_input: { file_path: proseVerifiedStateFile(), old_string: AC_PROSE_VERIFIED, new_string: AC_PROSE_VERIFIED.replace('[ ]', '[x]') } }).status === 2);
 check('blocks mutating proof text hidden after an earlier "verified:" in the prose', run('guard-state.mjs', { tool_input: { file_path: proseVerifiedStateFile(), old_string: AC_PROSE_VERIFIED, new_string: AC_PROSE_VERIFIED.replace('by QA on staging', 'SKIPPED, no QA needed, ship it') } }).status === 2);
 
+// Simulation-vs-reality: the hook must model what the Edit tool ACTUALLY writes. `replace_all` rewrites
+// EVERY occurrence while String.replace(str,str) rewrites only the FIRST — so a decoy copy of old_string
+// placed ABOVE the GOAL absorbs the simulated edit and the real frozen-GOAL mutation goes unseen.
+const DECOY_STATE = [
+  '## STATUS',
+  'Stage: 5 - pay online is required',
+  '',
+  '## GOAL (frozen at kickoff)',
+  'Objective: Ship a yoga booking app where pay online is required.',
+  '- [ ] AC-1: members can book. proof: e2e test passes. verified: -',
+  '',
+].join('\n');
+function decoyStateFile() { const f = join(mkdtempSync(join(tmpdir(), 'vg-state-decoy-')), 'VIBEGOD-STATE.md'); writeFileSync(f, DECOY_STATE); return f; }
+check('blocks a frozen-GOAL mutation hidden behind a decoy via replace_all', run('guard-state.mjs', { tool_input: { file_path: decoyStateFile(), old_string: 'pay online is required', new_string: 'pay online is NOT required', replace_all: true } }).status === 2);
+check('blocks the same decoy mutation via MultiEdit replace_all', run('guard-state.mjs', { tool_input: { file_path: decoyStateFile(), edits: [{ old_string: 'pay online is required', new_string: 'pay online is NOT required', replace_all: true }] } }).status === 2);
+// `$&`/`$'` are special in a string replacement but written literally by the tool; expanding them would
+// validate a document that never exists. Literal insertion means this edit is just a benign no-op edit.
+check('models $-patterns literally rather than expanding them', run('guard-state.mjs', { tool_input: { file_path: stateFile(), old_string: 'Triage tier: standard', new_string: "Triage tier: standard$'" } }).status === 0);
+
 console.log('reinforce-goal:');
 function projWithState(content) {
   const root = mkdtempSync(join(tmpdir(), 'vg-rg-'));
@@ -276,6 +295,92 @@ check('in-block HTML comment stripped, benign goal survives', cmt.status === 0 &
 const richGoal = '## GOAL\nObjective: members book classes & pay online (Stripe); meet OWASP Top 10 · WCAG 2.2 AA.\n\n## STATUS\nx\n';
 const rich = run('reinforce-goal.mjs', {}, { CLAUDE_PROJECT_DIR: projWithState(richGoal) });
 check('legit free-form objective with & · (Stripe) survives intact', rich.status === 0 && /book classes & pay online \(Stripe\)/.test(rich.out) && /WCAG 2\.2 AA/.test(rich.out));
+
+console.log('guard-autopilot:');
+function autoState({ mode = 'full-auto', budget = 'iterations=25 stages=12', spent = 'iterations=3 stages=2', extra = '' } = {}) {
+  return [
+    '## GOAL (frozen at kickoff)',
+    'Objective: Ship a yoga booking app.',
+    '- [ ] AC-1: members can book a class. proof: e2e booking test passes. verified: -',
+    '',
+    '## STATUS',
+    'Stage: 4 - Modules',
+    '',
+    '## AUTOPILOT',
+    'Mode: ' + mode,
+    'Budget: ' + budget,
+    'Spent: ' + spent,
+    'Halt: -',
+    extra,
+    '',
+  ].join('\n');
+}
+function projWithAuto(content) {
+  const root = mkdtempSync(join(tmpdir(), 'vg-ap-'));
+  writeFileSync(join(root, 'VIBEGOD-STATE.md'), content);
+  return root;
+}
+// `st` edits the state file itself; `src` edits ordinary source (the brake is project-wide, so an
+// exhausted budget must stop BOTH — a halt that still let the loop edit code would not be a halt).
+const st = (root, oldS, newS) => ({ tool_input: { file_path: join(root, 'VIBEGOD-STATE.md'), old_string: oldS, new_string: newS } });
+const src = (root) => ({ tool_input: { file_path: join(root, 'src', 'app.ts'), content: 'export const x = 1;' } });
+const apRun = (root, input) => run('guard-autopilot.mjs', input, { CLAUDE_PROJECT_DIR: root });
+
+const armed = projWithAuto(autoState());
+check('allows ordinary work while armed and under budget', apRun(armed, src(armed)).status === 0);
+check('allows incrementing Spent (the loop counting itself)', apRun(armed, st(armed, 'Spent: iterations=3 stages=2', 'Spent: iterations=4 stages=2')).status === 0);
+// Budget is write-once while armed — a loop that can raise its own ceiling has no ceiling.
+check('blocks raising the armed Budget', apRun(armed, st(armed, 'Budget: iterations=25 stages=12', 'Budget: iterations=999 stages=99')).status === 2);
+check('blocks raising the armed Budget via whole-file overwrite', apRun(armed, { tool_input: { file_path: join(armed, 'VIBEGOD-STATE.md'), content: autoState({ budget: 'iterations=999 stages=99' }) } }).status === 2);
+// Spent is increment-only — rewinding it silently buys unbudgeted iterations.
+check('blocks rewinding the Spent iterations counter', apRun(armed, st(armed, 'Spent: iterations=3 stages=2', 'Spent: iterations=0 stages=2')).status === 2);
+check('blocks rewinding the Spent stages counter', apRun(armed, st(armed, 'Spent: iterations=3 stages=2', 'Spent: iterations=3 stages=0')).status === 2);
+// The brake itself.
+const spentOut = projWithAuto(autoState({ spent: 'iterations=25 stages=4' }));
+check('blocks all writes once iterations budget is reached', apRun(spentOut, src(spentOut)).status === 2);
+check('brake message names the exhausted counter', /BUDGET EXHAUSTED/.test(apRun(spentOut, src(spentOut)).out) && /25\/25/.test(apRun(spentOut, src(spentOut)).out));
+const stagesOut = projWithAuto(autoState({ spent: 'iterations=5 stages=12' }));
+check('blocks all writes once stages budget is reached', apRun(stagesOut, src(stagesOut)).status === 2);
+// Standing down must ALWAYS work, or a halted run cannot record why it stopped.
+check('allows disarming (Mode: off) even at exhausted budget', apRun(spentOut, st(spentOut, 'Mode: full-auto', 'Mode: off')).status === 0);
+check('allows disarming via overwrite at exhausted budget', apRun(spentOut, { tool_input: { file_path: join(spentOut, 'VIBEGOD-STATE.md'), content: autoState({ mode: 'off', spent: 'iterations=25 stages=4' }) } }).status === 0);
+// Disarmed => brake fully inactive, which is what makes arming (off -> full-auto + fresh budget) possible.
+const off = projWithAuto(autoState({ mode: 'off', spent: 'iterations=0 stages=0' }));
+check('inactive when disarmed', apRun(off, src(off)).status === 0);
+check('allows arming with a fresh budget when disarmed', apRun(off, { tool_input: { file_path: join(off, 'VIBEGOD-STATE.md'), content: autoState({ mode: 'full-auto', budget: 'iterations=30 stages=15', spent: 'iterations=0 stages=0' }) } }).status === 0);
+// Backward compatibility + fail-open posture.
+check('silent on a legacy state file with no AUTOPILOT block', apRun(projWithAuto('## GOAL\nObjective: x\n\n## STATUS\nStage: 0\n'), src(armed)).status === 0);
+check('silent when VIBEGOD-STATE.md absent', apRun(mkdtempSync(join(tmpdir(), 'vg-ap-none-')), src(armed)).status === 0);
+const advAp = run('guard-autopilot.mjs', src(spentOut), { CLAUDE_PROJECT_DIR: spentOut, VIBEGOD_GUARDRAILS: 'advisory' });
+check('advisory downgrades the budget brake', advAp.status === 0 && /would BLOCK/.test(advAp.out));
+// A partially-filled block must degrade to UNBRAKED, never to blocked — fail-open is the house rule.
+const noCounters = projWithAuto(autoState({ budget: 'unset', spent: 'unset' }));
+check('allows when counters are unparseable (fail-open, not fail-shut)', apRun(noCounters, src(noCounters)).status === 0);
+// Fence-awareness: a `## `-prefixed line inside a fence in the AUTOPILOT body must not end the block,
+// which would drop Budget/Spent out of scan range and silently disable the brake entirely.
+const apFenced = projWithAuto(autoState({ mode: 'full-auto', budget: 'iterations=25 stages=12', spent: 'iterations=25 stages=4', extra: '```\n## not a real heading\n```' }));
+check('fenced "## " line inside the AUTOPILOT block does not disable the brake', apRun(apFenced, src(apFenced)).status === 2);
+// Structural bypasses — each one works by making the NEXT run read a block that brakes nothing, so
+// each must be blocked at the moment it is written, not merely noticed afterwards.
+check('blocks deleting the AUTOPILOT heading while armed', apRun(armed, { tool_input: { file_path: join(armed, 'VIBEGOD-STATE.md'), content: autoState().replace('## AUTOPILOT', '## NOTES') } }).status === 2);
+check('blocks renaming the AUTOPILOT heading while armed', apRun(armed, { tool_input: { file_path: join(armed, 'VIBEGOD-STATE.md'), content: autoState().replace('## AUTOPILOT', '## AUTOPILOTX') } }).status === 2);
+// Decoy block: sectionBlock reads the FIRST match, so a prepended `Mode: off` twin would read as a
+// legitimate disarm now and as "never armed" next run (same first-vs-last trap as v0.13.0's verified:).
+const decoy = ['## AUTOPILOT', 'Mode: off', 'Budget: iterations=25 stages=12', 'Spent: iterations=3 stages=2', 'Halt: -', '', ''].join('\n');
+check('blocks prepending a decoy "Mode: off" AUTOPILOT block', apRun(armed, { tool_input: { file_path: join(armed, 'VIBEGOD-STATE.md'), content: decoy + autoState() } }).status === 2);
+check('blocks deleting the Mode line while armed', apRun(armed, st(armed, 'Mode: full-auto\n', '')).status === 2);
+check('blocks deleting the Budget line while armed', apRun(armed, st(armed, 'Budget: iterations=25 stages=12\n', '')).status === 2);
+check('blocks deleting the Spent line while armed', apRun(armed, st(armed, 'Spent: iterations=3 stages=2\n', '')).status === 2);
+// Same simulation-vs-reality trap on the budget: a decoy copy of the counter string ABOVE the AUTOPILOT
+// block absorbs a naive first-match simulation, so the real ceiling-raise reads as an untouched budget.
+const DECOY_AUTO = [
+  '## GOAL', 'Objective: ship it, target iterations=25 stages=12 per sprint.', '',
+  '## AUTOPILOT', 'Mode: full-auto', 'Budget: iterations=25 stages=12', 'Spent: iterations=1 stages=1', 'Halt: -', '',
+].join('\n');
+const apDecoy = projWithAuto(DECOY_AUTO);
+const raise = { old_string: 'iterations=25 stages=12', new_string: 'iterations=999 stages=99', replace_all: true };
+check('blocks raising Budget hidden behind a decoy via replace_all', apRun(apDecoy, { tool_input: { file_path: join(apDecoy, 'VIBEGOD-STATE.md'), ...raise } }).status === 2);
+check('blocks the same budget raise via MultiEdit replace_all', apRun(apDecoy, { tool_input: { file_path: join(apDecoy, 'VIBEGOD-STATE.md'), edits: [raise] } }).status === 2);
 
 console.log(`\n${fail ? '✗' : '✓'} ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

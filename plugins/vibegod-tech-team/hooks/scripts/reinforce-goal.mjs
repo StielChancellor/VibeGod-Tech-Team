@@ -9,7 +9,7 @@
 // capped as defense-in-depth (the same distrust posture as the recipe index).
 import { readFileSync, existsSync, realpathSync } from 'node:fs';
 import { join, sep } from 'node:path';
-import { readStdin, advise } from './_lib.mjs';
+import { readStdin, advise, sectionBlock } from './_lib.mjs';
 import { stripInvisible, looksInjected } from './_markers.mjs';
 
 process.on('uncaughtException', () => process.exit(0));
@@ -28,21 +28,8 @@ try {
 let text;
 try { text = readFileSync(file, 'utf8'); } catch { process.exit(0); }
 
-// Extract the GOAL block (## GOAL heading -> next ## section or EOF), fence-aware — a `## `-prefixed line
-// inside a code fence is body text, not a section boundary (mirrors guard-state's frozen-block scan).
-function goalBlock(t) {
-  const lines = String(t).split(/\r?\n/);
-  const start = lines.findIndex((l) => /^##\s+GOAL\b/i.test(l));
-  if (start === -1) return null;
-  let end = lines.length, inFence = false;
-  for (let i = start + 1; i < lines.length; i++) {
-    if (/^```/.test(lines[i].trim())) { inFence = !inFence; continue; }
-    if (!inFence && /^##\s/.test(lines[i])) { end = i; break; }
-  }
-  return lines.slice(start, end).join('\n').trimEnd();
-}
-
-const block = goalBlock(text);
+// Extract the GOAL block (## GOAL heading -> next ## section or EOF), fence-aware — see sectionBlock.
+const block = sectionBlock(text, 'GOAL');
 if (!block) process.exit(0);
 
 // Defense-in-depth, mirroring the recipe-index hardening on this same highest-trust channel. Work

@@ -5,7 +5,7 @@
 > design, build, test, and ship your idea as a real, production-grade platform.
 > **You approve. The team does the work.**
 >
-> 28 specialists · 11 departments · 52 skills · 25 commands · **1 coordinator** you talk to.
+> 28 specialists · 11 departments · 53 skills · 26 commands · **1 coordinator** you talk to.
 
 ---
 
@@ -117,6 +117,11 @@ Discover → PRD → Journey → Stack & Cost → Modules → Security review
 - 🚦 **You stay in control** — it never jumps straight to code, and pauses at every decision gate for your yes.
 - 🩺 **It checks its own toolchain** — `/doctor` verifies Node, Playwright, the code graph, and more
   before the build relies on them, and the team nudges you when a newer plugin version ships.
+- 🤖 **Autopilot when you want to step away** — `/autopilot on` runs the pipeline unattended and stops
+  only when the goal is provably met, it drifts off-goal, or it hits the **budget you set**. It's
+  **off unless you arm it**, the budget is locked once armed (the loop can't raise its own ceiling),
+  and it still **can't mark anything "done" without reproduced evidence** — so it reaches done, it
+  doesn't get to *declare* it. Your final sign-off is still yours.
 
 ## Using it (once it's installed)
 
@@ -211,6 +216,7 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 | Hard-block on hardcoded secrets in a write — `guard-write` (fail-open) | The gated pipeline & every ◆ approval gate |
 | Hard-block on dangerous shell — `rm -rf /`, `curl\|bash`, force-push to `main`, disk wipes — `guard-bash` (fail-open) | Maker–checker ("no agent checks its own work") |
 | Hard-block on edits to the frozen `## GOAL` block **and on checking a GOAL criterion "done" without reproduced `verified:` evidence** — `guard-state` (fail-open) | Consistency / no-orphans end-to-end propagation |
+| Hard-block on raising an **armed autopilot budget**, rewinding its spent counter, or any write once the budget is spent — `guard-autopilot` (fail-open) | Autopilot's drift check, and **not re-arming itself** after a halt (a hook can't tell your `/autopilot on` from the agent's) |
 | SessionStart posture banner + a sanitized, bounded, proven-only recipe index | Surgical changes · investigate-before-answering · single front-door |
 | Recipe lint (prose-only, injection-marker scan) + structural `validate.mjs` | OWASP secure-coding & WCAG 2.2 AA in build + review |
 | The hooks' own test suite (`ingest/test-hooks.mjs`) | Cost-awareness · TDD · verification-before-completion |
@@ -224,7 +230,7 @@ holds only as far as the model follows its instructions; it is not mechanically 
 `/kickoff` · `/triage` · `/prd` · `/journey` · `/stack-and-cost` · `/module-map` · `/design-review` ·
 `/build-plan` · `/build` · `/feature-check` · `/ux-check` · `/polish` · `/ship-check` ·
 `/compliance-check` · `/perf-check` · `/docs-check` · `/release` · `/launch-readiness` ·
-`/change-request` · `/raid` · `/incident` · `/ingest-scan` · `/graph` · `/doctor` · `/recipe`
+`/change-request` · `/raid` · `/incident` · `/ingest-scan` · `/graph` · `/doctor` · `/recipe` · `/autopilot`
 
 ## 🙏 Credits & acknowledgements
 

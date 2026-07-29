@@ -3,6 +3,65 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.14.0] — Autopilot: opt-in unattended mode with a mechanically-enforced budget brake
+### Added
+- **`/autopilot on|off|status` + the `autopilot` skill — the autonomous loop the last three releases were
+  building toward.** Armed explicitly by the user, it runs the gated pipeline **without stopping at each ◆**
+  and halts only on the whole-product **DONE predicate** (every GOAL criterion `[x]`-with-evidence), **drift**,
+  **budget**, **error**, or the user. Arming preflights that the frozen GOAL is filled in and every criterion
+  names a real machine-checkable `proof:` — an unattended loop against a vague goal can never terminate.
+- **`guard-autopilot.mjs` — the budget brake, and the only mechanical stop on an unattended loop.** Token/$/
+  wall-clock are not hook-visible (established in v0.12.1), so the brake counts what is: **iterations + stage
+  advances**, declared up front. Two invariants make it real rather than decorative — **Budget is write-once
+  while armed** (no raising your own ceiling) and **Spent is increment-only** (no rewinding your own counter).
+  At budget, **all** writes are blocked project-wide until a human disarms; `Mode: off` is always allowed so a
+  halted run can still record why it stopped. Fail-open; downgrade with `VIBEGOD_GUARDRAILS=advisory`.
+- **State template gains an `## AUTOPILOT` block** (Mode / Budget / Spent / Halt), placed outside the frozen
+  GOAL region so the loop can record its own progress without tripping `guard-state`.
+### Changed
+- **Autopilot changes WHO approves the ◆ gates — not WHAT is mechanically forbidden.** `guard-bash` still blocks
+  dangerous shell and `guard-state` still evidence-gates every criterion, so **autopilot cannot self-certify
+  "done"**: `claim-verifier` reproduces each proof exactly as in human-gated mode. A loop that could tick its
+  own boxes would terminate instantly and mean nothing.
+- `sectionBlock()` extracted into `_lib.mjs` — the fence-aware `## <NAME>` extractor was duplicated verbatim in
+  `guard-state` and `reinforce-goal`; `guard-autopilot` made it a third consumer. One implementation now, so a
+  fence-parsing fix lands everywhere at once.
+### Fixed (security — affects shipped v0.13.0)
+- **`guard-state` could be bypassed entirely by `replace_all`, letting the "frozen" GOAL be silently
+  rewritten.** Both state hooks simulated the pending write with `String.replace(old, new)`, which rewrites
+  only the **first** occurrence — while the Edit tool honors `replace_all` and rewrites **every** one. Planting
+  a decoy copy of `old_string` above the GOAL block made the simulated edit land on the decoy, so the hook
+  compared an unchanged GOAL, returned "allow", and the real write mutated the objective. The same trick
+  raised an armed autopilot Budget. A second vector: `$&` / `` $` `` / `$'` are special in a *string*
+  replacement but written literally by the tool, so expanding them validated a document that never existed.
+- Fixed by `applyToolEdit()` in `_lib.mjs` — one simulator that models what the tool **actually writes**
+  (honors `replace_all`, inserts `$`-patterns literally), now used by `guard-state` and `guard-autopilot`.
+  Found by attacking the new brake; the shipped hook turned out to share the flaw. **Anyone on 0.13.0 with a
+  frozen GOAL should upgrade** — the freeze was advisory-in-practice against an agent that used `replace_all`.
+### Known limit (stated, not overclaimed)
+- A hook sees file edits, not who requested them, so it **cannot distinguish the user's `/autopilot on` from
+  the agent re-arming itself** after a halt. The budget is mechanically enforced *within* an armed run;
+  "never re-arm yourself" sits in the **guided** column with the rest of the doctrine. Recorded in the
+  enforced-vs-guided table rather than papered over.
+### Tests
+- +29 tests: the guard-autopilot matrix (brake on each counter · write-once budget · increment-only spent ·
+  disarm always allowed · arming from disarmed · legacy/absent state files · advisory downgrade · fail-open on
+  unparseable counters) plus simulation-vs-reality regressions on **both** state hooks (decoy + `replace_all`
+  via Edit and MultiEdit; `$`-patterns inserted literally). Suite **109 → 138**.
+### Gate / process
+- Maker-checker found & fixed **four real bypasses** before ship. Three defeated the brake not by attacking a
+  counter but by making the *next* run read a block that brakes nothing: (a) delete or rename the `## AUTOPILOT`
+  heading, (b) **prepend a decoy `Mode: off` block** — `sectionBlock` reads the *first* match, the same
+  first-vs-last trap that hid a fake done-flip behind prose `verified:` in v0.13.0, (c) delete the
+  `Mode:`/`Budget:`/`Spent:` line so the field reads as absent, i.e. unarmed. Fixed with a structural-integrity
+  gate (heading count preserved + all three fields must survive) checked *before* the disarm allowance, with a
+  regression test per bypass. The fourth — the `replace_all` simulation/reality divergence above — was the
+  serious one, and it turned out to be **inherited by the already-shipped `guard-state`**, not new code.
+- Process note, recorded because it nearly went the other way: the adversarial subagent **stalled without
+  returning a verdict**. A stalled checker is not a pass, so the attack was re-run by hand rather than logged
+  as clean — which is how the `replace_all` bypass surfaced at all. Every bypass here was confirmed by
+  observing an actual `exit 0` on a crafted tool-call, never by reading the code and reasoning about it.
+
 ## [0.13.0] — Evidence-gated "done": a GOAL criterion can't be checked off without proof
 ### Added
 - **`guard-state` now enforces evidence on completion (the mechanical DONE predicate).** Flipping a frozen-GOAL

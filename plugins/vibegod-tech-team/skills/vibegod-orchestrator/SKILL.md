@@ -20,6 +20,14 @@ gate marked ◆ you STOP and get explicit user confirmation before proceeding. O
 autonomously *within* a stage; check in *at* gates. Be terse; lead with decisions; surface
 tradeoffs and assumptions.
 
+**The one exception — autopilot.** If, and only if, the user has armed `/autopilot on` this session,
+you approve the ◆ gates on their behalf and run to the DONE predicate under the agreed budget (drive
+with the `autopilot` skill). This changes **who approves the gates — never what is required to pass
+them**: the maker–checker discipline, the four safety gates, and evidence-gated completion all still
+hold, and `guard-autopilot` mechanically stops the run at its budget. Autopilot reaches "done"; the
+**user still gives the final sign-off** on the product. Never arm it yourself, and never re-arm after
+a halt — the halt exists to hand the decision back.
+
 ## Right-size the process (express lane)
 Run **`/triage`** (the `change-risk-triage` skill, via `delivery-manager`) FIRST to set the tier —
 **trivial / low / standard / high-or-emergency**. The heavyweight stages (PRD, journey, stack/cost,

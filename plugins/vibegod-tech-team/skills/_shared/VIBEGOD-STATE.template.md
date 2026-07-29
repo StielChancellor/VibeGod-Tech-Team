@@ -22,6 +22,17 @@ Non-goals: <explicitly out of scope>
 Stage: 0 — Discover
 Triage tier: <trivial | low | standard | high>   <!-- set after /triage -->
 
+## AUTOPILOT
+<!-- Opt-in unattended mode (/autopilot on|off|status). OFF unless the user explicitly arms it.
+     Budget is WRITE-ONCE while armed and Spent is INCREMENT-ONLY — `guard-autopilot` hard-blocks
+     raising the ceiling or rewinding the counter, and blocks ALL writes once Spent reaches Budget
+     (fail-open; downgrade with VIBEGOD_GUARDRAILS=advisory). Disarming is always allowed. Token/$
+     budgets are not visible to a hook, so iterations + stage-advances are the countable proxy. -->
+Mode: off                       <!-- off | full-auto -->
+Budget: iterations=0 stages=0   <!-- set at arm time; frozen while armed -->
+Spent: iterations=0 stages=0    <!-- increment-only; the loop bumps this every iteration / stage advance -->
+Halt: —                         <!-- why the last run stopped: done | drift | budget | user | error -->
+
 ## GATES PASSED
 <!-- one row per ◆ gate: stage — user decision (approved/changed) — date — evidence ref -->
 
