@@ -1,5 +1,6 @@
-// PreToolUse(Edit|Write|MultiEdit): the AUTOPILOT budget brake — the one mechanical stop on an
-// unattended loop. Token / $ / wall-clock budgets are NOT visible to a hook (verified against the
+// PreToolUse(Edit|Write|MultiEdit): the AUTOPILOT budget brake — the mechanical stop on an unattended
+// loop, ON THE FILE-EDIT PATH (see KNOWN LIMITS: a shell command is not covered by any hook here).
+// Token / $ / wall-clock budgets are NOT visible to a hook (verified against the
 // live Claude Code hook contract in v0.12.1), so the brake counts what IS countable and lives in the
 // state file: loop iterations and stage advances, declared up front when autopilot is armed.
 //
@@ -14,11 +15,19 @@
 // still blocks dangerous shell and guard-state still evidence-gates every criterion, so autopilot
 // cannot self-certify "done" — it changes WHO approves the ◆ gates, not WHAT is mechanically forbidden.
 //
-// KNOWN LIMIT — be honest about the edge of the guarantee. A hook sees file edits, not who asked for
-// them, so it cannot tell a user's `/autopilot on` from the agent re-arming itself after a halt. The
-// budget is therefore mechanically enforced WITHIN an armed run; "do not re-arm yourself" is doctrine
-// (the autopilot skill), not enforcement. Making the arm itself unforgeable needs a signal a hook does
-// not get. Treated the same way as the rest of the plugin's guided layer: stated, not overclaimed.
+// KNOWN LIMITS — the edge of the guarantee, stated rather than implied.
+//   1. THE SHELL PATH IS NOT COVERED. This hook only runs on Edit/Write/MultiEdit. Nothing here guards
+//      VIBEGOD-STATE.md against Bash, so `sed -i 's/iterations=25/iterations=999/' VIBEGOD-STATE.md`,
+//      `rm VIBEGOD-STATE.md`, or a shell redirect defeats every invariant below. guard-bash does not
+//      protect this file, and regex command-filtering is bypassable by construction anyway (base64,
+//      env vars, a heredoc, python). So: this brake stops DRIFT AND ACCIDENT on the path an agent
+//      actually takes while working. It is not a boundary against intent, and a hook cannot be one —
+//      it runs on behalf of the very agent it constrains.
+//   2. A hook sees file edits, not who asked for them, so it cannot tell a user's `/autopilot on` from
+//      the agent re-arming itself after a halt. "Do not re-arm yourself" is doctrine (the autopilot
+//      skill), not enforcement; making the arm unforgeable needs a signal a hook does not get.
+// Both sit with the rest of the plugin's guided layer. The enforced claim is deliberately narrow:
+// within an armed run, on the file-edit path, the budget holds.
 //
 // BEST-EFFORT, fail-open: acts only when VIBEGOD-STATE.md holds an `## AUTOPILOT` block whose Mode is
 // not `off`; any error => allow. Downgrade to warnings with VIBEGOD_GUARDRAILS=advisory.

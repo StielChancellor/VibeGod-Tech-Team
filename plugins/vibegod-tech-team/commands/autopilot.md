@@ -25,8 +25,10 @@ the total. If there is no state file, say so and point at `/kickoff`.
    machine-checkable `proof:`. An unattended loop against a vague goal burns budget producing the wrong
    thing — a criterion with no reproducible proof can never be certified, so it can never terminate.
 2. **Confirm the budget with the user** — default `iterations=25 stages=12` if they gave none. State it
-   plainly: this is the ONLY mechanical stop, it is **write-once once armed**, and raising it mid-run is
+   plainly: this is the mechanical stop, it is **write-once once armed**, and raising it mid-run is
    blocked by `guard-autopilot`. Re-budgeting costs a deliberate `/autopilot off` → `/autopilot on`.
+   Say honestly how far it reaches: it is enforced on the **file-edit path**, and no hook guards the
+   state file against shell commands — so it stops drift and accident, not a determined workaround.
 3. **Tell them what unattended means here** — it auto-passes the ◆ approval gates that would normally
    stop for them, through to the Stage-8 ship gate, and stops only on DONE / drift / budget / error.
    The mechanical guardrails stay in force regardless: `guard-bash` still blocks dangerous shell, and

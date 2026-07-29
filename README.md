@@ -118,10 +118,12 @@ Discover → PRD → Journey → Stack & Cost → Modules → Security review
 - 🩺 **It checks its own toolchain** — `/doctor` verifies Node, Playwright, the code graph, and more
   before the build relies on them, and the team nudges you when a newer plugin version ships.
 - 🤖 **Autopilot when you want to step away** — `/autopilot on` runs the pipeline unattended and stops
-  only when the goal is provably met, it drifts off-goal, or it hits the **budget you set**. It's
+  when the goal is provably met, it drifts off-goal, or it hits the **budget you set**. It's
   **off unless you arm it**, the budget is locked once armed (the loop can't raise its own ceiling),
   and it still **can't mark anything "done" without reproduced evidence** — so it reaches done, it
-  doesn't get to *declare* it. Your final sign-off is still yours.
+  doesn't get to *declare* it. Your final sign-off is still yours. **Scope, plainly:** the budget is
+  enforced on the file-edit path; no hook guards the state file against shell commands, so it stops
+  drift and accident — it is not a boundary against a determined workaround. See below.
 
 ## Using it (once it's installed)
 
@@ -224,6 +226,15 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 The guardrail hooks are **best-effort heuristics that fail open** — regex command-filtering is inherently
 bypassable, so treat it as coverage-widening, not a security boundary. Everything in the *guided* column
 holds only as far as the model follows its instructions; it is not mechanically enforced.
+
+**One scope limit worth stating outright, because it applies to every "hard-block on a file" row above:**
+those hooks run on `Edit` / `Write` / `MultiEdit`. **Nothing guards a file against `Bash`** — a `sed -i`
+or `rm` on `VIBEGOD-STATE.md` rewrites the frozen GOAL or an armed autopilot budget, and no hook here
+sees it. Guarding the shell wouldn't fix this either: filtering commands by pattern is defeatable by
+construction (base64, env vars, a heredoc, `python -c`). The honest framing is that **a hook cannot be a
+security boundary against the agent it runs on behalf of** — it stops drift and accident on the path an
+agent actually takes while working, which is the realistic failure mode, and that is genuinely worth
+having. It does not stop intent. Treat the whole enforced column as a safety net, never as a sandbox.
 
 ## ⌨️ Commands
 

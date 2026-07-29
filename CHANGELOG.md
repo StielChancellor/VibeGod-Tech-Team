@@ -3,6 +3,25 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.14.2] — Honest scope: the guardrails are a safety net, not a sandbox
+### Fixed (documentation — the previous wording promised more than the code delivers)
+- **0.14.0 called `guard-autopilot` "the only mechanical stop on an unattended loop." That overstated it.**
+  Every file guard here — `guard-state`'s frozen GOAL and evidence gate, `guard-autopilot`'s budget —
+  runs on `Edit`/`Write`/`MultiEdit`. **Nothing guards a file against `Bash`.** A single
+  `sed -i 's/iterations=25/iterations=999/' VIBEGOD-STATE.md` raises an armed budget, `sed -i` on the
+  objective rewrites the "frozen" GOAL, and `rm VIBEGOD-STATE.md` removes it — none of it seen by any hook.
+  Verified empirically (five shell forms, all exit 0), not inferred from the wiring.
+- Corrected in all six places that carried the claim: the `guard-autopilot` header, its KNOWN LIMITS block,
+  the `autopilot` skill, the `/autopilot` command, and two README sections. The 0.14.0 entry keeps its
+  original text with an inline correction pointer rather than being quietly rewritten.
+- **This is not a patchable bug.** Guarding the shell by pattern is defeatable by construction (base64, env
+  vars, heredoc, `python -c`), which the README already says of `guard-bash`. The accurate framing, now
+  stated in the README: **a hook cannot be a security boundary against the agent it runs on behalf of.**
+  It stops drift and accident on the path an agent actually takes while working — the realistic failure
+  mode, and genuinely worth having. It does not stop intent. Safety net, never sandbox.
+### Unchanged
+- No behavior change: no hook logic, no tests. Suite stays **144**. This release is scope honesty only.
+
 ## [0.14.1] — Brake hardening: three more bypasses closed, and a malformed brake now fails CLOSED
 ### Fixed (security — the budget brake shipped in 0.14.0 was defeatable)
 - **Garbling a counter killed the brake permanently (HIGH).** `counters()` returns non-null whenever the
@@ -42,7 +61,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   and halts only on the whole-product **DONE predicate** (every GOAL criterion `[x]`-with-evidence), **drift**,
   **budget**, **error**, or the user. Arming preflights that the frozen GOAL is filled in and every criterion
   names a real machine-checkable `proof:` — an unattended loop against a vague goal can never terminate.
-- **`guard-autopilot.mjs` — the budget brake, and the only mechanical stop on an unattended loop.** Token/$/
+- **`guard-autopilot.mjs` — the budget brake, and the only mechanical stop on an unattended loop.**
+  *(Correction, 0.14.2: "the only mechanical stop" overstated the scope. The brake is enforced on the
+  file-edit path only — no hook guards the state file against `Bash`. Left as written for the record;
+  see 0.14.2.)* Token/$/
   wall-clock are not hook-visible (established in v0.12.1), so the brake counts what is: **iterations + stage
   advances**, declared up front. Two invariants make it real rather than decorative — **Budget is write-once
   while armed** (no raising your own ceiling) and **Spent is increment-only** (no rewinding your own counter).

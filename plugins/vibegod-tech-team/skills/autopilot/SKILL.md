@@ -28,8 +28,13 @@ never work around any of it:
   Do not attempt to raise the ceiling or rewind the counter — both are hard-blocked, and trying is a bug
   in your reasoning, not an obstacle to route around.
 
-The mechanical brake is the *only* thing standing between an unattended loop and an unbounded one.
-Treat it as load-bearing.
+Treat the brake as load-bearing — but know exactly how far it reaches. It is enforced on the
+**file-edit path** (Edit / Write / MultiEdit). **No hook guards `VIBEGOD-STATE.md` against shell
+commands**, so a `sed -i` or `rm` would defeat every invariant above, and no guardrail here would see
+it. That is not a licence to reach for the shell — it is the reason the doctrine matters: the brake
+stops drift and accident, and *your own honesty* is what covers the rest. If you ever find yourself
+considering a shell edit to the state file, that is the strongest possible signal to stop and hand
+back to the user instead.
 
 ## The loop
 
