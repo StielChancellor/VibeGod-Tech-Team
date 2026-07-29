@@ -3,6 +3,38 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.14.1] — Brake hardening: three more bypasses closed, and a malformed brake now fails CLOSED
+### Fixed (security — the budget brake shipped in 0.14.0 was defeatable)
+- **Garbling a counter killed the brake permanently (HIGH).** `counters()` returns non-null whenever the
+  *line* exists, so rewriting `Spent: iterations=5 stages=2` into `Spent: iterations: 30, stages: 5` left the
+  field "present" while every numeric check skipped itself on its own null-guard. One edit that reads as a
+  formatting nit — with numbers that can even be *truthful* — disabled the only stop on an unattended loop,
+  for the rest of the run, with no disarm on the record. Now a counter that parses must keep parsing.
+- **`isState` matched on BASENAME, so any file called `VIBEGOD-STATE.md` escaped the brake (MEDIUM).**
+  A `Write` to `sub/VIBEGOD-STATE.md` (or a path outside the project entirely) had its attacker-chosen
+  `content` parsed as *this* project's AUTOPILOT block; a `Mode: off` buried in a comment then tripped the
+  disarm short-circuit and the write sailed past an exhausted budget without touching the real state file.
+  The same defect false-blocked legitimate writes to any unrelated file of that name. Now matched by
+  **resolved path**.
+- **A no-op could shadow a real mutation (LOW).** `applyToolEdit` returned on the first shape it recognized,
+  so a top-level no-op `new_string` alongside a real `edits[]` array made the hook validate a document nobody
+  was going to write. It now applies **every** shape present, so none can hide behind another.
+### Changed
+- **An armed brake that cannot be read now fails CLOSED.** If `Mode` is not `off` but Budget/Spent don't
+  parse, the hook halts instead of waving work through: fail-open is right for hook *errors*, and wrong here,
+  where it silently removes the only stop on an unattended loop in exactly the state the user opted into.
+  A malformed brake is now a loud, fixable halt rather than an invisible total failure. Standing down is
+  still always allowed. **This reverses a 0.14.0 behavior that a test had wrongly encoded as correct.**
+### Tests
+- +6 (garbled counters on both fields · malformed brake fails closed, explains itself, and still permits
+  disarm · same-named file elsewhere · shape-shadowing). Suite **138 → 144**.
+### Gate / process
+- Found by re-running the adversarial pass that had **stalled without a verdict** during 0.14.0 — a stalled
+  checker is not a pass. Every finding was reproduced independently before any fix, and the one surface the
+  checker flagged as merely a "hazard" (an unclosed fence swallowing sections) was tested against the frozen
+  GOAL and found **not** exploitable — an unclosed fence makes the extractor swallow *more*, not less, so
+  mutations are still caught. Reported clean rather than fixed speculatively.
+
 ## [0.14.0] — Autopilot: opt-in unattended mode with a mechanically-enforced budget brake
 ### Added
 - **`/autopilot on|off|status` + the `autopilot` skill — the autonomous loop the last three releases were

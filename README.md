@@ -216,7 +216,7 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 | Hard-block on hardcoded secrets in a write — `guard-write` (fail-open) | The gated pipeline & every ◆ approval gate |
 | Hard-block on dangerous shell — `rm -rf /`, `curl\|bash`, force-push to `main`, disk wipes — `guard-bash` (fail-open) | Maker–checker ("no agent checks its own work") |
 | Hard-block on edits to the frozen `## GOAL` block **and on checking a GOAL criterion "done" without reproduced `verified:` evidence** — `guard-state` (fail-open) | Consistency / no-orphans end-to-end propagation |
-| Hard-block on raising an **armed autopilot budget**, rewinding its spent counter, or any write once the budget is spent — `guard-autopilot` (fail-open) | Autopilot's drift check, and **not re-arming itself** after a halt (a hook can't tell your `/autopilot on` from the agent's) |
+| Hard-block on raising an **armed autopilot budget**, rewinding or garbling its counters, or any write once the budget is spent — and on running at all when an armed budget can't be read — `guard-autopilot` | Autopilot's drift check, and **not re-arming itself** after a halt (a hook can't tell your `/autopilot on` from the agent's) |
 | SessionStart posture banner + a sanitized, bounded, proven-only recipe index | Surgical changes · investigate-before-answering · single front-door |
 | Recipe lint (prose-only, injection-marker scan) + structural `validate.mjs` | OWASP secure-coding & WCAG 2.2 AA in build + review |
 | The hooks' own test suite (`ingest/test-hooks.mjs`) | Cost-awareness · TDD · verification-before-completion |

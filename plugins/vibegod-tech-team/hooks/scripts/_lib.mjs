@@ -37,17 +37,24 @@ export function advise(event, msg) { emit(event, { additionalContext: msg }); pr
 //     literally. Expanding them validates a document that never exists. A replacer FUNCTION is literal.
 // Returns null when the input shape is unrecognized — callers fail open on null, per the house rule.
 export function applyToolEdit(text, ti) {
-  if (typeof ti?.content === 'string') return ti.content;                       // Write (whole-file overwrite)
+  if (!ti || typeof ti !== 'object') return null;
   const apply = (s, oldS, newS, all) =>
     (typeof oldS !== 'string' || typeof newS !== 'string') ? s
       : all ? s.split(oldS).join(newS) : s.replace(oldS, () => newS);
-  if (typeof ti?.new_string === 'string') return apply(text, ti.old_string, ti.new_string, !!ti.replace_all);
-  if (Array.isArray(ti?.edits)) {
-    let out = text;
-    for (const e of ti.edits) if (e) out = apply(out, e.old_string, e.new_string, !!e.replace_all);
-    return out;
+  // Apply EVERY shape present rather than returning on the first match. A real tool call carries exactly
+  // one shape, so this is a no-op in practice — but if an input carries several, an early return would let
+  // a harmless top-level no-op shadow a real mutation hiding in `edits[]`, and the hook would then compare
+  // a document nobody was going to write. Applying all of them means no shape can hide behind another.
+  let out = text, matched = false;
+  if (typeof ti.content === 'string') { out = ti.content; matched = true; }                  // Write (overwrite)
+  if (typeof ti.new_string === 'string') {                                                   // Edit
+    out = apply(out, ti.old_string, ti.new_string, !!ti.replace_all); matched = true;
   }
-  return null;
+  if (Array.isArray(ti.edits)) {                                                             // MultiEdit
+    for (const e of ti.edits) if (e) out = apply(out, e.old_string, e.new_string, !!e.replace_all);
+    matched = true;
+  }
+  return matched ? out : null;
 }
 
 // Extract a `## <NAME>` section from a state file: the heading up to (not including) the next `## `

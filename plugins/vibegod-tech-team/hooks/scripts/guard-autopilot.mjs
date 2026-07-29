@@ -24,7 +24,7 @@
 // not `off`; any error => allow. Downgrade to warnings with VIBEGOD_GUARDRAILS=advisory.
 import { readStdin, hardBlock, sectionBlock, applyToolEdit } from './_lib.mjs';
 import { readFileSync, existsSync, realpathSync } from 'node:fs';
-import { join, sep } from 'node:path';
+import { join, sep, resolve } from 'node:path';
 
 process.on('uncaughtException', () => process.exit(0));
 process.on('unhandledRejection', () => process.exit(0));
@@ -70,7 +70,13 @@ if ((modeOf(armedBlock) ?? 'off') === 'off') process.exit(0);
 // applyToolEdit models what the tool ACTUALLY writes: it honors `replace_all` and inserts `$&`/`$'`
 // literally. Simulating with a plain String.replace let a decoy copy of old_string earlier in the file
 // absorb the edit, so a real budget raise looked like a no-op to every check below.
-const isState = String(ti.file_path ?? '').split(/[\\/]/).pop() === 'VIBEGOD-STATE.md';
+// Match the state file by RESOLVED PATH, not basename. A basename test treats any file called
+// VIBEGOD-STATE.md — in a subdirectory, or outside the project entirely — as this project's state file,
+// so attacker-chosen `content` for some other file got parsed as the AUTOPILOT block and its `Mode: off`
+// tripped the disarm short-circuit below, escaping the brake without ever touching the real state file.
+// (It also false-blocked legitimate writes to any unrelated file of that name.)
+let isState = false;
+try { isState = resolve(root, String(ti.file_path ?? '')) === resolve(statePath); } catch { isState = false; }
 const proposed = isState ? applyToolEdit(onDisk, ti) : null;
 const propBlock = proposed == null ? null : sectionBlock(proposed, 'AUTOPILOT');
 
@@ -83,14 +89,26 @@ const propBlock = proposed == null ? null : sectionBlock(proposed, 'AUTOPILOT');
 //       c. delete the Mode / Budget / Spent line -> the field reads as absent, i.e. unarmed.
 //     None of these are legitimate edits while armed, so require the block's shape to survive intact.
 if (isState && proposed != null) {
+  //     d. corrupt a counter into a present-but-unparseable form (`Spent: iterations: 30, stages: 5`).
+  //        `counters` returns non-null whenever the LINE exists, so the field still reads as "present"
+  //        while every numeric check below skips itself on its own null-guard. That kills the brake
+  //        PERMANENTLY while the run still reports as armed — and the numbers written can even be
+  //        truthful. So a counter that parses today must still parse tomorrow.
+  const parseKept = (label) => {
+    const now = counters(armedBlock, label), next = counters(propBlock, label);
+    if (next == null) return false;                     // line deleted outright
+    if (now == null) return true;                       // never parseable => nothing to preserve
+    return ['iterations', 'stages'].every((k) => now[k] == null || next[k] != null);
+  };
   const fieldsIntact = propBlock != null && modeOf(propBlock) != null
-    && counters(propBlock, 'Budget') != null && counters(propBlock, 'Spent') != null;
+    && parseKept('Budget') && parseKept('Spent');
   if (headings(proposed) !== headings(onDisk) || !fieldsIntact)
     hardBlock('PreToolUse',
       `VibeGod Tech Team blocked a structural edit to the ARMED "## AUTOPILOT" block of VIBEGOD-STATE.md.\n` +
-      `While armed, the block must keep exactly one heading and its Mode / Budget / Spent lines — removing,\n` +
-      `renaming or duplicating them disables the budget brake on the next run. To stand down legitimately,\n` +
-      `set \`Mode: off\` in place (always allowed), or run /autopilot off.`);
+      `While armed, the block must keep exactly one heading, its Mode / Budget / Spent lines, and counters\n` +
+      `that still parse as \`iterations=<n> stages=<n>\` — removing, renaming, duplicating or garbling them\n` +
+      `disables the budget brake on the next run. To stand down legitimately, set \`Mode: off\` in place\n` +
+      `(always allowed), or run /autopilot off.`);
 }
 
 // (2) Halting is ALWAYS allowed. A brake that can trap a run with no way to stand down would leave the
@@ -121,7 +139,18 @@ if (propBlock) {
 // (5) The brake itself: at or over budget, ALL writes stop until a human disarms. This is intentionally
 //     project-wide rather than state-file-only — a halt that still let the loop edit source code would
 //     not be a halt. `/autopilot off` (rule 1) is always available to stand down and hand back.
-if (budget && spent) for (const k of ['iterations', 'stages'])
+// An ARMED block whose counters don't parse is a malformed brake, not an unbraked run. Failing open
+// there is the one place the house rule is wrong: it silently removes the only stop on an unattended
+// loop, in exactly the state the user opted into autopilot. Fail CLOSED instead, so a malformed brake
+// is a loud, fixable halt rather than an invisible total failure. (Hook ERRORS still fail open above.)
+const usable = budget && spent && ['iterations', 'stages'].some((k) => budget[k] != null && spent[k] != null);
+if (!usable)
+  hardBlock('PreToolUse',
+    `AUTOPILOT IS ARMED BUT ITS BUDGET CANNOT BE READ — refusing to run unbraked.\n` +
+    `Mode is not "off", but Budget/Spent do not parse as \`iterations=<n> stages=<n>\`, so the only\n` +
+    `mechanical stop on this loop is inoperative. Repair the "## AUTOPILOT" block, or run /autopilot off.`);
+
+for (const k of ['iterations', 'stages'])
   if (budget[k] != null && spent[k] != null && spent[k] >= budget[k])
     hardBlock('PreToolUse',
       `AUTOPILOT BUDGET EXHAUSTED — ${k}: ${spent[k]}/${budget[k]}. Autonomous work is halted.\n` +

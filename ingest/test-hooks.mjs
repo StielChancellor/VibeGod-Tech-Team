@@ -353,9 +353,23 @@ check('silent on a legacy state file with no AUTOPILOT block', apRun(projWithAut
 check('silent when VIBEGOD-STATE.md absent', apRun(mkdtempSync(join(tmpdir(), 'vg-ap-none-')), src(armed)).status === 0);
 const advAp = run('guard-autopilot.mjs', src(spentOut), { CLAUDE_PROJECT_DIR: spentOut, VIBEGOD_GUARDRAILS: 'advisory' });
 check('advisory downgrades the budget brake', advAp.status === 0 && /would BLOCK/.test(advAp.out));
-// A partially-filled block must degrade to UNBRAKED, never to blocked — fail-open is the house rule.
+// An ARMED block whose counters cannot be read is a MALFORMED BRAKE, not an unbraked run — the one
+// place fail-open is wrong, since it silently removes the only stop on an unattended loop. Fail closed.
 const noCounters = projWithAuto(autoState({ budget: 'unset', spent: 'unset' }));
-check('allows when counters are unparseable (fail-open, not fail-shut)', apRun(noCounters, src(noCounters)).status === 0);
+const nc = apRun(noCounters, src(noCounters));
+check('blocks when armed but counters are unreadable (malformed brake fails CLOSED)', nc.status === 2);
+check('malformed-brake message says the budget cannot be read', /BUDGET CANNOT BE READ/.test(run('guard-autopilot.mjs', src(noCounters), { CLAUDE_PROJECT_DIR: noCounters }).out));
+check('malformed brake still allows standing down', apRun(noCounters, { tool_input: { file_path: join(noCounters, 'VIBEGOD-STATE.md'), content: autoState({ mode: 'off', budget: 'unset', spent: 'unset' }) } }).status === 0);
+// Corrupting a counter that DID parse into a present-but-unparseable form is the durable-kill vector:
+// the line still exists, so every numeric check skips its own null-guard and the brake dies for good.
+check('blocks garbling a parseable Spent counter while armed', apRun(armed, st(armed, 'Spent: iterations=3 stages=2', 'Spent: iterations: 30, stages: 5')).status === 2);
+check('blocks garbling a parseable Budget counter while armed', apRun(armed, st(armed, 'Budget: iterations=25 stages=12', 'Budget: iterations~25 stages~12')).status === 2);
+// isState must match by RESOLVED PATH: a write to any OTHER file named VIBEGOD-STATE.md must be treated
+// as an ordinary write (so the brake applies), never parsed as this project's AUTOPILOT block.
+const decoyOff = '// code\n/*\n## AUTOPILOT\nMode: off\nBudget: iterations=1 stages=1\nSpent: iterations=0 stages=0\n*/\n';
+check('a same-named file elsewhere cannot trip the disarm short-circuit', apRun(spentOut, { tool_input: { file_path: join(spentOut, 'sub', 'VIBEGOD-STATE.md'), content: decoyOff } }).status === 2);
+// No tool_input shape may shadow another: a top-level no-op must not hide a real mutation in edits[].
+check('a no-op new_string cannot shadow a budget raise hidden in edits[]', apRun(armed, { tool_input: { file_path: join(armed, 'VIBEGOD-STATE.md'), old_string: 'Mode: full-auto', new_string: 'Mode: full-auto', edits: [{ old_string: 'Budget: iterations=25', new_string: 'Budget: iterations=999' }] } }).status === 2);
 // Fence-awareness: a `## `-prefixed line inside a fence in the AUTOPILOT body must not end the block,
 // which would drop Budget/Spent out of scan range and silently disable the brake entirely.
 const apFenced = projWithAuto(autoState({ mode: 'full-auto', budget: 'iterations=25 stages=12', spent: 'iterations=25 stages=4', extra: '```\n## not a real heading\n```' }));
