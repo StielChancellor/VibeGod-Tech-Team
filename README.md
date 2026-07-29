@@ -5,7 +5,7 @@
 > design, build, test, and ship your idea as a real, production-grade platform.
 > **You approve. The team does the work.**
 >
-> 28 specialists · 11 departments · 53 skills · 26 commands · **1 coordinator** you talk to.
+> 28 specialists · 8 departments · 53 skills · 26 commands · **1 coordinator** you talk to.
 
 ---
 
