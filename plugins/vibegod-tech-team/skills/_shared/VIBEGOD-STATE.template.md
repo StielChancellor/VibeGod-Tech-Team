@@ -8,7 +8,13 @@
      signal recorded in `verified:` (real proof, not self-report). `guard-state` hard-blocks any other
      edit to this block AND any [x] flip that lacks a `verified:` reference (fail-open; downgrade with
      VIBEGOD_GUARDRAILS=advisory). Changing the goal itself is a Stage-9 change-request — re-baseline
-     deliberately, with user sign-off. -->
+     deliberately, with user sign-off.
+
+     SCOPE OF "FROZEN": the guard runs on Edit/Write/MultiEdit. No hook protects this file from shell
+     commands — a `sed -i` or `rm` rewrites it and nothing here would see it. So "frozen" means held
+     against drift and accident on the path an agent takes while working; it is not tamper-proof, and
+     no hook can be (it runs on behalf of the agent it constrains). Keep this file in git: the commit
+     history, not the hook, is what lets you prove the goal never moved. -->
 
 ## GOAL (frozen at kickoff — do not edit; only flip acceptance-criteria [ ] -> [x])
 Objective: <the Stage-0 end objective, verbatim — one or two sentences: what "done" looks like for the end user>
@@ -24,6 +30,7 @@ Triage tier: <trivial | low | standard | high>   <!-- set after /triage -->
 
 ## AUTOPILOT
 <!-- Opt-in unattended mode (/autopilot on|off|status). OFF unless the user explicitly arms it.
+     Same scope limit as the GOAL block above: enforced on the file-edit path, not against a shell.
      Budget is WRITE-ONCE while armed and Spent is INCREMENT-ONLY — `guard-autopilot` hard-blocks
      raising the ceiling or rewinding the counter, and blocks ALL writes once Spent reaches Budget
      (fail-open; downgrade with VIBEGOD_GUARDRAILS=advisory). Disarming is always allowed. Token/$

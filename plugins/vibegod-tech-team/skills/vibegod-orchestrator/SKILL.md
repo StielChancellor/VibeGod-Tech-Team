@@ -24,7 +24,8 @@ tradeoffs and assumptions.
 you approve the ◆ gates on their behalf and run to the DONE predicate under the agreed budget (drive
 with the `autopilot` skill). This changes **who approves the gates — never what is required to pass
 them**: the maker–checker discipline, the four safety gates, and evidence-gated completion all still
-hold, and `guard-autopilot` mechanically stops the run at its budget. Autopilot reaches "done"; the
+hold, and `guard-autopilot` stops the run at its budget (on the file-edit path — the brake is a safety
+net against drift, not a sandbox, so honoring it is on you). Autopilot reaches "done"; the
 **user still gives the final sign-off** on the product. Never arm it yourself, and never re-arm after
 a halt — the halt exists to hand the decision back.
 
@@ -219,7 +220,10 @@ a FAIL goes back to the maker with precise findings, and only checked artifacts 
   **only with a reproduced, agent-independent signal recorded in that line's `verified:` slot**; guard-state
   mechanically refuses a `[x]` flip that lacks one. This is the anti-goalpost-moving + anti-false-done
   anchor: a real goal change is a **Stage-9 change-request** (re-baseline deliberately with user sign-off),
-  never a silent in-place edit. Fail-open; downgrade with `VIBEGOD_GUARDRAILS=advisory`. Maker of the GOAL
+  never a silent in-place edit. Fail-open; downgrade with `VIBEGOD_GUARDRAILS=advisory`.
+  **Scope:** the hook runs on Edit/Write/MultiEdit — nothing guards this file against a shell command, so
+  "write-once" holds against drift and accident, not against a workaround. Never route around it via Bash;
+  wanting to is the signal that you owe the user a change-request, not a `sed`. Maker of the GOAL
   block = `product-manager`; the checker that each criterion's `verified:` signal is REAL (reproduced, not
   self-report) = `claim-verifier`. **Whole-product DONE predicate = every GOAL criterion is `[x]` with
   recorded evidence** — the machine-checkable definition of done the user's final sign-off is made against.

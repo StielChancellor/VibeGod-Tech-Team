@@ -19,6 +19,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   stated in the README: **a hook cannot be a security boundary against the agent it runs on behalf of.**
   It stops drift and accident on the path an agent actually takes while working — the realistic failure
   mode, and genuinely worth having. It does not stop intent. Safety net, never sandbox.
+- **Second pass caught three more.** The first sweep grepped for the phrasing I remembered writing, which
+  missed every place that made the same claim in different words: the **state-file template header** (copied
+  into every user's `VIBEGOD-STATE.md`, so the most-read of the lot), the orchestrator's write-once section
+  and its Prime-Directive autopilot exception, and `/kickoff`. Re-done as a systematic sweep of *every*
+  mention of `guard-state`/`guard-autopilot` rather than of remembered phrases. The template and `/kickoff`
+  now also point at the real durable record: **commit the state file — git history, not the hook, is what
+  proves the goal never moved.**
+- Both the orchestrator and the `autopilot` skill now frame the gap as doctrine rather than disclosure:
+  wanting to route around the guard via a shell is itself the signal to stop and go to the user.
 ### Unchanged
 - No behavior change: no hook logic, no tests. Suite stays **144**. This release is scope honesty only.
 
