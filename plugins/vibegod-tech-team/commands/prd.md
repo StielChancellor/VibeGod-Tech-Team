@@ -4,6 +4,8 @@ description: Stage 1 — Co-author the PRD from the objective (modular by defaul
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record Stage 1 passed and where the PRD lives, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at **Stage 1 — PRD & Brainstorm**. Still no code. Build the requirements before anything downstream.
 
 Scope / notes from the user: $ARGUMENTS

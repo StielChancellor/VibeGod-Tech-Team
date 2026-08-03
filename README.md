@@ -93,8 +93,12 @@ Four disciplines make this a team you can trust, not a single model talking to i
 - 🧭 **Nothing gets orphaned.** Every change propagates end-to-end — DB → API → UI → docs → every call
   site (impact-checked with a code knowledge graph, not guesswork) — so you never ship a button with no
   backend or dead code nobody noticed.
-- 💾 **The pipeline remembers.** Progress lives in `VIBEGOD-STATE.md`, so a new session (or a parallel
-  agent swarm) **resumes exactly where the team stood** instead of starting over.
+- 💾 **The pipeline remembers.** Progress lives in `VIBEGOD-STATE.md` — not just "Stage 6" but the
+  work in flight (*"feature 3/5 `booking-flow` — contract written, e2e red on case 2"*), plus a running
+  log of what was decided and what it ruled out. Every stage reads it on entry and writes it on
+  completion, so a new session **resumes where the team stood** instead of starting over — and you can
+  read back an unattended run afterwards. *(Each stage is instructed to maintain it and CI asserts the
+  wiring exists; the writing itself is model-followed, like the rest of the guided column below.)*
 
 The gated flow (you approve every ◆; any change re-enters at the PRD and propagates cleanly downstream):
 
@@ -222,6 +226,7 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 | Hard-block on raising an **armed autopilot budget**, rewinding or garbling its counters, or any write once the budget is spent — and on running at all when an armed budget can't be read — `guard-autopilot` | Autopilot's drift check, and **not re-arming itself** after a halt (a hook can't tell your `/autopilot on` from the agent's) |
 | SessionStart posture banner + a proven-only recipe index that lists **filename slugs only** — no recipe-authored prose reaches that channel | Surgical changes · investigate-before-answering · single front-door |
 | Recipe lint (prose-only, injection-marker scan) + structural `validate.mjs` | OWASP secure-coding & WCAG 2.2 AA in build + review |
+| CI asserts **every stage command is wired to `VIBEGOD-STATE.md`** — the pipeline cannot silently stop being resumable | Actually *writing* the state at each stage (the instruction is enforced; the act is model-followed) |
 | The hooks' own test suite (`ingest/test-hooks.mjs`) | Cost-awareness · TDD · verification-before-completion |
 
 The guardrail hooks are **best-effort heuristics that fail open** — regex command-filtering is inherently

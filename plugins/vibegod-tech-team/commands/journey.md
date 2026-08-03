@@ -4,6 +4,8 @@ description: Stage 2 — Map the full FE+BE UX journey via a frontier-model agen
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record Stage 2 passed and where the journey artifact lives, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at **Stage 2 — Journey / Flow Canvas**. Requires an approved PRD (Stage 1). Still no production code.
 
 Notes / focus from the user: $ARGUMENTS

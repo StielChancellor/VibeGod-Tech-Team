@@ -4,6 +4,8 @@ description: "Pre-ship Compliance gate — SOC2/ISO27001/GDPR/HIPAA/PCI + VPAT/S
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the frameworks assessed and any risk formally accepted, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at the **Compliance gate** (pre-ship, part of the expanded Stage 8). Scope: $ARGUMENTS
 
 Delegate to **compliance-grc**, driven by the **compliance-grc** skill:

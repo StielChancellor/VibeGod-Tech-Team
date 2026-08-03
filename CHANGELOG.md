@@ -3,6 +3,54 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.17.0] — The pipeline actually remembers now
+Step 2 of the redesign. This makes true a claim the README has carried since v0.9 and that was, on
+inspection, false: *"Progress lives in `VIBEGOD-STATE.md`, so a new session resumes exactly where the
+team stood."*
+
+### Fixed (the product's load-bearing claim was not implemented)
+- **Only 4 of 26 commands ever touched `VIBEGOD-STATE.md`** — `kickoff`, `change-request`, `ship-check`,
+  `autopilot`. Not `prd`, `journey`, `stack-and-cost`, `module-map`, `build-plan`, `build`,
+  `feature-check`, `triage`, or any of the release stages. The file was written at Stage 0, read at
+  Stage 8, and **inert in between**. What actually carried state between stages was the conversation
+  context window — so closing a session at Stage 5 lost everything except the frozen GOAL, which is
+  precisely the failure the feature claims to solve.
+- The orchestrator skill asserted it was *"updated at EVERY stage transition and ◆ gate"* and
+  `/kickoff` promised *"every later stage command updates the other sections"*. **No later command
+  contained any such instruction.** The generic directive existed only inside a 2,869-word skill and
+  never fired in 15 releases — which is why the per-command instructions added here are **specific**
+  (what to record, by name) rather than another generic reminder.
+- Telling detail: the repo contained **no `VIBEGOD-STATE.md` and never had one**, and the file was not
+  gitignored. The project never ran its own persistent-memory mechanism, which is why the gap survived.
+
+### Added
+- **`In flight:` and `Blocked on:`** in `## STATUS` — a position recorded at a grain you could resume
+  from cold with no memory of the conversation ("feature 3/5 `booking-flow` — contract written, e2e red
+  on case 2"), not a stage label. A stage number is a label, not a position.
+- **`## DECISIONS`** — an append-only log of what was decided, why, and **what it ruled out**. This is
+  what a user reads to reconstruct a run they did not watch, and what lets a resumed session act on the
+  original reasoning instead of re-deriving or contradicting it.
+- **22 stage commands now read state on entry and write it on completion**, each naming its own
+  artifact: `/stack-and-cost` records every component with its cost *and the rejected cheaper
+  alternative*; `/feature-check` fills `## PER-FEATURE LENS STATUS`; `/build` maintains `In flight:`
+  *during* the work rather than only at the end; `/raid` fills `## OPEN HANDOVERS`. The four utility
+  commands (`doctor`, `graph`, `ingest-scan`, `recipe`) stay stateless by design.
+- **A CI rule in `validate.mjs`** asserting every non-utility command references `VIBEGOD-STATE.md`,
+  so this cannot silently rot back to 4-of-26. Verified by removing the wiring from `/prd` and
+  confirming the build fails, then restoring it — a guard that has never been seen to fail is not
+  known to work.
+
+### Honest scope
+- CI enforces that the **instruction exists**; the **writing itself is model-followed**, like the rest
+  of the guided column. That distinction is now stated in the README rather than implied away — this
+  release makes the claim true, it does not make it mechanical.
+
+### Why this next
+- State is the foundation the rest of the redesign sits on, and it arrived from three independent
+  directions: it is path-independent across every gating model; it is where the cost ledger will live
+  and the source of both live and after-run visibility; and pause-and-ask requires exactly this
+  fine-grained resumability. Anything built before it would have sat on a stub.
+
 ## [0.16.0] — The floor: never commit a real credential
 First step of a larger redesign (see below). This one closes a **composite** hole — three individually
 correct decisions that combined into the outcome they were each meant to prevent.

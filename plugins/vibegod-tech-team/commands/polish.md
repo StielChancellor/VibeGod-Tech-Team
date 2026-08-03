@@ -4,6 +4,8 @@ description: "Design-refinement pass — make a UI distinctive (not \"AI-slop\")
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the slop-test verdict, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 Run a **design-refinement** pass on: **$ARGUMENTS** (if empty, use the page most recently built/changed).
 
 Load the `design-refinement` skill (+ `frontend-craft`, `ui-ux-excellence`) and drive the

@@ -2,6 +2,8 @@
 description: "Review a page/screen/component for UI/UX best practices and cross-screen integrity — renders across all breakpoints, flags broken/inconsistent UI, and dispatches fixes to the frontend-engineer. Args: the page/route/component (path or URL)."
 ---
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the render verdict and which breakpoints failed, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 Run a full UI/UX quality gate on: **$ARGUMENTS** (if empty, ask which page/route/component, or use the
 one most recently built/changed).
 

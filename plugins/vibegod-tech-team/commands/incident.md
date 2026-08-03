@@ -4,6 +4,8 @@ description: "Declare and run a production incident — assign IC/Ops/Comms/Plan
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the incident, its timeline and the PIR action items, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 **Incident:** $ARGUMENTS — this is **Stage 10 (Operate)**. Load the `incident-management` skill and put the
 **incident-manager** in command (Incident Commander).
 

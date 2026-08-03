@@ -4,6 +4,8 @@ description: "Performance & scale gate — load/stress/soak/spike testing vs SLA
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the measured p50/p95/p99 against target, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at the **Performance/scale gate**. Target/scenario: $ARGUMENTS
 
 Delegate to **performance-engineer**, driven by the **performance-engineering** skill:

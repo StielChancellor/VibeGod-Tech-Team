@@ -4,6 +4,8 @@ description: "Classify a change (trivial / low / standard / high-or-emergency) a
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the tier and which gates this lane runs vs skips, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 Run **change-risk triage** on: **$ARGUMENTS** (if empty, use the change just described).
 
 Load the `change-risk-triage` skill and delegate the judgment to the **delivery-manager**:

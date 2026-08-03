@@ -4,6 +4,8 @@ description: "Program/Delivery — stand up and maintain the RAID log (Risks, As
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record open risks and issues under `## OPEN HANDOVERS`, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 This is the **cross-cutting Program/Delivery track** — it runs alongside every stage, it does not replace a gate.
 
 Focus from the user: $ARGUMENTS

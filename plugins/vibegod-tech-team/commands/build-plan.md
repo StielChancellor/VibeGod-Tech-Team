@@ -4,6 +4,8 @@ description: Stage 5 — Foundation-first build roadmap with milestones and TDD/
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record Stage 5 passed, the roadmap and the first milestone, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at **Stage 5 — Build Plan (foundation-first)**. Requires a confirmed module map (Stage 4). This is the **last gate before any code is written** — treat it as the explicit go/no-go.
 
 Notes from the user: $ARGUMENTS

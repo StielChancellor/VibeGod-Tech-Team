@@ -4,6 +4,8 @@ description: Architecture + security design gate — solution-architect + securi
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the threat-model verdict and any risk the user formally accepted, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 This is an **architecture review gate** — run it before code is written (typically after Stage 4 module map / before Stage 5 build plan). Following top-tier engineering practice: design docs get a design review before implementation.
 
 Review scope: $ARGUMENTS

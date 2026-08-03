@@ -117,17 +117,29 @@ if (existsSync(agentsDir)) for (const f of readdirSync(agentsDir)) {
 console.log(`  -> ${agentCount} agents`);
 
 console.log('Commands:');
+// Utility commands are stateless by design — they inspect or scaffold, they don't advance the pipeline.
+// Everything else is a STAGE command and must read/write VIBEGOD-STATE.md, or the pipeline silently
+// stops being resumable. This rule exists because it already happened: for 15 releases only 4 of 26
+// commands touched the state file while the README claimed the pipeline "resumes exactly where the
+// team stood". A generic instruction in the orchestrator skill was present the whole time and never
+// fired — so the guarantee is asserted here, in CI, where it cannot quietly rot back.
+const STATELESS = new Set(['doctor.md', 'graph.md', 'ingest-scan.md', 'recipe.md']);
 const cmdDir = join(PLUGIN, 'commands');
-let cmdCount = 0;
+let cmdCount = 0, stageCount = 0;
 if (existsSync(cmdDir)) for (const f of readdirSync(cmdDir)) {
   if (!f.endsWith('.md')) continue;
   const fm = frontmatter(join(cmdDir, f));
   if (!fm) { err(`commands/${f}: no frontmatter`); continue; }
   if (!fm.description) err(`commands/${f}: missing description`);
   checkAllowedTools(fm, `commands/${f}`);
+  if (!STATELESS.has(f)) {
+    stageCount++;
+    if (!readFileSync(join(cmdDir, f), 'utf8').includes('VIBEGOD-STATE.md'))
+      err(`commands/${f}: stage command never references VIBEGOD-STATE.md — the pipeline stops being resumable. Add the state read/write instruction, or add it to STATELESS if it genuinely does not advance the pipeline.`);
+  }
   cmdCount++;
 }
-console.log(`  -> ${cmdCount} commands`);
+console.log(`  -> ${cmdCount} commands (${stageCount} stage commands wired to state)`);
 
 console.log('Path refs (${CLAUDE_PLUGIN_ROOT}/...):');
 function walkMd(dir) {

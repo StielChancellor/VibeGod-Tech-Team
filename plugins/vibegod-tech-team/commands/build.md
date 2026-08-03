@@ -4,6 +4,8 @@ description: Stage 6 — Dispatch the coding swarm (foundation then modules) wit
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record `In flight:` as each feature starts and as its state changes — this is the field a cold resume depends on, so update it during the work, not only at the end, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at **Stage 6 — Build (coding swarm)**. **Precondition: Stage 5 build-plan sign-off.** If the build plan is not explicitly approved, STOP and route to `/build-plan` — do not write code.
 
 Notes / scope from the user: $ARGUMENTS

@@ -4,6 +4,8 @@ description: "Release coordination — version the release, run change managemen
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the version, the CAB decision and the tested rollback plan, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at **Release coordination** (after Stage 8 gates pass, before GA). Scope: $ARGUMENTS
 
 Delegate to **release-manager**, driven by the **release-management** skill:

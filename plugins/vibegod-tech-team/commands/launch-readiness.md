@@ -4,6 +4,8 @@ description: "GA launch readiness — run the Google SRE launch checklist (archi
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record the checklist verdict and the canary stage reached, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+
 You are at **GA launch readiness** (final gate before general availability). Scope: $ARGUMENTS
 
 Delegate to **release-manager** + **devops-sre** (driven by **release-management** + **devops-delivery**):

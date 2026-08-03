@@ -27,6 +27,18 @@ Non-goals: <explicitly out of scope>
 ## STATUS
 Stage: 0 — Discover
 Triage tier: <trivial | low | standard | high>   <!-- set after /triage -->
+<!-- `In flight` is what makes this file RESUMABLE rather than merely descriptive. Write it at a grain
+     you could restart from cold, with no memory of the conversation: not "Stage 6" but
+     "feature 3/5 `booking-flow` — contract written, e2e red on case 2 (expired-card)". A stage number
+     alone is not a position; it is a label. Update it as the work moves, not only at gates. -->
+In flight: —
+Blocked on: —   <!-- what is stopping progress right now (a decision, a missing tool, a failing gate) -->
+
+## DECISIONS
+<!-- Append-only, newest last: date — what was decided — why — what it rules out.
+     This is the record a user reads to reconstruct a run they did not watch, and the reason a
+     resumed session can act on the same reasoning instead of re-deriving (or contradicting) it.
+     Log the CHOICE and the ALTERNATIVE rejected, not just the outcome. -->
 
 ## AUTOPILOT
 <!-- Opt-in unattended mode (/autopilot on|off|status). OFF unless the user explicitly arms it.
