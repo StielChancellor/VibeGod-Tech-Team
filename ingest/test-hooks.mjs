@@ -613,6 +613,34 @@ console.log('guard-write document scan (split-secret floor):');
     check(`still blocks a real key in ${f}`, at(f) === 2);
 }
 
+// Notebooks were wholly unguarded: `new_source` was never read AND `NotebookEdit` was not in the hook
+// matcher. Notebooks are exactly where API keys get pasted while exploring.
+{
+  const nb = (src, fp = 'analysis.ipynb') => run('guard-write.mjs', { tool_input: { file_path: fp, new_source: src } }).status;
+  check('blocks a credential in a notebook cell', nb('AWS_KEY = "AKIAIOSFODNN7REALKEY"') === 2);
+  check('blocks a namespaced credential in a notebook cell', nb('STRIPE_API_KEY = "8f3a9b2c1d4e5f60718293a4"') === 2);
+  check('allows ordinary notebook code', nb('import pandas as pd\ndf = pd.read_csv("data.csv")') === 0);
+  check('allows a placeholder in a notebook cell', nb('AWS_KEY = "your-api-key-here"') === 0);
+  // Fragment fallback must NOT difference against the .ipynb on disk — a freshly pasted key would
+  // otherwise be scored as pre-existing and let through.
+  check('a notebook cell is judged on its own content', nb('AWS_KEY = "AKIAIOSFODNN7REALKEY"', 'nb/deep/analysis.ipynb') === 2);
+}
+
+// A MET goal may be re-baselined; an unmet one may not. Before this, finishing a goal trapped you:
+// every route to starting the next piece of work was blocked, and the only escape was
+// VIBEGOD_GUARDRAILS=advisory, which disables every guard including secret-blocking.
+{
+  const DONE = '## GOAL (frozen)\nObjective: ship it.\n- [x] AC-1: works - proof: e2e - verified: reproduced 2026-08-03 suite 263 passed\nNon-goals: notebooks\n\n## STATUS\nStage: 8\n';
+  const OPEN = DONE.replace('- [x] AC-1', '- [ ] AC-1').replace('verified: reproduced 2026-08-03 suite 263 passed', 'verified: -');
+  const PARTIAL = DONE.replace('Non-goals: notebooks', '- [ ] AC-2: more - proof: x - verified: -\nNon-goals: notebooks');
+  const FAKED = DONE.replace('reproduced 2026-08-03 suite 263 passed', 'pending');
+  const reb = (txt) => { const f = join(mkdtempSync(join(tmpdir(), 'vg-reb-')), 'VIBEGOD-STATE.md'); writeFileSync(f, txt); return run('guard-state.mjs', { tool_input: { file_path: f, old_string: 'Non-goals: notebooks', new_string: 'Non-goals: none' } }).status; };
+  check('a MET goal may be re-baselined', reb(DONE) === 0);
+  check('an UNMET goal may not', reb(OPEN) === 2);
+  check('a PARTIALLY met goal may not', reb(PARTIAL) === 2);
+  check('placeholder evidence cannot unlock a re-baseline', reb(FAKED) === 2);
+}
+
 console.log('dogfood regressions (adversarial pass on a realistic project):');
 // Every case below was an OBSERVED bypass against a realistic dogfood project, not a theoretical one.
 const dogState = ({ ceil = '£4,000 over 12 months', one = 900, mon = 180, mode = 'off', at = '-' } = {}) =>

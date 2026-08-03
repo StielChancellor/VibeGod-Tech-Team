@@ -3,6 +3,39 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.22.0] — Notebooks covered, and a met goal can finally be re-baselined
+Both found by continuing the real run rather than by reading the code.
+
+### Fixed (security)
+- **Notebooks were wholly unguarded.** `guard-write` never read `new_source`, and `NotebookEdit` was not
+  in the hook matcher at all — so a credential pasted into a notebook cell passed both. Notebooks are
+  exactly where API keys get pasted while exploring. `NotebookEdit` is now wired to `guard-write` only;
+  the state guards stay on `Edit|Write|MultiEdit`, since `VIBEGOD-STATE.md` cannot be a notebook.
+- In the fragment fallback (`applyToolEdit` cannot model a cell inside `.ipynb` JSON) the "already on
+  disk" baseline is deliberately **empty** — carrying it over would score a freshly pasted key as
+  pre-existing and let it through.
+
+### Fixed (a trap the freeze created)
+- **A goal that had been MET could not be re-baselined.** Every route was blocked: dropping a non-goal,
+  adding a criterion, even a deliberate whole-file rewrite. The doctrine says a goal change is a
+  "Stage-9 change-request — re-baseline deliberately", but there was no mechanical path to do it, and the
+  only escape was `VIBEGOD_GUARDRAILS=advisory`, which disables **every** guard including secret-blocking.
+  Finishing a goal trapped you.
+- `guard-state` now permits a GOAL change **once every criterion is `[x]` with reproduced evidence**.
+  The semantics were the giveaway: goalpost-moving means changing the goal *to avoid meeting it*;
+  changing it after meeting it is starting the next piece of work. Not a loophole — unlocking it requires
+  satisfying the evidence gate on every criterion first, and `hasEvidence` already refuses placeholders.
+  Verified: met → allowed; unmet, partially met, and placeholder-evidence → all still blocked.
+
+### Dogfood note
+The frozen GOAL caught this release's own scope drift. Notebooks were listed in that goal's `Non-goals`,
+so the guard blocked the work as goalpost-moving — correctly. The re-baseline is recorded in the state
+file as a Stage-9 change request with what it ruled out, rather than the scope quietly widening.
+
+### Tests
+- +9: notebook coverage (blocks a cell credential, allows ordinary code and placeholders) and the
+  re-baseline matrix. Suite **258 → 267**.
+
 ## [0.21.1] — The secret scanner blocked its own test suite
 Found by the 0.21.0 real run: `guard-commit`, run against an actual commit of this repo, blocked it —
 reporting an AWS key in `ingest/test-hooks.mjs`. The shape genuinely is an AWS key; it is the fixture

@@ -13,6 +13,10 @@ let text = '';
 if (typeof ti.content === 'string') text += ti.content + '\n';
 if (typeof ti.new_string === 'string') text += ti.new_string + '\n';
 if (Array.isArray(ti.edits)) for (const e of ti.edits) if (e && typeof e.new_string === 'string') text += e.new_string + '\n';
+// NotebookEdit writes a whole cell via `new_source`. It was never read, and `NotebookEdit` was not in
+// the hook matcher either — so a credential pasted into a notebook cell was completely unguarded, which
+// matters because notebooks are where API keys get pasted while exploring.
+if (typeof ti.new_source === 'string') text += ti.new_source + '\n';
 const file = String(ti.file_path ?? '');
 if (!text.trim()) process.exit(0);
 
@@ -35,8 +39,12 @@ const isDotenv = /(?:^|[\\/])\.env(?:\.[\w-]+)?$/i.test(file);
 let onDisk = '';
 try { onDisk = readFileSync(file, 'utf8'); } catch { onDisk = ''; }   // new file => nothing pre-existing
 const opts = { bareAssignments: !isDotenv };
+// `applyToolEdit` returns null for shapes it cannot model — notably NotebookEdit, where the cell lives
+// inside .ipynb JSON and there is no text edit to simulate. In that fragment fallback `before` must be
+// EMPTY: with no modelled document there is nothing to difference against, and carrying over the
+// on-disk findings would mark a freshly-pasted key as "pre-existing" and let it through.
 const proposed = applyToolEdit(onDisk, ti);
-const before = onDisk ? scanSecrets(onDisk, opts) : new Set();
+const before = (proposed && onDisk) ? scanSecrets(onDisk, opts) : new Set();
 const after = scanSecrets(proposed ?? text, opts);
 const found = new Set([...after].filter((name) => !before.has(name)));
 

@@ -70,7 +70,19 @@ if (current == null) process.exit(0); // nothing frozen yet => allow (backward-c
 const proposed = applyToolEdit(onDisk, ti);
 if (proposed == null) process.exit(0);
 
-if (norm(current) !== norm(goalBlock(proposed)))
+// A goal that has been MET may be re-baselined. Goalpost-moving means changing the goal to avoid
+// meeting it; changing it once every criterion is [x] with reproduced evidence is simply starting the
+// next piece of work. Without this the freeze had no exit at all: after a goal completed, dropping a
+// non-goal, adding a criterion and even a deliberate whole-file re-baseline were all blocked, and the
+// only escape was VIBEGOD_GUARDRAILS=advisory — which disables every guard, secret-blocking included.
+// Surfaced by running this pipeline on real work and finishing a goal.
+//
+// This is not a loophole: unlocking it requires first satisfying the evidence gate on EVERY criterion,
+// and `hasEvidence` already refuses placeholders. The barrier to re-baselining is doing the work.
+const acLines = (b) => (b || '').split('\n').filter((l) => boxState(l) !== undefined);
+const goalMet = (b) => { const a = acLines(b); return a.length > 0 && a.every((l) => boxState(l) === 'x' && hasEvidence(l)); };
+
+if (norm(current) !== norm(goalBlock(proposed)) && !goalMet(current))
   hardBlock('PreToolUse',
     `VibeGod Tech Team blocked an edit to the FROZEN GOAL block of VIBEGOD-STATE.md.\n` +
     `The Stage-0 objective, acceptance criteria, constraints and non-goals are write-once — only the\n` +
