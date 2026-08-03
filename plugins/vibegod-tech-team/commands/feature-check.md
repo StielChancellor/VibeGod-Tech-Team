@@ -21,3 +21,9 @@ Do this:
 3. Aggregate per-lens results with evidence (test output, scan results, **the visual-check report/screenshots for UI**). Each lens fixes what it finds (or files it precisely) before declaring pass. Re-run after fixes until clean.
 
 ◆ Gate: A single failing lens blocks the feature — surface it plainly, do not paper over it. **Only when every applicable lens confirms green** — the four core lenses, plus the **ux-design-reviewer render lens for any UI feature** — does the feature close and the swarm move to the next task (back to `/build`). When all features are done, point to `/ship-check` (Stage 8).
+
+<!-- Under consequence-based gating this is NOT an automatic stop. Present the result, record it in
+     VIBEGOD-STATE.md, and CONTINUE — unless a trigger fires (cost · undeclared sensitive domain ·
+     irreversibility or the must-ask list · scope drift · genuine ambiguity · repeated failure), or the
+     tier in `change-risk-triage` says this one stops. The user is the visionary: bring them decisions at
+     outcome altitude, not artifacts for approval. -->

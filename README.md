@@ -5,7 +5,7 @@
 > design, build, test, and ship your idea as a real, production-grade platform.
 > **You approve. The team does the work.**
 >
-> 28 specialists · 8 departments · 53 skills · 26 commands · **1 coordinator** you talk to.
+> 28 specialists · 8 departments · 53 skills · 27 commands · **1 coordinator** you talk to.
 
 ---
 
@@ -78,7 +78,7 @@ You *can* summon anyone directly, anytime:
 itself — mention anything security-related and the security engineer wakes up; touch the database and
 the data engineer steps in. As work moves, **they hand off to each other** (every handover states what's
 done — with evidence — what's open, and who's next), while a **project manager keeps the whole program
-on track**. Your only job: **approve at each ◆ gate.**
+on track**. Your only job: **set the boundary at kickoff, then answer when they hit it.**
 
 Four disciplines make this a team you can trust, not a single model talking to itself:
 
@@ -100,7 +100,9 @@ Four disciplines make this a team you can trust, not a single model talking to i
   read back an unattended run afterwards. *(Each stage is instructed to maintain it and CI asserts the
   wiring exists; the writing itself is model-followed, like the rest of the guided column below.)*
 
-The gated flow (you approve every ◆; any change re-enters at the PRD and propagates cleanly downstream):
+The flow the team runs. **You don't type these** — the coordinator runs them and comes to you when a
+decision is genuinely yours. A change re-enters at the depth its risk warrants (a typo does not need a
+PRD), and propagates cleanly downstream:
 
 ```
 Discover → PRD → Journey → Stack & Cost → Modules → Security review
@@ -118,7 +120,11 @@ Discover → PRD → Journey → Stack & Cost → Modules → Security review
 - 📐 **Architecture you can actually see** — every blueprint ships a clean C4 diagram (and data models an
   ER diagram) that renders right in GitHub, your IDE, and PRs.
 - 💸 **Cost-aware** — every tech choice shows the price tag *and* a cheaper alternative with what you'd lose.
-- 🚦 **You stay in control** — it never jumps straight to code, and pauses at every decision gate for your yes.
+- 🚦 **You stay in control — without being the bottleneck.** It never jumps straight to code, and it
+  stops when something crosses your boundary: **cost**, an **undeclared** payments/logins/personal-data
+  surface, something **irreversible** or on your must-ask list, work that **drifts off-goal**, real
+  **ambiguity**, or the same thing **failing repeatedly**. The first two are enforced by hooks; the rest
+  are the team's discipline. It does not stop to have you approve a module contract.
 - 🎯 **You set the boundary, not the blueprint** — at kickoff you agree four things in plain English: a
   **hard budget** (covering build *and* running, over a period you choose), whether it touches
   **payments / personal data / logins**, anything you **must be asked about first**, and how often you

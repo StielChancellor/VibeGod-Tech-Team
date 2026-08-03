@@ -17,3 +17,9 @@ Do this:
 4. Honor accessibility (WCAG 2.2 AA) in the flow itself — keyboard paths, focus order, error/empty/loading states.
 
 ◆ Gate: Present the journey. The user opens `journey.html`, redlines it, and clicks **Copy JSON** to paste the approved journey back into the chat (treat the pasted JSON as approved). Also keep a happy-path Mermaid snapshot for diffability. STOP for approval; only then point to `/stack-and-cost` (Stage 3).
+
+<!-- Under consequence-based gating this is NOT an automatic stop. Present the result, record it in
+     VIBEGOD-STATE.md, and CONTINUE — unless a trigger fires (cost · undeclared sensitive domain ·
+     irreversibility or the must-ask list · scope drift · genuine ambiguity · repeated failure), or the
+     tier in `change-risk-triage` says this one stops. The user is the visionary: bring them decisions at
+     outcome altitude, not artifacts for approval. -->

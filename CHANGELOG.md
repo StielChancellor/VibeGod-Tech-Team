@@ -3,6 +3,53 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.24.0] — Consequence gating: the user stops being the bottleneck
+Step 4 completes. The gates were never too *numerous* so much as pitched at the wrong **altitude** — a
+visionary can decide "faster pages are worth £400/month" but cannot meaningfully approve a module
+contract, and asking them to manufactures a false record of human sign-off.
+
+### Changed — the Prime Directive
+- **Stop on CONSEQUENCE, not on stage boundaries.** The orchestrator now runs the stages itself and stops
+  only on a trigger: **cost** · **undeclared sensitive domain** · **irreversibility / the must-ask list** ·
+  **scope drift** · **ambiguity** · **repeated failure**. Two are mechanical (`guard-cost`,
+  `guard-domain`); four are the model's discipline, and the skill says so in as many words rather than
+  implying otherwise.
+- **Four things still always stop**, whatever the envelope says: the user's must-ask list, the final ship
+  decision, anything irreversible and outward-facing, and a trigger firing.
+
+### Changed — triage was wired to the wrong output
+- `change-risk-triage` now sets **trigger sensitivity**, not ceremony. Its dimensions were always a good
+  consequence classifier; they simply drove the wrong thing. With `user-facing` as a scored dimension and
+  the tier equal to the worst dimension, **every user-visible change was "Standard" by construction** — a
+  dark-mode toggle drew ten approval gates, a UAT plan, p99 SLAs, a SOC 2 review and a canary rollout.
+- **The tier may now be moved in EITHER direction.** It could previously only be overridden *upward*, so
+  the express lane was unreachable for exactly the changes people actually make, and a user drowning in
+  gates had no way out — the one thing a relief valve is for.
+- The old gate matrix survives as a **depth matrix**: what the team does internally, with no user stop implied.
+
+### Changed — 27 commands, ~4 of them yours
+- The commands are the orchestrator's playbook, not the user's keyboard. User-facing: **`/kickoff`**,
+  plain English, **`/status`** (new), **`/change-request`**. Everything else the coordinator invokes.
+  **Every command still works if typed** — they are no longer *required*, not no longer *available*.
+- This makes "**1 coordinator you talk to**" true rather than aspirational, and retires the ~6.9k tokens
+  of orchestrator + principles preamble that were re-paid on each of 12–14 commands per feature.
+- Nine commands carried a `◆ Gate` line; six now report-and-continue. `kickoff`, `ship-check` and
+  `change-request` keep theirs — the envelope contract, the final ship decision, and a deliberate goal change.
+
+### Added
+- **`/status`** — where the build stands, what it has cost, what is *proven* versus claimed, what is open,
+  and whether the next step needs the user. Read-only: it never advances a stage.
+
+### Fixed
+- The contradiction flagged in the critique: the README and SessionStart banner said *"any change re-enters
+  at the PRD"* while the triage table marked a full PRD ⛔ for trivial and low. Both were equal-priority
+  doctrine, so behaviour was nondeterministic on the most frequently exercised decision in the product. A
+  change now re-enters at the depth its risk warrants.
+
+### Tests
+- Suite unchanged at **281** — this release is doctrine, not mechanism. Validator confirms 27 commands with
+  23 wired to state, and `claude plugin validate` passes.
+
 ## [0.23.0] — The undeclared-sensitive-domain trigger
 Step 4 of the redesign begins: converting stage ◆ gates into consequence triggers. Cost was already
 mechanical (0.19.0); this is the second trigger that can be, and it is the one that protects the user

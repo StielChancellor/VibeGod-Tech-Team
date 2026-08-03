@@ -19,3 +19,9 @@ Do this:
 3. Produce a clear verdict per reviewer with specific, actionable findings (not vague concerns). Reconcile any conflict between architecture and security tradeoffs.
 
 ◆ Gate: Surface blockers plainly. **Do not advance to the build plan / code until the design review is resolved.** Recommend the next command (`/build-plan`) only when the design is sound and the threat model is acceptable.
+
+<!-- Under consequence-based gating this is NOT an automatic stop. Present the result, record it in
+     VIBEGOD-STATE.md, and CONTINUE — unless a trigger fires (cost · undeclared sensitive domain ·
+     irreversibility or the must-ask list · scope drift · genuine ambiguity · repeated failure), or the
+     tier in `change-risk-triage` says this one stops. The user is the visionary: bring them decisions at
+     outcome altitude, not artifacts for approval. -->

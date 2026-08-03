@@ -18,3 +18,9 @@ Do this:
 5. Render the dependency graph as a **required Mermaid diagram** per the shared C4 convention (`${CLAUDE_PLUGIN_ROOT}/skills/_shared/c4-mermaid-convention.md` — typed nodes, `mechanism: contract` edges, async dashed, trust-boundary subgraphs), committed inside the module-map markdown so it renders in PRs/IDE.
 
 ◆ Gate: Present the module map + contracts + the **Mermaid dependency diagram**. STOP for the user to confirm the decomposition. Only on confirmation, point to `/build-plan` (Stage 5).
+
+<!-- Under consequence-based gating this is NOT an automatic stop. Present the result, record it in
+     VIBEGOD-STATE.md, and CONTINUE — unless a trigger fires (cost · undeclared sensitive domain ·
+     irreversibility or the must-ask list · scope drift · genuine ambiguity · repeated failure), or the
+     tier in `change-risk-triage` says this one stops. The user is the visionary: bring them decisions at
+     outcome altitude, not artifacts for approval. -->

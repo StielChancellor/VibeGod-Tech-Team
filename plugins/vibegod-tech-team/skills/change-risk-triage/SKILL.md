@@ -12,10 +12,17 @@ every build/change and applies the resulting gate matrix. Honors vibegod-princip
 never skip a SAFETY gate). User > skills > default.
 
 ## Fits in the pipeline
-Runs at Stage 0 (new build) and Stage 9 (change request) BEFORE committing to the full flow. The tier
-selects which downstream gates run vs skip.
+Runs at Stage 0 (new build) and Stage 9 (change request). The tier sets **how sensitive the triggers
+are** — what would STOP the run and bring the user in — not how much ceremony to perform.
 
-## Score the tier (the tier = the WORST dimension)
+**This is the rewiring:** the tier used to select which stage gates ran, with `user-facing` as a scored
+dimension and the tier equal to the worst dimension. That made **every user-visible change "Standard" by
+construction** — a dark-mode toggle drew ten approval gates, a UAT plan, p99 SLAs, a SOC 2 applicability
+review and a canary rollout. Worse, the tier could only be overridden **upward**, so the express lane was
+unreachable for exactly the changes people actually make. The dimensions below are a good consequence
+classifier; they were simply wired to the wrong output.
+
+## Score the consequence (the tier = the WORST dimension)
 Score the change on each dimension; one high dimension promotes the whole change:
 - **Blast radius** — one internal user → one tenant/region → all users / a critical workflow.
 - **Reversibility** — instant flag-off/rollback → redeploy → hard/irreversible (data migration).
@@ -31,7 +38,23 @@ Score the change on each dimension; one high dimension promotes the whole change
 | **Standard** | user-facing or medium blast radius, normal rollback |
 | **High / Emergency** | wide blast radius, hard rollback, identity/data/security/compliance — or an incident hotfix |
 
-## Gate matrix (what runs vs skips)
+## Trigger sensitivity by tier (what STOPS the run)
+The stages still run — they are the method. This is only about when the **user** is brought in.
+
+| Trigger | Trivial | Low | Standard | High / Emergency |
+|---|---|---|---|---|
+| **Cost** (`guard-cost`, mechanical) | at ceiling | at ceiling | at ceiling | at ceiling, **and** flag any new recurring spend |
+| **Undeclared sensitive domain** (`guard-domain`, mechanical) | always | always | always | always |
+| **Irreversibility** | must-ask list only | must-ask list only | + destructive migration, public contract change | + any change without a tested rollback |
+| **Scope drift** (no matching acceptance criterion) | report | report | stop | stop |
+| **Ambiguity** | pick and record | pick and record | stop if outcomes differ materially | stop |
+| **Repeated failure** | ≥3 attempts | ≥3 attempts | ≥3 attempts | ≥2 attempts |
+
+**The user may move the tier in EITHER direction**, and say so when presenting it. The old rule allowed
+only "override UP (more rigor)", which meant a user drowning in gates had no way out — the one thing a
+relief valve exists for.
+
+## Depth matrix (what the TEAM does — no user stop implied)
 | Gate | Trivial | Low | Standard | High / Emergency |
 |---|---|---|---|---|
 | **CI + automated tests green** | ✅ | ✅ | ✅ | ✅ (hotfix: smoke now + full post-hoc) |
@@ -60,7 +83,8 @@ its incident. Speed is bought with post-hoc audit, never with skipped review or 
 
 ## Output
 State the **tier + the dimension that set it**, the gates that will run, and the gates being skipped
-(with why). The user can override the tier up (more rigor) at any time; only the `delivery-manager` +
+(with why). The user can move the tier in EITHER direction at any time — up for more rigor, down when the
+team is over-ceremonising a small change; only the `delivery-manager` +
 user may waive a non-safety gate — never a safety gate.
 
 ## Sources

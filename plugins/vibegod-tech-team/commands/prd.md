@@ -18,3 +18,9 @@ Do this:
 5. Keep it terse and decision-led; flag assumptions and open questions explicitly.
 
 ◆ Gate: Present the PRD for review. STOP and get explicit approval/edits before advancing. Only when the user approves, point to `/journey` (Stage 2).
+
+<!-- Under consequence-based gating this is NOT an automatic stop. Present the result, record it in
+     VIBEGOD-STATE.md, and CONTINUE — unless a trigger fires (cost · undeclared sensitive domain ·
+     irreversibility or the must-ask list · scope drift · genuine ambiguity · repeated failure), or the
+     tier in `change-risk-triage` says this one stops. The user is the visionary: bring them decisions at
+     outcome altitude, not artifacts for approval. -->

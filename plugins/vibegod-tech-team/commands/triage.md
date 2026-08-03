@@ -18,6 +18,9 @@ Load the `change-risk-triage` skill and delegate the judgment to the **delivery-
 4. For an emergency/hotfix: ship with minimal smoke + the always-on gates, then complete the full record
    retrospectively and run a PIR linked to the incident.
 
-◆ Present the tier + the chosen lane (gates run vs skipped) for the user to confirm or override UP (more
+Present the tier and **what it would stop the run for** (the trigger sensitivity), not a list of ceremony.
+The user may move it in EITHER direction — up for more rigor, **down when the team is over-ceremonising a
+small change**. The old rule allowed only an upward override, which left a user drowning in gates no way
+out. This is not a ◆ stop in itself: state the tier, invite a correction, and carry on unless they object.
 rigor). Only the delivery-manager + user may waive a NON-safety gate — never a safety gate. Then enter
 the pipeline at the appropriate stage with the reduced/full gate set.
