@@ -6,21 +6,21 @@
      15-release gap in it went unnoticed. Every claim below carries the signal that proves it. -->
 
 ## GOAL (frozen at kickoff — do not edit; only flip acceptance-criteria [ ] -> [x])
-Objective: `guard-write` must block a real credential even when the value is assembled across several edits in one tool call, or completed against content already on disk — so the never-commit-a-credential floor cannot be stepped around by splitting the value in two.
+Objective: the pipeline must stop the user on CONSEQUENCE rather than at every stage boundary — so the person paying for the work sets the boundary once and is interrupted only when it is genuinely crossed, instead of approving engineering artifacts they cannot meaningfully judge.
 Acceptance criteria (machine-checkable; mark [x] ONLY with a claim-verifier-reproduced signal in `verified:` — proof, not self-report):
-- [x] AC-1: a credential split across two MultiEdit edits is blocked — proof: `node ingest/test-hooks.mjs` case "blocks a credential split across MultiEdit edits" reports ✓ — verified: reproduced 2026-08-03, suite 267 passed 0 failed
-- [x] AC-2: a credential completed against existing on-disk content is blocked — proof: `node ingest/test-hooks.mjs` case "blocks a credential completed against on-disk content" reports ✓ — verified: reproduced 2026-08-03, suite 267 passed 0 failed
-- [x] AC-3: editing a file that ALREADY contains a secret is still allowed, so the file remains fixable — proof: `node ingest/test-hooks.mjs` case "allows editing a file that already contains a secret" reports ✓ — verified: reproduced 2026-08-03, suite 267 passed 0 failed
-- [x] AC-5: a credential in a notebook cell is blocked, and `NotebookEdit` is wired to the guard — proof: `node ingest/test-hooks.mjs` cases "blocks a credential in a notebook cell" and "allows ordinary notebook code" report ✓ — verified: reproduced 2026-08-03, suite 267 passed 0 failed
-- [x] AC-6: a MET goal can be re-baselined and an unmet one cannot — proof: `node ingest/test-hooks.mjs` case "a MET goal may be re-baselined" and "an UNMET goal may not" report ✓ — verified: reproduced 2026-08-03, suite 267 passed 0 failed
-- [x] AC-4: no regression — proof: `node ingest/test-hooks.mjs` exits 0 with 0 failed, and `node ingest/validate.mjs` reports 0 errors — verified: reproduced 2026-08-03 — `node ingest/test-hooks.mjs` exit 0, 267 passed 0 failed; `node ingest/validate.mjs` 0 errors 0 warnings
-Hard constraints: zero runtime dependencies · fail-open on error · no new false-positive class · £0 ceiling
-Non-goals: covering the shell path · novel credential formats
+- [x] AC-1: work reaching an UNDECLARED payments / logins / personal-data surface stops the run — proof: `node ingest/test-hooks.mjs` guard-domain block reports ✓ — verified: reproduced 2026-08-03 at 46de9c3, suite 286 passed 0 failed
+- [x] AC-2: the trigger stays QUIET on ordinary work (author.ts, healthcheck.ts, a stray "email") — proof: the guard-domain noise cases report ✓ — verified: reproduced 2026-08-03 at 46de9c3, suite 286 passed 0 failed
+- [x] AC-3: the tier sets trigger sensitivity and may be moved in EITHER direction — proof: `change-risk-triage` SKILL.md carries the trigger-sensitivity matrix and the bidirectional override; `/triage` no longer says "override UP" — verified: reproduced 2026-08-03, `grep -c "EITHER direction"` returns 2 in the skill and 1 in the command
+- [x] AC-4: the user types ~4 commands, and every other command still works if typed — proof: the orchestrator carries the four-command table; all 27 commands still validate — verified: reproduced 2026-08-03, `node ingest/validate.mjs` reports 27 commands, 0 errors
+- [x] AC-5: a state file whose claims predate HEAD says so, unprompted — proof: `node ingest/test-hooks.mjs` cases "warns when state was verified at an older commit" and "silent when state matches HEAD" report ✓ — verified: reproduced 2026-08-03 at 46de9c3, suite 286 passed 0 failed
+- [x] AC-6: no regression — proof: `node ingest/test-hooks.mjs` exits 0 and `node ingest/validate.mjs` reports 0 errors — verified: reproduced 2026-08-03 — 286 passed 0 failed; validator 0 errors 0 warnings
+Hard constraints: zero runtime dependencies · fail-open on error · no new false-positive class · every command keeps working if typed · £0 ceiling
+Non-goals: covering the shell path · making the four judgement triggers mechanical · an external user trial
 
 ## WHERE
 Repo / branch: /home/i-main/projects/Hi-ITCHL/Vibe-FDE-Agent · main
-Last verified against commit: 535bfd8 (parent) — this change verified at 250 passed / 0 failed before commit
-Install / run: `npm ci` (no deps) · Tests: `node ingest/test-hooks.mjs` · Expected: 267 passed, 0 failed
+Last verified against commit: 46de9c3 — re-verified at 286 passed / 0 failed
+Install / run: `npm ci` (no deps) · Tests: `node ingest/test-hooks.mjs` · Expected: 286 passed, 0 failed
 Pipeline docs: the stage model, the ◆ gates and the 4 safety gates are defined in the
 `vibegod-orchestrator` skill — read it if any term here is unfamiliar.
 
@@ -44,6 +44,8 @@ In flight: —
 Blocked on: —
 
 ## DECISIONS
+2026-08-03 — RE-BASELINE (Stage-9). Previous goal met; new objective is consequence gating — why: the critique found the gates were pitched at the wrong ALTITUDE, so the user was approving artifacts they could not judge while being the throughput bottleneck — ruled out: keeping stage gates and only rewording them (fixes comprehension, not throughput)
+2026-08-03 — SELF-INFLICTED FINDING: this state file went FOUR releases stale (v0.21.1 → v0.24.0) while the README claimed every stage maintains it — why it happened: the wiring is per-COMMAND, and work done directly, outside a command, updates nothing and nobody notices — fixed by a SessionStart stale-state notice comparing the recorded commit to HEAD; ruled out: a hook that writes state itself (hooks block and instruct, they never author the record)
 2026-08-03 — scan the RESULTING DOCUMENT and report only NEWLY-introduced secrets, rather than scanning the edit fragments — why: fragments cannot see a value split across two edits, and scanning the whole document without differencing would block every edit to a file that already contains a secret, making such a file unfixable — ruled out: catching a secret that was already on disk before this change (guard-commit is the net for that)
 2026-08-03 — RE-BASELINE (Stage-9 change request). The previous goal was met, so notebooks moved from Non-goals into scope — why: running the pipeline on real work showed the frozen GOAL correctly caught this as drift, and that a met goal had NO mechanical path to re-baseline at all; the only escape was VIBEGOD_GUARDRAILS=advisory, which disables every guard including secret-blocking — ruled out: silently widening scope, and disabling the guardrails to do it
 2026-08-03 — allow a GOAL change only once every criterion is [x] with reproduced evidence — why: goalpost-moving means changing the goal to AVOID meeting it; changing it after meeting it is starting the next piece of work, and the evidence gate is what makes that distinction checkable — ruled out: a dedicated re-baseline env var (a second bypass surface nobody would audit)
@@ -68,6 +70,9 @@ Stage 7 — lens sweep passed — 2026-08-03 — evidence: PER-FEATURE LENS STAT
 <!-- maker -> checker -> owner — state (sent | accepted | blocked) — raised <date> — what is open -->
 
 ## PER-FEATURE LENS STATUS (Stage 7)
+guard-domain — security — pass — verified: payment/auth paths, stripe and bcrypt imports, and a 2+ PII-field schema all exit 2 when undeclared; all exit 0 once declared
+guard-domain — functional — pass — verified: author.ts, authoring/, healthcheck.ts, healthz.ts and a stray "email" mention all exit 0 — the guard stays quiet on ordinary work
+session-start-staleness — functional — pass — verified: warns with the commit distance when state predates HEAD, silent when current, silent with no state file, silent outside a git repo
 guard-write-document-scan — security — pass — verified: the 3 evasion shapes (split MultiEdit, completed-on-disk, clean-file introduction) all exit 2; reproduced 2026-08-03
 guard-write-document-scan — adversarial — pass — verified: fix stashed and the split-secret case flips to ✗, so the guard is load-bearing rather than passing for free
 guard-write-document-scan — functional — pass — verified: editing around, and removing, a pre-existing secret both exit 0 — the file stays fixable
@@ -77,7 +82,8 @@ guard-write-fixture-naming — functional — pass — verified: `ingest/test-ho
 guard-write-document-scan — quality — pass — verified: reuses `applyToolEdit`; no new dependency; `node ingest/validate.mjs` 0 errors
 
 ## NEXT ACTION
-All four GOAL criteria are [x] with reproduced evidence, so the DONE predicate holds. Commit, then the
-remaining known-open items are: notebook `new_source` is unread and `NotebookEdit` is not in the hook
-matcher; the shell path stays outside every file guard; Step 4 of the redesign (trigger rewiring and
-command collapse) has not started.
+The plan from the critique is complete (steps 0-5). What remains is NOT more building: install the plugin
+and run one real project through it end to end. Four of the six triggers are model discipline rather than
+mechanism, `/status` and the command collapse have been exercised by nobody, and there is still no
+external user. That run is the only thing that will show whether consequence gating actually feels better
+than what it replaced.

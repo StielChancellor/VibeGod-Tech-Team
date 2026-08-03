@@ -3,6 +3,38 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.25.0] — A stale state file now says so, unprompted
+Found by looking at this repo's own committed `VIBEGOD-STATE.md` after shipping. It was **four releases
+stale** (written at v0.21.0, untouched through v0.24.0): claiming 267 tests when there were 281, pointing
+at a commit five behind HEAD, and never once mentioning `guard-domain` or consequence gating.
+
+That is the exact §1 failure the state work was meant to fix — reproduced inside the artifact committed
+to *demonstrate* the fix.
+
+### Why it happened, precisely
+The wiring added in 0.17.0 is **per-command**: each stage command is instructed to read state on entry
+and write it on completion, and CI asserts that instruction exists. But work done **directly, outside a
+command** updates nothing — and nothing ever says so. Four releases of real work went by. The README
+said "every stage reads it on entry and writes it on completion", which was true of the stages and
+irrelevant to what actually happened.
+
+### Added
+- **A SessionStart stale-state notice.** `## WHERE` records the commit its claims were verified against;
+  if HEAD has moved past it, the banner says so once, with the commit distance, at the only moment a
+  reader can act on it *before* trusting the file. Bounded, fail-open: silent when current, when there is
+  no state file, and outside a git repo.
+- Deliberately **not** a hook that writes state itself. Hooks here block and instruct; they never author
+  the record. A guard that quietly fixed the file would hide exactly the drift worth seeing.
+
+### Changed
+- The repo's own `VIBEGOD-STATE.md` re-baselined to the current objective (consequence gating), with the
+  four-release drift recorded in `## DECISIONS` as a finding rather than tidied away. `guard-state`
+  permitted the re-baseline because the prior goal was met — the 0.22.0 rule working as intended.
+
+### Tests
+- +5: warns with commit distance, silent at HEAD, silent with no state file, silent outside a repo.
+  Suite **281 → 286**.
+
 ## [0.24.0] — Consequence gating: the user stops being the bottleneck
 Step 4 completes. The gates were never too *numerous* so much as pitched at the wrong **altitude** — a
 visionary can decide "faster pages are worth £400/month" but cannot meaningfully approve a module

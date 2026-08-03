@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, realpathSync, sta
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
 import { readStdin, advise } from './_lib.mjs';
 import { stripInvisible, SAFE_CHARSET, looksInjected } from './_markers.mjs';
 
@@ -113,6 +114,34 @@ function recipeIndex() {
 }
 const recipes = recipeIndex();
 
+// --- stale-state notice (bounded, fail-open) ---------------------------------------------------
+// The state file records the commit its claims were verified against. If HEAD has moved past that, the
+// claims are unproven — and nothing else would ever say so. This exists because it happened here: the
+// repo's own committed state file went FOUR releases without an update while the README said "every
+// stage reads it on entry and writes it on completion". The per-command wiring is real, but work done
+// outside a command updates nothing, and no one notices until someone reads the file and finds fiction.
+// One line, once per session, at the only moment a reader can act on it before trusting the file.
+function staleNotice() {
+  try {
+    const root = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const f = join(root, 'VIBEGOD-STATE.md');
+    if (!existsSync(f)) return '';
+    const m = readFileSync(f, 'utf8').match(/^Last verified against commit:\s*([0-9a-f]{7,40})\b/im);
+    if (!m) return '';
+    const recorded = m[1];
+    const r = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8', timeout: 2000 });
+    if (r.status !== 0) return '';
+    const head = String(r.stdout ?? '').trim();
+    if (!head || head.startsWith(recorded) || recorded.startsWith(head.slice(0, recorded.length))) return '';
+    const n = spawnSync('git', ['rev-list', '--count', `${recorded}..HEAD`], { cwd: root, encoding: 'utf8', timeout: 2000 });
+    const behind = n.status === 0 ? String(n.stdout ?? '').trim() : '';
+    return `\nSTATE MAY BE STALE: VIBEGOD-STATE.md was last verified at ${recorded}, HEAD is now ` +
+      `${head.slice(0, 7)}${behind && behind !== '0' ? ` (${behind} commit(s) later)` : ''}. Its claims are ` +
+      `unproven until re-verified — re-run the proofs before trusting them, and update the file.`;
+  } catch { return ''; }
+}
+const stale = staleNotice();
+
 advise('SessionStart',
   `VibeGod Tech Team is active — operate as a Google/Anthropic-grade engineering + product team led by the vibegod-orchestrator skill.\n` +
   `PRIME DIRECTIVE: never jump straight to code. Run the gated pipeline — Discover → PRD → Journey → Stack&Cost → ` +
@@ -125,4 +154,4 @@ advise('SessionStart',
   `its own work), and cost-awareness (always surface cheaper alternatives + tradeoffs).\n` +
   `Guardrails: ${mode} — best-effort heuristics, fail-open; a safety net, not a security boundary. ` +
   `Use /kickoff to start a build, /change-request to change one, /doctor to health-check the toolchain.` +
-  nudge + recipes);
+  nudge + recipes + stale);

@@ -641,6 +641,34 @@ console.log('guard-write document scan (split-secret floor):');
   check('placeholder evidence cannot unlock a re-baseline', reb(FAKED) === 2);
 }
 
+// Stale-state notice. The per-command wiring only fires when a command runs; work done outside one
+// updates nothing, and this repo's own state file went four releases stale while the README claimed
+// every stage maintained it. Nothing would ever have said so.
+{
+  const mkRepo = (recordedRef) => {
+    const d = mkdtempSync(join(tmpdir(), 'vg-stale-'));
+    const g = (...a) => spawnSync('git', a, { cwd: d, encoding: 'utf8' });
+    g('init', '-q', '.'); g('config', 'user.email', 't@t.t'); g('config', 'user.name', 't');
+    writeFileSync(join(d, 'a.txt'), 'one\n'); g('add', '-A'); g('commit', '-qm', 'one');
+    const first = g('rev-parse', 'HEAD').stdout.trim();
+    writeFileSync(join(d, 'a.txt'), 'two\n'); g('add', '-A'); g('commit', '-qm', 'two');
+    const head = g('rev-parse', 'HEAD').stdout.trim();
+    const ref = recordedRef === 'head' ? head : first;
+    writeFileSync(join(d, 'VIBEGOD-STATE.md'), `## WHERE\nLast verified against commit: ${ref.slice(0, 7)}\n\n## GOAL\nObjective: x\n`);
+    return d;
+  };
+  const banner = (d) => run('session-start.mjs', {}, { CLAUDE_PROJECT_DIR: d, VIBEGOD_NO_UPDATE_CHECK: '1' }).out;
+  check('warns when state was verified at an older commit', /STATE MAY BE STALE/.test(banner(mkRepo('old'))));
+  check('...and says how far behind it is', /commit\(s\) later/.test(banner(mkRepo('old'))));
+  check('silent when state matches HEAD', !/STATE MAY BE STALE/.test(banner(mkRepo('head'))));
+  check('silent with no state file', !/STATE MAY BE STALE/.test(banner(mkdtempSync(join(tmpdir(), 'vg-nostate-')))));
+  // Fail-open: a non-repo directory must not produce a notice or an error.
+  { const d = mkdtempSync(join(tmpdir(), 'vg-norepo-'));
+    writeFileSync(join(d, 'VIBEGOD-STATE.md'), '## WHERE\nLast verified against commit: abc1234\n');
+    const b = banner(d);
+    check('silent outside a git repo (fail-open)', !/STATE MAY BE STALE/.test(b) && /PRIME DIRECTIVE/.test(b)); }
+}
+
 console.log('guard-domain (undeclared sensitive domain trigger):');
 // Anything DECLARED in the envelope never interrupts again; anything undeclared stops the run when the
 // work reaches it. Noise is the whole risk — a keyword scan for "email" or "user" would fire constantly
