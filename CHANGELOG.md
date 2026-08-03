@@ -3,6 +3,47 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.19.0] — The cost brake: the envelope gets teeth
+Step 4 of the redesign. v0.18.0 let the user declare a hard ceiling; this enforces it.
+
+### Added
+- **`## COST LEDGER` + `guard-cost.mjs`.** Every commitment is recorded with its one-time and monthly
+  cost and the cheaper alternative rejected; the hook checks `one-time + (monthly × horizon)` against the
+  envelope ceiling and **blocks a choice that would cross it**. `/stack-and-cost` already required every
+  choice to show a price and an alternative — that output is now a ledger rather than chat prose, which
+  is the same move that made the GOAL block real.
+- **Invariants lifted wholesale from `guard-autopilot`**, because they had already survived a round of
+  real bypasses: the **ceiling is frozen while anything is committed** (halt to change it — the same
+  off-then-re-arm shape), and **`Committed` is increment-only**. A budget the team can quietly raise is
+  not a budget.
+- **`Mode: paused` — a third state, and genuinely not a halt.** A halt ends the run and hands back; a
+  pause holds position, waits for one decision, and continues from where it stopped. Crossing the
+  ceiling pauses and asks, with the cost, a costed alternative and a recommendation.
+- **A pause times out into a documented halt.** An unanswered pause is indistinguishable from a hang, so
+  past `Pause timeout:` the hook stops the run and requires `Halt: pause-timeout` be recorded with what
+  was being asked. Standing down always stays allowed — otherwise a timed-out run could never record its
+  own halt. Hooks block and instruct; they never write state themselves.
+
+### Fixed (found by testing, before shipping)
+- **A ceiling written as `£5,000` parsed as `5`.** Blanking non-digits split the number at the thousands
+  separator, so the first-number match read a £5,000 ceiling as £5 — which would have blocked every
+  project on its first commitment. Separators are now stripped first, and the `over N months` clause is
+  removed before reading the amount so a horizon can't be mistaken for the total.
+
+### Honest scope
+- This is **arithmetic over declared estimates, not spend monitoring.** The plugin has no billing API
+  and cannot see a real bill; a wrong estimate passes cleanly. It catches what actually sinks small
+  projects — committing to expensive architecture without noticing — and it must never be described as
+  watching your spend. Note also that v0.12.1's finding stands: token/$/wall-clock *budgets* are not
+  hook-visible. Reading the system clock to age a stored timestamp is a different thing, and is what
+  makes the pause timeout implementable.
+
+### Tests
+- +17 guard-cost tests: under/over ceiling · thousands separator · non-default horizon · frozen ceiling ·
+  increment-only committed · pause recording allowed while over · stale pause blocks and demands a halt ·
+  fresh pause doesn't · stand-down always allowed · inactive without a ceiling or state file · advisory
+  downgrade. Suite **202 → 219**.
+
 ## [0.18.0] — The envelope: the user starts acting as the visionary
 Step 3 of the redesign. The pitch says the user "isn't a security engineer *and* a designer *and* a DBA
 *and* an SRE" — while the pipeline asked them to personally sign off on STRIDE threat models, module

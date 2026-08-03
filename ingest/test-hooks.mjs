@@ -523,5 +523,52 @@ const raise = { old_string: 'iterations=25 stages=12', new_string: 'iterations=9
 check('blocks raising Budget hidden behind a decoy via replace_all', apRun(apDecoy, { tool_input: { file_path: join(apDecoy, 'VIBEGOD-STATE.md'), ...raise } }).status === 2);
 check('blocks the same budget raise via MultiEdit replace_all', apRun(apDecoy, { tool_input: { file_path: join(apDecoy, 'VIBEGOD-STATE.md'), edits: [raise] } }).status === 2);
 
+console.log('guard-cost:');
+// Arithmetic over DECLARED ESTIMATES against the envelope ceiling — not spend monitoring. Invariants
+// lifted from guard-autopilot (write-once ceiling, increment-only counter) because they were already
+// hardened against a round of real bypasses.
+function costState({ ceil = '£5,000 over 12 months', one = 0, mon = 0, mode = 'full-auto', pausedAt = '—', tmo = '60m' } = {}) {
+  return `## ENVELOPE\nCost ceiling: ${ceil}\nSensitive domains: none\n\n## COST LEDGER\nCommitted: one-time=${one} monthly=${mon}\n\n## AUTOPILOT\nMode: ${mode}\nPaused at: ${pausedAt}\nPause reason: needs Algolia\nPause timeout: ${tmo}\nHalt: -\n\n## STATUS\nStage: 3\n`;
+}
+function costProj(o) { const d = mkdtempSync(join(tmpdir(), 'vg-cost-')); writeFileSync(join(d, 'VIBEGOD-STATE.md'), costState(o)); return d; }
+const cost = (d, ti) => run('guard-cost.mjs', { tool_input: ti }, { CLAUDE_PROJECT_DIR: d });
+const cwork = (d) => ({ file_path: join(d, 'app.ts'), content: 'x' });
+const cSF = (d) => join(d, 'VIBEGOD-STATE.md');
+
+{ const d = costProj({ one: 1200, mon: 180 });   // 1200 + 180*12 = 3360 <= 5000
+  check('allows work under the ceiling', cost(d, cwork(d)).status === 0); }
+{ const d = costProj({ one: 1200, mon: 400 });   // 1200 + 400*12 = 6000 > 5000
+  const r = cost(d, cwork(d));
+  check('blocks work that crosses the ceiling', r.status === 2);
+  check('the block states the arithmetic and the ceiling', /6000, against a ceiling of 5000/.test(r.out)); }
+// A thousands separator used to split the number — "£5,000" parsed as 5, which blocked everything.
+{ const d = costProj({ ceil: '£5,000 over 12 months', one: 4000, mon: 0 });
+  check('parses a ceiling written with a thousands separator', cost(d, cwork(d)).status === 0); }
+{ const d = costProj({ ceil: '5000 over 6 months', one: 0, mon: 900 });  // 900*6 = 5400 > 5000
+  check('honours a non-default horizon', cost(d, cwork(d)).status === 2); }
+// Crossing the ceiling must PAUSE, and recording the pause has to remain possible.
+check('allows recording a pause once over the ceiling', cost(costProj({ one: 1200, mon: 400, mode: 'paused', pausedAt: new Date().toISOString() }), { file_path: 'x.ts', content: 'x' }).status === 0);
+{ const d = costProj({ one: 1200, mon: 180 });
+  check('ceiling is frozen while anything is committed', cost(d, { file_path: cSF(d), old_string: 'Cost ceiling: £5,000 over 12 months', new_string: 'Cost ceiling: £99,000 over 12 months' }).status === 2); }
+{ const d = costProj({ one: 0, mon: 0 });
+  check('ceiling is settable while nothing is committed', cost(d, { file_path: cSF(d), old_string: 'Cost ceiling: £5,000 over 12 months', new_string: 'Cost ceiling: £9,000 over 12 months' }).status === 0); }
+{ const d = costProj({ one: 1200, mon: 180 });
+  check('committed cost is increment-only', cost(d, { file_path: cSF(d), old_string: 'Committed: one-time=1200 monthly=180', new_string: 'Committed: one-time=0 monthly=0' }).status === 2);
+  check('committed cost may rise while under the ceiling', cost(d, { file_path: cSF(d), old_string: 'Committed: one-time=1200 monthly=180', new_string: 'Committed: one-time=1300 monthly=180' }).status === 0); }
+// A pause nobody answers is indistinguishable from a hang, so it times out into a documented halt.
+{ const stale = new Date(Date.now() - 2 * 3600e3).toISOString();
+  const d = costProj({ mode: 'paused', pausedAt: stale, one: 100, mon: 10 });
+  const r = cost(d, cwork(d));
+  check('a pause past its timeout blocks further work', r.status === 2);
+  check('...and demands a documented halt', /Halt: pause-timeout/.test(r.out));
+  check('...while standing down stays allowed', cost(d, { file_path: cSF(d), old_string: 'Mode: paused', new_string: 'Mode: off' }).status === 0); }
+{ const d = costProj({ mode: 'paused', pausedAt: new Date().toISOString(), one: 100, mon: 10 });
+  check('a fresh pause does not time out', cost(d, cwork(d)).status === 0); }
+check('inactive until a real ceiling is agreed', cost(costProj({ ceil: '<hard total, e.g. £5,000> over <horizon>' }), { file_path: 'x.ts', content: 'x' }).status === 0);
+check('inactive with no state file', cost(mkdtempSync(join(tmpdir(), 'vg-nocost-')), { file_path: 'x.ts', content: 'x' }).status === 0);
+{ const d = costProj({ one: 1200, mon: 400 });
+  const a = run('guard-cost.mjs', { tool_input: cwork(d) }, { CLAUDE_PROJECT_DIR: d, VIBEGOD_GUARDRAILS: 'advisory' });
+  check('advisory downgrades the cost brake', a.status === 0 && /would BLOCK/.test(a.out)); }
+
 console.log(`\n${fail ? '✗' : '✓'} ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

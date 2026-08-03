@@ -40,6 +40,21 @@ Sensitive domains: <none | payments · personal data · health data · user logi
 Must ask before doing: <e.g. delete user data · email real users · touch production · publish anything>
 Interrupt appetite: <only-expensive-or-risky | every meaningful choice>   <!-- changeable any time -->
 
+## COST LEDGER
+<!-- What has actually been COMMITTED against the ENVELOPE ceiling. `guard-cost` checks the arithmetic:
+     total = one-time + (monthly x horizon), and blocks a choice that would cross the ceiling.
+
+     HONEST SCOPE: this is arithmetic over DECLARED ESTIMATES, not spend monitoring. The plugin has no
+     billing API and cannot see your bill; a wrong estimate passes cleanly. It catches the thing that
+     actually sinks small projects — committing to expensive architecture without noticing — and it is
+     not a spend monitor. Never describe it as one.
+
+     `Committed` is INCREMENT-ONLY and the ceiling is frozen while it is non-zero (halt the run to
+     change either) — the same invariants as the autopilot brake, for the same reason: a budget you can
+     quietly raise is not a budget. -->
+Committed: one-time=0 monthly=0
+<!-- one row per commitment: date — item — one-time — monthly — why, and the cheaper alternative rejected -->
+
 ## STATUS
 Stage: 0 — Discover
 Triage tier: <trivial | low | standard | high>   <!-- set after /triage -->
@@ -63,10 +78,18 @@ Blocked on: —   <!-- what is stopping progress right now (a decision, a missin
      raising the ceiling or rewinding the counter, and blocks ALL writes once Spent reaches Budget
      (fail-open; downgrade with VIBEGOD_GUARDRAILS=advisory). Disarming is always allowed. Token/$
      budgets are not visible to a hook, so iterations + stage-advances are the countable proxy. -->
-Mode: off                       <!-- off | full-auto -->
+Mode: off                       <!-- off | full-auto | paused -->
 Budget: iterations=0 stages=0   <!-- set at arm time; frozen while armed -->
 Spent: iterations=0 stages=0    <!-- increment-only; the loop bumps this every iteration / stage advance -->
-Halt: —                         <!-- why the last run stopped: done | drift | budget | user | error -->
+Halt: —                         <!-- why the last run stopped: done | drift | budget | user | error | pause-timeout -->
+<!-- PAUSED is not HALTED. A halt ends the run and hands back; a pause holds position and waits for one
+     decision, then continues from where it stopped — which is why `In flight:` must be precise.
+     A pause nobody answers is indistinguishable from a hang, so it TIMES OUT INTO A DOCUMENTED HALT:
+     past the timeout, `guard-cost` stops the run and requires the halt be recorded with what was being
+     asked. Resume by answering the question, not by clearing the field. -->
+Paused at: —                    <!-- ISO timestamp when the pause began -->
+Pause reason: —                 <!-- the decision being waited on, in the user's terms -->
+Pause timeout: 60m              <!-- after this, the pause becomes Halt: pause-timeout -->
 
 ## GATES PASSED
 <!-- one row per ◆ gate: stage — user decision (approved/changed) — date — evidence ref -->

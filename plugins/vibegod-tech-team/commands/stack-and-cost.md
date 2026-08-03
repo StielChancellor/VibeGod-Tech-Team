@@ -4,7 +4,7 @@ description: Stage 3 — Design the full stack with implementation/run cost plus
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
-**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record Stage 3 passed, and every chosen component with its cost **and the cheaper alternative rejected**, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion write every chosen component into the **`## COST LEDGER`** as a row (date — item — one-time — monthly — why, **and the cheaper alternative rejected**) and update `Committed: one-time=N monthly=N` to the running total. `guard-cost` checks that total against the envelope ceiling and **blocks a choice that would cross it** — so a commitment you leave out of the ledger is a commitment the brake cannot see. Also record Stage 3 passed, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
 
 You are at **Stage 3 — Tech Stack & Cost**. Requires an approved journey (Stage 2). Still no code.
 
