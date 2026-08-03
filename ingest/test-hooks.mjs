@@ -129,6 +129,48 @@ check('.env quoted assignment still blocks', gw('.env', 'API_KEY="ab12cd34ef56gh
 // placeholder() used to dismiss any value merely CONTAINING an ellipsis or a run of zeros.
 check('no longer dismisses a real secret containing "..."', gw('src/a.js', 'password = "S3cr3t...P4ssw0rd99"').status === 2);
 
+console.log('guard-commit:');
+// The non-negotiable floor: never commit a real credential. This closes a COMPOSITE gap that auditing
+// hooks one at a time never showed — guard-write allows a bare secret into a .env (correct: that is
+// where secrets belong), nothing guarantees .env is gitignored, and nothing inspected a commit at all.
+// guard-write even carried the string "never commit a real credential here" as advice with no mechanism.
+function gitRepo() {
+  const d = mkdtempSync(join(tmpdir(), 'vg-git-'));
+  const g = (...a) => spawnSync('git', a, { cwd: d, encoding: 'utf8' });
+  g('init', '-q', '.'); g('config', 'user.email', 't@t.t'); g('config', 'user.name', 't');
+  return { d, g };
+}
+const commit = (d, c = 'git commit -m wip') => run('guard-commit.mjs', { tool_input: { command: c } }, { CLAUDE_PROJECT_DIR: d });
+const SECRET_ENV = 'DB_URL=postgres://app:Tr0ub4dor3xKq@db.prod:5432/app\n';
+
+{ const { d, g } = gitRepo(); writeFileSync(join(d, '.env'), SECRET_ENV); g('add', '.env');
+  check('blocks committing a real credential staged in .env', commit(d).status === 2); }
+{ const { d, g } = gitRepo(); writeFileSync(join(d, 'app.js'), 'export const add=(a,b)=>a+b\n'); g('add', 'app.js');
+  check('allows a clean commit', commit(d).status === 0); }
+// Removing a credential is the FIX. Blocking it would trap the secret in the repo forever.
+{ const { d, g } = gitRepo(); writeFileSync(join(d, 's.js'), 'k="AKIAIOSFODNN7REALKEY"\n'); g('add', 's.js'); g('commit', '-qm', 'seed');
+  writeFileSync(join(d, 's.js'), 'k=process.env.K\n'); g('add', 's.js');
+  check('does NOT block a commit that REMOVES a credential', commit(d).status === 0); }
+// guard-write allows writing fixture credentials, so blocking the commit would be unresolvable.
+{ const { d, g } = gitRepo(); mkdirSync(join(d, 'test', 'fixtures'), { recursive: true });
+  writeFileSync(join(d, 'test', 'fixtures', 'k.js'), 'k="AKIAIOSFODNN7REALKEY"\n'); g('add', '-A');
+  check('allows a credential-shaped value under test/fixtures', commit(d).status === 0); }
+// `commit -a` stages tracked edits at commit time, so `--cached` alone would miss them.
+{ const { d, g } = gitRepo(); writeFileSync(join(d, 's.js'), 'x\n'); g('add', 's.js'); g('commit', '-qm', 'seed');
+  writeFileSync(join(d, 's.js'), 'k="sk-ant-api03-Xy7Kq2Wm9Ab3Cd5Ef8Gh1Ij4Kl6Mn0Op2Qr4"\n');
+  check('catches an unstaged tracked secret under commit -am', commit(d, 'git commit -am oops').status === 2);
+  check('...but a plain commit with nothing staged is allowed', commit(d).status === 0); }
+// A commit MESSAGE is the most common innocent place the word "commit" appears.
+{ const { d, g } = gitRepo(); writeFileSync(join(d, 'b.txt'), 'ok\n'); g('add', 'b.txt');
+  check('a message mentioning "git commit" does not self-trigger', commit(d, 'git commit -m "fix the git commit flow"').status === 0); }
+check('fail-open when not a git repo', commit(mkdtempSync(join(tmpdir(), 'vg-nogit-'))).status === 0);
+check('ignores non-commit bash', commit(mkdtempSync(join(tmpdir(), 'vg-nc-')), 'npm test').status === 0);
+{ const { d, g } = gitRepo(); writeFileSync(join(d, '.env'), SECRET_ENV); g('add', '.env');
+  const a = run('guard-commit.mjs', { tool_input: { command: 'git commit -m wip' } }, { CLAUDE_PROJECT_DIR: d, VIBEGOD_GUARDRAILS: 'advisory' });
+  check('advisory downgrades the commit block', a.status === 0 && /would BLOCK/.test(a.out));
+  const b = commit(d);
+  check('block message says a pushed secret must be rotated', /rotate it if it was ever pushed/.test(b.out)); }
+
 console.log('advise-posttool:');
 const ap = run('advise-posttool.mjs', { tool_input: { file_path: 'src/app.ts' } });
 check('advises on code edit', ap.status === 0 && /propagate end-to-end/.test(ap.out));

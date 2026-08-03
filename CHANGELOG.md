@@ -3,6 +3,53 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.16.0] — The floor: never commit a real credential
+First step of a larger redesign (see below). This one closes a **composite** hole — three individually
+correct decisions that combined into the outcome they were each meant to prevent.
+
+### Fixed (security)
+- **A real credential could reach a commit with no block at any step.** The composition:
+  1. `guard-write` treats a bare `KEY=value` in a `.env` as **advisory** — correct in isolation, because
+     a dotenv file is exactly where a real secret belongs.
+  2. Nothing guaranteed the project gitignored `.env` (this repo's own `.gitignore` did not list it).
+  3. **Nothing inspected `git add` or `git commit` at all.**
+  Searching the hooks for commit inspection returned *only advisory strings* — including
+  `guard-write`'s own `"never commit a real credential here"`. The plugin stated the rule as doctrine,
+  in the very hook that should have enforced it, with no mechanism behind it.
+- **`guard-commit.mjs` — a new `PreToolUse(Bash)` hook.** Recognises a commit, inspects the **staged
+  diff** (plus tracked-modified content under `commit -a/-am`, which `--cached` alone would miss), and
+  hard-blocks a recognisable credential. It scans **added lines only** — removing a secret is the fix,
+  and blocking that would trap it in the repo. Fixture/example/docs paths are allowed, matching
+  `guard-write`, so the user is never given an unresolvable conflict. Quoted spans are blanked before
+  detection, so `git commit -m "fix the git commit flow"` doesn't self-trigger. Fail-open: not a repo,
+  no git, or any error ⇒ allow.
+- **Prevention alongside detection:** `/kickoff` now asserts `.env` / `.env.*` are gitignored before any
+  code exists, and this repo's own `.gitignore` now states the rule it expects users to copy.
+
+### Changed
+- Secret detection extracted to **`_secrets.mjs`** (patterns, `placeholder()`, `FIXTURE_PATH`,
+  `scanSecrets`), shared by `guard-write` and `guard-commit` so the two can never drift — the same move
+  as `sectionBlock`/`applyToolEdit` in `_lib.mjs`. The one deliberate asymmetry is the point of the
+  release: a bare dotenv assignment is fine to **write** and not fine to **commit**, so callers pass
+  `bareAssignments` to choose.
+
+### Tests
+- +11 guard-commit tests, run against **real git repositories** rather than mocked diffs: blocks a staged
+  `.env` credential · allows a clean commit · **does not block a commit that removes a credential** ·
+  allows fixture paths · catches `commit -am` · ignores a commit message mentioning "commit" ·
+  fail-open outside a repo · advisory downgrade. Suite **191 → 202**.
+
+### Honest scope
+- This catches **recognisable credential shapes** in a **tracked** commit. It cannot catch a novel secret
+  format, and a determined shell still goes around it — the same boundary stated in 0.14.2: a hook
+  cannot be a security boundary against the agent it runs on behalf of. It is a floor, not a vault.
+
+### Why this first
+- Part of a redesign toward **consequence-based gating** (stop on cost, irreversibility, undeclared
+  sensitive domain, scope drift, ambiguity, repeated failure) rather than stage-based ◆ gates, so the
+  user can act as the visionary the product is pitched at. This step was taken first because, unlike the
+  rest of that work, it is a **live gap in shipped code** with no architectural dependency.
+
 ## [0.15.0] — Adversarial pass over the four untested hooks: prompt-injection and secret-scanning fixes
 The guardrail work so far had only ever attacked `guard-autopilot`. This release attacks the four hooks
 that had never had an adversarial pass. Every finding below was reproduced independently before a fix

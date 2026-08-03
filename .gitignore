@@ -14,3 +14,10 @@ node_modules/
 
 # Resolved graphify invocation (machine-specific — written by /graph)
 .graphify-path
+
+# Secrets — a dotenv file is where real credentials belong, so it must never be tracked.
+# guard-commit blocks a credential reaching a commit; this is the prevention that should mean
+# it never has to fire. This repo is the pattern users copy, so it states the rule explicitly.
+.env
+.env.*
+!.env.example

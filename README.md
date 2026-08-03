@@ -217,6 +217,7 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 |---|---|
 | Hard-block on hardcoded secrets in a write — `guard-write` (fail-open). Bare `KEY=value` in a `.env`, and anything under `test/`/`fixtures/`/`docs/`, **warn** rather than block | The gated pipeline & every ◆ approval gate |
 | Hard-block on dangerous shell — `rm -rf /`, `curl\|bash`, force-push to `main`, disk wipes — `guard-bash` (fail-open) | Maker–checker ("no agent checks its own work") |
+| **Hard-block on committing a real credential** — `guard-commit` inspects the staged diff, not the tool input, because the secret is usually already on disk (fail-open) | — |
 | Hard-block on edits to the frozen `## GOAL` block **and on checking a GOAL criterion "done" without reproduced `verified:` evidence** — `guard-state` (fail-open) | Consistency / no-orphans end-to-end propagation |
 | Hard-block on raising an **armed autopilot budget**, rewinding or garbling its counters, or any write once the budget is spent — and on running at all when an armed budget can't be read — `guard-autopilot` | Autopilot's drift check, and **not re-arming itself** after a halt (a hook can't tell your `/autopilot on` from the agent's) |
 | SessionStart posture banner + a proven-only recipe index that lists **filename slugs only** — no recipe-authored prose reaches that channel | Surgical changes · investigate-before-answering · single front-door |
