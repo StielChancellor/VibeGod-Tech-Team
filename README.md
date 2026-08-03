@@ -233,6 +233,7 @@ it). Most of this plugin's rigor is *guided*; the *enforced* layer is a delibera
 | SessionStart posture banner + a proven-only recipe index that lists **filename slugs only** — no recipe-authored prose reaches that channel | Surgical changes · investigate-before-answering · single front-door |
 | Recipe lint (prose-only, injection-marker scan) + structural `validate.mjs` | OWASP secure-coding & WCAG 2.2 AA in build + review |
 | CI asserts **every stage command is wired to `VIBEGOD-STATE.md`** — the pipeline cannot silently stop being resumable | Actually *writing* the state at each stage (the instruction is enforced; the act is model-followed) |
+| **Hard-block on work reaching payments / logins / personal data you did not declare** — `guard-domain`. Declaring it in your envelope unblocks it permanently (fail-open) | Which domains are worth declaring in the first place |
 | **Hard-block on committing you past your cost ceiling**, on quietly raising that ceiling, or on rewinding the committed total — `guard-cost`. A pause nobody answers times out into a documented halt (fail-open) | Recording every commitment in the ledger — a cost left out of the ledger is one the brake cannot see |
 | The hooks' own test suite (`ingest/test-hooks.mjs`) | Cost-awareness · TDD · verification-before-completion |
 

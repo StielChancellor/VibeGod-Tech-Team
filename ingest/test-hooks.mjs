@@ -641,6 +641,31 @@ console.log('guard-write document scan (split-secret floor):');
   check('placeholder evidence cannot unlock a re-baseline', reb(FAKED) === 2);
 }
 
+console.log('guard-domain (undeclared sensitive domain trigger):');
+// Anything DECLARED in the envelope never interrupts again; anything undeclared stops the run when the
+// work reaches it. Noise is the whole risk — a keyword scan for "email" or "user" would fire constantly
+// and get switched off, so this fires only on a path that names the domain, a real SDK import, or a
+// schema declaring several PII fields together.
+{
+  const dom = (declared) => { const d = mkdtempSync(join(tmpdir(), 'vg-dom-')); writeFileSync(join(d, 'VIBEGOD-STATE.md'), `## ENVELOPE\nSensitive domains: ${declared}\n\n## STATUS\nStage: 6\n`); return d; };
+  const none = dom('none'), some = dom('payments · user logins');
+  const g = (d, fp, content = 'export const x = 1') => run('guard-domain.mjs', { tool_input: { file_path: fp, content } }, { CLAUDE_PROJECT_DIR: d }).status;
+  check('blocks a payment path when undeclared', g(none, 'src/checkout/pay.ts') === 2);
+  check('blocks a stripe import when undeclared', g(none, 'src/api.ts', "import Stripe from 'stripe'") === 2);
+  check('blocks an auth path when undeclared', g(none, 'src/auth/login.ts') === 2);
+  check('blocks a password-hashing import when undeclared', g(none, 'src/u.ts', "const bcrypt = require('bcrypt')") === 2);
+  check('blocks a schema declaring several PII fields together', g(none, 'db/schema.sql', 'CREATE TABLE u (email_address text, date_of_birth date)') === 2);
+  check('allows the same work once the domain is declared', g(some, 'src/checkout/pay.ts') === 0 && g(some, 'src/auth/login.ts') === 0);
+  check('never blocks editing the state file — that is how a domain gets declared', g(none, join(none, 'VIBEGOD-STATE.md'), 'Sensitive domains: payments') === 0);
+  // The noise test. A guard that fires on ordinary work gets disabled, which is worse than not shipping it.
+  for (const [f, why] of [['src/author.ts', 'author is not auth'], ['src/authoring/post.ts', 'authoring is not auth'],
+                          ['src/healthcheck.ts', 'healthcheck is not health data'], ['api/healthz.ts', 'healthz is not health data'],
+                          ['src/list.ts', 'plain source']])
+    check(`allows ordinary work: ${why}`, g(none, f) === 0);
+  check('one stray mention of email does not trip it', g(none, 'src/ui.ts', '// send the user an email later') === 0);
+  check('...but authentication/authorize still do', g(none, 'src/authentication.ts') === 2 && g(none, 'src/authorize.ts') === 2);
+}
+
 console.log('dogfood regressions (adversarial pass on a realistic project):');
 // Every case below was an OBSERVED bypass against a realistic dogfood project, not a theoretical one.
 const dogState = ({ ceil = '£4,000 over 12 months', one = 900, mon = 180, mode = 'off', at = '-' } = {}) =>

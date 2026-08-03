@@ -3,6 +3,32 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.23.0] — The undeclared-sensitive-domain trigger
+Step 4 of the redesign begins: converting stage ◆ gates into consequence triggers. Cost was already
+mechanical (0.19.0); this is the second trigger that can be, and it is the one that protects the user
+from a build quietly wandering into payments or personal data.
+
+### Added
+- **`guard-domain.mjs`** — blocks work reaching **payments, user logins, personal data or health data**
+  when `## ENVELOPE` did not declare it. Declaring the domain unblocks it permanently, so this
+  interrupts once per domain, not once per file. It is a pause, not a verdict: the envelope question was
+  asked in plain language at kickoff precisely so this decision belongs to the user.
+- Editing `VIBEGOD-STATE.md` is never blocked by it — that is the action that resolves it.
+
+### Design: noise was the whole risk
+A keyword scan for `email` or `user` would fire on half a codebase and be switched off within a day,
+which is worse than not shipping it. It fires only on a **path that names the domain**, a **real SDK
+import** (`stripe`, `bcrypt`, `jsonwebtoken`, …), or a **schema declaring two or more PII fields
+together** — the signal that separates storing personal data from merely mentioning a person.
+
+Two false positives were caught by the noise test before shipping, both of the exact kind that gets a
+guard disabled: `src/author.ts` matched the `auth` prefix, and `src/healthcheck.ts` matched `health`.
+The domain words are now spelled out rather than prefix-matched — `authentication` and `authorize` still
+fire, `author` and `authoring` do not; `healthz` and `healthcheck` do not.
+
+### Tests
+- +14, over half of them asserting the guard stays QUIET on ordinary work. Suite **267 → 281**.
+
 ## [0.22.0] — Notebooks covered, and a met goal can finally be re-baselined
 Both found by continuing the real run rather than by reading the code.
 
