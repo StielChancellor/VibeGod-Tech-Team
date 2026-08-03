@@ -570,6 +570,36 @@ check('inactive with no state file', cost(mkdtempSync(join(tmpdir(), 'vg-nocost-
   const a = run('guard-cost.mjs', { tool_input: cwork(d) }, { CLAUDE_PROJECT_DIR: d, VIBEGOD_GUARDRAILS: 'advisory' });
   check('advisory downgrades the cost brake', a.status === 0 && /would BLOCK/.test(a.out)); }
 
+console.log('guard-write document scan (split-secret floor):');
+// guard-write used to scan the edit FRAGMENTS, so a value split across two edits was invisible: each
+// half is harmless on its own. It now scans the resulting document and reports only what the change
+// INTRODUCES — differencing is what keeps a file that already contains a secret still editable.
+{
+  const d = mkdtempSync(join(tmpdir(), 'vg-gw-'));
+  const f = join(d, 'app.js');
+  writeFileSync(f, 'const k = "PART1PART2";\nexport const a = 1;\n');
+  const gw = (ti) => run('guard-write.mjs', { tool_input: ti });
+  // The two fragments must end up ADJACENT for the assembled value to be a real credential — edits
+  // landing on separate lines put a newline through it, which is no key at all. This is the shape that
+  // actually evades a fragment scan: each new_string is harmless alone, the concatenation is not.
+  check('blocks a credential split across MultiEdit edits',
+    gw({ file_path: f, edits: [{ old_string: 'PART1', new_string: 'AKIAIOSF' }, { old_string: 'PART2', new_string: 'ODNN7REALKEY' }] }).status === 2);
+
+  const half = join(d, 'half.js');
+  writeFileSync(half, 'const k = "AKIAIOSF\n');
+  check('blocks a credential completed against on-disk content',
+    gw({ file_path: half, old_string: 'const k = "AKIAIOSF\n', new_string: 'const k = "AKIAIOSFODNN7REALKEY";\n' }).status === 2);
+
+  const dirty = join(d, 'dirty.js');
+  writeFileSync(dirty, 'const k = "AKIAIOSFODNN7REALKEY";\nexport const n = 1;\n');
+  check('allows editing a file that already contains a secret (so it stays fixable)',
+    gw({ file_path: dirty, old_string: 'export const n = 1;', new_string: 'export const n = 2;' }).status === 0);
+  check('allows REMOVING a secret from a file',
+    gw({ file_path: dirty, old_string: 'const k = "AKIAIOSFODNN7REALKEY";\n', new_string: '' }).status === 0);
+  check('still blocks introducing a secret into a clean file',
+    gw({ file_path: f, old_string: 'export const a = 1;', new_string: 'export const a = "AKIAIOSFODNN7REALKEY";' }).status === 2);
+}
+
 console.log('dogfood regressions (adversarial pass on a realistic project):');
 // Every case below was an OBSERVED bypass against a realistic dogfood project, not a theoretical one.
 const dogState = ({ ceil = '£4,000 over 12 months', one = 900, mon = 180, mode = 'off', at = '-' } = {}) =>

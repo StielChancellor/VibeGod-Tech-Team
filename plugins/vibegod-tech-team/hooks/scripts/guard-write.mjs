@@ -1,6 +1,7 @@
 // PreToolUse(Edit|Write|MultiEdit): block hardcoded secrets; warn on injection sinks. OWASP A02/A03/A07.
-import { readStdin, hardBlock, advise } from './_lib.mjs';
+import { readStdin, hardBlock, advise, applyToolEdit } from './_lib.mjs';
 import { FIXTURE_PATH, placeholder, scanSecrets } from './_secrets.mjs';
+import { readFileSync } from 'node:fs';
 
 // Fail OPEN on any unexpected error — never block a legitimate write because the heuristic threw.
 process.on('uncaughtException', () => process.exit(0));
@@ -20,7 +21,24 @@ if (!text.trim()) process.exit(0);
 // quoted form still blocks everywhere, `envGen` below keeps warning, and guard-commit is what stops a
 // dotenv secret actually reaching a commit.
 const isDotenv = /(?:^|[\\/])\.env(?:\.[\w-]+)?$/i.test(file);
-const found = scanSecrets(text, { bareAssignments: !isDotenv });
+
+// Scan the RESULTING DOCUMENT, and report only what this change INTRODUCES.
+//
+// Scanning the edit fragments could never see a value split in two — `k="AKIAIOSF"` and `ODNN7…"` are
+// each harmless alone — nor one completed against text already on disk. But scanning the whole document
+// WITHOUT differencing would block every edit to a file that already contains a secret, making such a
+// file impossible to fix. Differencing gives the right semantics on all three: introducing a secret is
+// blocked, editing around an existing one is allowed, and removing one is allowed.
+//
+// `applyToolEdit` is reused rather than re-deriving the content: it already models `replace_all` and
+// literal `$&`, the exact divergence that produced a real bypass in v0.15.0.
+let onDisk = '';
+try { onDisk = readFileSync(file, 'utf8'); } catch { onDisk = ''; }   // new file => nothing pre-existing
+const opts = { bareAssignments: !isDotenv };
+const proposed = applyToolEdit(onDisk, ti);
+const before = onDisk ? scanSecrets(onDisk, opts) : new Set();
+const after = scanSecrets(proposed ?? text, opts);
+const found = new Set([...after].filter((name) => !before.has(name)));
 
 const secretMsg = `hardcoded secret(s) in ${file || 'this change'}:\n- ${[...found].join('\n- ')}`;
 if (found.size && !FIXTURE_PATH.test(file))
