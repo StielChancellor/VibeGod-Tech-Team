@@ -9,7 +9,11 @@
 
 // Test fixtures, examples and docs legitimately carry realistic-looking credentials — a throwaway JWT
 // signing key, a sample token in an auth guide. Those secrets are not real.
-export const FIXTURE_PATH = /(?:^|[\\/])(?:tests?|spec|__tests__|__mocks__|fixtures?|examples?|samples?|docs?)[\\/]|\.(?:md|mdx)$|(?:^|[\\/])[^\\/]*\.(?:test|spec)\.[a-z]+$/i;
+// NOTE the missing blanket `\\.(md|mdx)$`: exempting EVERY markdown file meant a genuine credential
+// in README.md or NOTES.md at the repo root was waved through, and a runbook with a live key is a
+// normal leak path, not a fixture. Markdown under docs/ or examples/ is still exempt via the
+// directory rule below, and real docs should use placeholders, which `placeholder()` already allows.
+export const FIXTURE_PATH = /(?:^|[\\/])(?:tests?|spec|__tests__|__mocks__|fixtures?|examples?|samples?|docs?)[\\/]|(?:^|[\\/])[^\\/]*\.(?:test|spec)\.[a-z]+$/i;
 
 export const placeholder = (v) =>
   /(?:example|placeholder|your[_-]?(?:api|key|token|secret|password)|changeme|dummy|sample|redacted|xxxx|<[^>]*>|\$\{[^}]*\})/i.test(v) ||
@@ -19,7 +23,15 @@ export const placeholder = (v) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ||
   // Anchored, NOT substring: as a substring these dismissed genuine values that merely contained
   // an ellipsis or a run of zeros (`S3cr3t...P4ssw0rd99` was treated as a placeholder).
-  /^(?:x{3,}|none|null|test|fake|todo|\.{3,}|0{6,})$/i.test(v);
+  /^(?:x{3,}|none|null|test|fake|todo|\.{3,}|0{6,})$/i.test(v) ||
+  // A connection URL whose PASSWORD component is itself a placeholder word:
+  // `postgres://user:password@localhost:5432/app` is the canonical `.env.example` line, and blocking
+  // it blocked ordinary, recommended practice. Deliberately matched on the placeholder VALUE rather
+  // than by exempting `.env.example` as a path: that file is explicitly un-gitignored (`!.env.example`)
+  // and therefore committed, and FIXTURE_PATH is shared with guard-commit — so a path exemption would
+  // punch a hole straight through the never-commit-a-credential floor. A real password in that file
+  // must still block. `postgres://appuser:Tr0ub4dor3xKq@…` is unaffected.
+  /:\/\/[^\s:@/]*:(?:password|passwd|pass|secret|changeme|hunter2|your[_-]?password|my[_-]?password|db[_-]?pass(?:word)?)@/i.test(v);
 
 export const SECRET_PATTERNS = [
   [/\bAKIA[0-9A-Z]{16}\b/, 'AWS access key ID'],
@@ -51,8 +63,15 @@ export const SECRET_PATTERNS = [
 // nothing between key and separator meant `{"api_key": "..."}` never matched — because in JSON the
 // closing quote sits before the colon, and config.json is the single most common place a secret lands.
 // Built fresh per call: a /g regex carries lastIndex between uses and would skip matches.
+// `(?:[A-Za-z0-9]+[_-])?` tolerates a NAMESPACE PREFIX. A leading `\b` never matched `STRIPE_API_KEY`,
+// because the character before `API` is `_`, which is a word character — so there is no boundary there.
+// Only the bare, unprefixed name was ever caught, and real .env files essentially never use bare names:
+// STRIPE_API_KEY, DATABASE_PASSWORD and SESSION_SECRET all sailed straight through.
+// `(?:[_-][A-Za-z0-9]+)?` is the same bug on the TRAILING side, and fixing only the leading one left it:
+// in `SECRET_KEY` the word `secret` matches, but the following `\\b` then fails because the next char is
+// `_`. Caught by writing the regression test with a different variable name than the manual check used.
 const genericRule = () =>
-  /["'`]?\b(?:api[_-]?key|secret|token|passwd|password|client[_-]?secret|access[_-]?key|private[_-]?key|auth[_-]?token)\b["'`]?\s*[:=]\s*(?:["'`]([A-Za-z0-9_\-\/+=.]{16,})["'`]|([A-Za-z0-9_\-\/+=.]{16,})(?=[\s,;}\]#]|$))/gi;
+  /["'`]?(?:[A-Za-z0-9]+[_-])?(?:api[_-]?key|secret|token|passwd|password|client[_-]?secret|access[_-]?key|private[_-]?key|auth[_-]?token)(?:[_-][A-Za-z0-9]+)?\b["'`]?\s*[:=]\s*(?:["'`]([A-Za-z0-9_\-\/+=.]{16,})["'`]|([A-Za-z0-9_\-\/+=.]{16,})(?=[\s,;}\]#]|$))/gi;
 
 // Scan text for credentials. `bareAssignments: false` ignores unquoted KEY=value forms (guard-write
 // uses this for dotenv files, where writing a secret is the correct thing to do).

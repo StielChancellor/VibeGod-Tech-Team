@@ -4,7 +4,7 @@ description: Stage 7 — Run the QA lenses IN PARALLEL — 4 core (security, qua
 
 Adopt the `vibegod-orchestrator` mindset and honor `${CLAUDE_PLUGIN_ROOT}/skills/_shared/vibegod-principles.md`.
 
-**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record each lens verdict per feature under `## PER-FEATURE LENS STATUS`, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
+**State — read first, write last.** Read `VIBEGOD-STATE.md` and resume from `In flight:`; never redo work already recorded as done. On completion record each lens verdict per feature under `## PER-FEATURE LENS STATUS` **with its `verified:` signal** (commit SHA, command + result, or render-report path) — the GOAL block demands proof rather than self-report for acceptance criteria, and a lens tick with nothing behind it is exactly the self-report it bans. If you cannot name the signal, it is a `?`, not a pass, update `In flight:` / `Blocked on:`, and append the decision **and the alternative it ruled out** to `## DECISIONS`.
 
 You are at **Stage 7 — Per-Feature QA Gate**. Runs before closing EACH feature. Pass is **evidence-based only** — a lens passes when it has actually run and verified, never on assertion.
 

@@ -21,6 +21,8 @@
 import { readStdin, hardBlock } from './_lib.mjs';
 import { FIXTURE_PATH, scanSecrets } from './_secrets.mjs';
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 process.on('uncaughtException', () => process.exit(0));
 process.on('unhandledRejection', () => process.exit(0));
@@ -32,7 +34,11 @@ if (!cmd.trim()) process.exit(0);
 // Blank quoted spans first: `git commit -m "wip: git commit"` must not self-trigger on its own message,
 // and a message is where the word "commit" most often appears innocently.
 const codeView = cmd.replace(/'[^']*'|"[^"]*"/g, (m) => ' '.repeat(m.length));
-if (!/\bgit\b[^\n]*\bcommit\b/.test(codeView)) process.exit(0);
+// Test BOTH views: blanking quotes stops a commit message self-triggering, but it also hid the
+// command itself in `sh -c 'git commit -m wip'`. Detect on either; the message-only case is then
+// excluded by requiring `git` and `commit` to survive together in at least one view.
+const looksLikeCommit = (t) => /\bgit\b[^\n]*\bcommit\b/.test(t);
+if (!looksLikeCommit(codeView) && !looksLikeCommit(cmd)) process.exit(0);
 // `--no-verify` is about git's own hooks, not ours; nothing to special-case. `--amend` still commits.
 
 const root = process.env.CLAUDE_PROJECT_DIR || process.cwd();
@@ -43,11 +49,32 @@ const git = (args) => {
 
 if (git(['rev-parse', '--is-inside-work-tree']) === null) process.exit(0); // not a repo => not our business
 
-// What will actually land: staged content, plus tracked-modified content when -a/-am is used (which
-// stages everything tracked at commit time, so `--cached` alone would miss it).
+// What will actually land. Three cases, and missing the third made this guard near-useless:
+//   a) already staged            -> `git diff --cached`
+//   b) `commit -a/-am/--all`     -> also `git diff HEAD` (staged at commit time)
+//   c) `git add … && git commit` -> NOTHING IS STAGED YET when this hook runs, so (a) is empty and the
+//      commit sailed through. That chained form is the single most common way an agent commits, so the
+//      floor only held when staging and committing happened to be separate tool calls. For it we scan
+//      what the add WOULD stage: tracked modifications, plus untracked non-ignored files, plus any
+//      path named explicitly (which covers `git add -f .env` defeating gitignore).
 const usesAll = /\bcommit\b[^\n]*\s-[A-Za-z]*a/.test(codeView) || /--all\b/.test(codeView);
-const diff = (git(['diff', '--cached', '--unified=0']) ?? '') +
-  (usesAll ? (git(['diff', 'HEAD', '--unified=0']) ?? '') : '');
+const stagesFirst = /\bgit\s+(?:add|stage)\b/.test(codeView);
+
+let diff = git(['diff', '--cached', '--unified=0']) ?? '';
+if (usesAll || stagesFirst) diff += git(['diff', 'HEAD', '--unified=0']) ?? '';
+if (stagesFirst) {
+  // Untracked files the add would pick up; `+`-prefix each line so the added-line parser below sees them.
+  const untracked = (git(['ls-files', '--others', '--exclude-standard']) ?? '').split('\n').filter(Boolean);
+  // Paths named on the add line — needed because `git add -f <ignored>` stages a file ls-files omits.
+  const named = (codeView.match(/\bgit\s+(?:add|stage)\b([^&|;]*)/) || [, ''])[1]
+    .split(/\s+/).filter((t) => t && !t.startsWith('-') && t !== '.');
+  for (const f of [...new Set([...untracked, ...named])]) {
+    let body;
+    try { body = readFileSync(join(root, f), 'utf8'); } catch { continue; }
+    if (body.length > 512 * 1024) continue;
+    diff += `\n+++ b/${f}\n` + body.split('\n').map((l) => '+' + l).join('\n');
+  }
+}
 if (!diff.trim()) process.exit(0); // nothing staged (or an empty/--amend-only commit) => allow
 
 // Walk the diff per file, collecting ADDED lines only. Removing a credential must never be blocked —

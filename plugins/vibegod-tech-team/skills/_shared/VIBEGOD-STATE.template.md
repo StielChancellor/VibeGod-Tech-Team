@@ -24,6 +24,16 @@ Acceptance criteria (machine-checkable; mark [x] ONLY with a claim-verifier-repr
 Hard constraints: OWASP Top 10 · WCAG 2.2 AA · the 4 safety gates (CI+tests · secret scan · >=1 non-author review · consistency/no-orphans) · <cost ceiling if any>
 Non-goals: <explicitly out of scope>
 
+## WHERE
+<!-- Anchor the file to a TREE. Without this nothing ties a status claim to a repo, which is exactly
+     how a state file drifts into confidently describing work that isn't there. A reader who cannot
+     find the code cannot check a single other line in this document. -->
+Repo / branch: <path or URL · branch>
+Last verified against commit: <short SHA — the commit the claims below were true for>
+Install / run: <e.g. `npm ci`> · Tests: <e.g. `npm test`> · Expected: <e.g. 41 passing, 2 skipped>
+Pipeline docs: the stage model, the ◆ gates and the 4 safety gates are defined in the
+`vibegod-orchestrator` skill — read it if any term here is unfamiliar.
+
 ## ENVELOPE (agreed at kickoff — the boundary the team works inside)
 <!-- These four are what let the user be the VISIONARY rather than the reviewer: every one is a
      business question, not an engineering artifact. The team works freely inside this boundary and
@@ -39,6 +49,8 @@ Cost ceiling: <hard total, e.g. £5,000> over <horizon, default 12 months>   <!-
 Sensitive domains: <none | payments · personal data · health data · user logins · other>
 Must ask before doing: <e.g. delete user data · email real users · touch production · publish anything>
 Interrupt appetite: <only-expensive-or-risky | every meaningful choice>   <!-- changeable any time -->
+Interrupt above: <e.g. £50 one-time or £10/month>   <!-- "expensive" needs a NUMBER, or the appetite
+     dial has no units and the team must interrupt on the first spend just to ask where the bar is -->
 
 ## COST LEDGER
 <!-- What has actually been COMMITTED against the ENVELOPE ceiling. `guard-cost` checks the arithmetic:
@@ -52,8 +64,15 @@ Interrupt appetite: <only-expensive-or-risky | every meaningful choice>   <!-- c
      `Committed` is INCREMENT-ONLY and the ceiling is frozen while it is non-zero (halt the run to
      change either) — the same invariants as the autopilot brake, for the same reason: a budget you can
      quietly raise is not a budget. -->
+Window: <start date> → <end date>   <!-- which 12 months the ceiling covers -->
 Committed: one-time=0 monthly=0
-<!-- one row per commitment: date — item — one-time — monthly — why, and the cheaper alternative rejected -->
+Remaining: <ceiling − (one-time + monthly × horizon)> = <£X total, £Y/month for the rest of the window>
+<!-- COMMITTED, not spent: what has been signed up to over the whole window, which is what the ceiling
+     governs. Cash-out-to-date is a different number and is NOT what the brake compares — say so here
+     rather than leaving a successor to pick between two readings that differ by thousands.
+     State `Remaining` explicitly. Never make a reader re-derive a number that governs a decision.
+     Prices in another currency: record the rate used, or the figures cannot be re-checked later.
+     one row per commitment: date — item — one-time — monthly — why, and the cheaper alternative rejected -->
 
 ## STATUS
 Stage: 0 — Discover
@@ -92,13 +111,20 @@ Pause reason: —                 <!-- the decision being waited on, in the user
 Pause timeout: 60m              <!-- after this, the pause becomes Halt: pause-timeout -->
 
 ## GATES PASSED
-<!-- one row per ◆ gate: stage — user decision (approved/changed) — date — evidence ref -->
+<!-- one row per ◆ gate: stage — user decision (approved/changed) — date — evidence ref (a real
+     artifact path, commit SHA or command output — not "approved") -->
 
 ## OPEN HANDOVERS
-<!-- maker -> checker -> owner : what is open / deferred -->
+<!-- maker -> checker -> owner — state (sent | accepted | blocked) — raised <date> — what is open -->
 
 ## PER-FEATURE LENS STATUS (Stage 7)
-<!-- feature — security / quality / adversarial / functional (+ ux / perf where applicable) — pass/fail -->
+<!-- feature — lens — pass/fail — verified: <the signal that proves it: commit SHA, command + result,
+     render report path>. A tick with no `verified:` is a `?`, not a pass.
+
+     WHY THIS FIELD EXISTS: the GOAL block demands "proof, not self-report" for acceptance criteria,
+     and every other status line in this file used to demand nothing at all — so a state file could
+     carry a wall of green ticks against code that did not exist, while looking rigorous. The evidence
+     rule applies to the WHOLE document or it is theatre. If you cannot name the signal, do not tick it. -->
 
 ## NEXT ACTION
 Run /prd to begin Stage 1.

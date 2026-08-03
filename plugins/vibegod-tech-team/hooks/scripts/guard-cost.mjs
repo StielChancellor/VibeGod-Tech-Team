@@ -64,7 +64,16 @@ const ceilingOf = (b) => {
 const committedOf = (b) => {
   const m = (b || '').match(/^Committed:\s*(.*)$/im);
   if (!m) return null;
-  const n = (k) => { const x = m[1].match(new RegExp(k + '\\s*=\\s*([\\d.]+)', 'i')); return x ? Number(x[1]) : null; };
+  const n = (k) => {
+    // ALL occurrences, not the first. A line like `Committed: monthly=180 (superseded: monthly=580)`
+    // reads honestly to a human while the brake silently scored the smaller number — so take the
+    // LARGEST value present, and treat a second differing figure as ambiguity rather than detail.
+    const all = [...m[1].matchAll(new RegExp(k + '\\s*=\\s*([\\d.]+)', 'gi'))].map((x) => Number(x[1]));
+    const finite = all.filter((v) => Number.isFinite(v));
+    if (!all.length) return null;
+    if (finite.length !== all.length) return NaN;   // `58.0.0` -> NaN; must fail closed, not vanish
+    return Math.max(...finite);
+  };
   return { one: n('one-time'), monthly: n('monthly') };
 };
 const fieldOf = (b, label) => ((b || '').match(new RegExp('^' + label + ':\\s*(.*)$', 'im')) || [])[1]?.trim();
@@ -73,13 +82,37 @@ const ceiling = ceilingOf(envOf(onDisk));
 if (!ceiling) process.exit(0);                     // no ceiling agreed yet => nothing to enforce
 const committed = committedOf(ledgerOf(onDisk));
 
+// Which file this write targets, resolved (never basename) and realpath'd so a symlink pointing at the
+// state file cannot be edited through under another name. Computed BEFORE anything simulates the edit.
+const real = (p) => { try { return realpathSync(p); } catch { return resolve(p); } };
+const isState = (() => {
+  try { return real(resolve(root, String(ti.file_path ?? ''))) === real(statePath); } catch { return false; }
+})();
+const proposed = isState ? applyToolEdit(onDisk, ti) : null;
+
+// --- (0) STRUCTURAL INTEGRITY — fail CLOSED, the lesson from v0.14.1 -----------------------------
+// Every parse target is a single point of failure: `ceilingOf` returns null on a `<placeholder>`, and
+// the hook then exits 0 for good. So one edit — append `<agreed>` to the ceiling, delete the line, or
+// rename `## ENVELOPE` / `## COST LEDGER` — silently disabled the whole brake, exactly the "malformed
+// brake fails open" bug already fixed in guard-autopilot. If it parsed on disk, it must still parse.
+if (proposed != null) {
+  const stillParses = ceilingOf(envOf(proposed)) != null
+    && (committed == null || committedOf(ledgerOf(proposed)) != null);
+  if (!stillParses)
+    hardBlock('PreToolUse',
+      `VibeGod Tech Team blocked an edit that would make the COST BRAKE unreadable.\n` +
+      `The \`## ENVELOPE\` / \`## COST LEDGER\` headings and the \`Cost ceiling:\` / \`Committed:\` lines must\n` +
+      `stay present and parseable — removing, renaming or garbling one disables the ceiling entirely on\n` +
+      `the next run. Keep the shape; change the numbers through a pause, on the record.`);
+}
+
 // --- (4) A stale pause must not look like work in progress -------------------------------------
 const auto = autoOf(onDisk);
 if ((fieldOf(auto, 'Mode') || 'off').toLowerCase() === 'paused') {
   const at = Date.parse(fieldOf(auto, 'Paused at') || '');
   const tmo = (fieldOf(auto, 'Pause timeout') || '60m').match(/(\d+)\s*([mh])/i);
   const ms = tmo ? Number(tmo[1]) * (tmo[2].toLowerCase() === 'h' ? 3600e3 : 60e3) : 3600e3;
-  const proposedMode = (fieldOf(autoOf(applyToolEdit(onDisk, ti) ?? onDisk), 'Mode') || '').toLowerCase();
+  const proposedMode = (fieldOf(autoOf(proposed ?? onDisk), 'Mode') || '').toLowerCase();
   // Standing down or resuming deliberately is always allowed — otherwise a timed-out run could never
   // record its own halt, which is the whole point of the timeout.
   if (proposedMode !== 'off' && proposedMode !== 'full-auto' && Number.isFinite(at) && Date.now() - at > ms)
@@ -92,11 +125,6 @@ if ((fieldOf(auto, 'Mode') || 'off').toLowerCase() === 'paused') {
 }
 
 // --- (1)+(2) Ceiling frozen while committed; committed increment-only ---------------------------
-const isState = (() => {
-  try { return resolve(root, String(ti.file_path ?? '')) === resolve(statePath); } catch { return false; }
-})();
-const proposed = isState ? applyToolEdit(onDisk, ti) : null;
-
 if (proposed != null) {
   const nc = ceilingOf(envOf(proposed));
   const ncm = committedOf(ledgerOf(proposed));
@@ -120,6 +148,13 @@ if (proposed != null) {
 const state = proposed != null ? proposed : onDisk;
 const cur = committedOf(ledgerOf(state)) ?? committed;
 if (cur && (cur.one != null || cur.monthly != null)) {
+  // An unparseable figure (`monthly=58.0.0`) yields NaN, and every comparison against NaN is false —
+  // so the brake AND the rewind check would both silently disappear. Malformed => stop.
+  if (Number.isNaN(cur.one) || Number.isNaN(cur.monthly))
+    hardBlock('PreToolUse',
+      `VibeGod Tech Team blocked work: the committed cost is unreadable.\n` +
+      `\`Committed:\` must be \`one-time=<number> monthly=<number>\`. A figure that will not parse leaves\n` +
+      `the ceiling unenforced, so it stops the run rather than passing silently. Repair the line.`);
   const total = (cur.one ?? 0) + (cur.monthly ?? 0) * ceiling.months;
   if (total > ceiling.total) {
     const paused = (fieldOf(autoOf(state), 'Mode') || '').toLowerCase() === 'paused';

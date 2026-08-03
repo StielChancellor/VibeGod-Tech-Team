@@ -3,6 +3,75 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.0] — First real dogfood: three agents, nine bypasses, one critical
+Everything in 0.16–0.19 was verified against fixtures written by the same hand that wrote the hooks.
+This is the first time the machinery met a project that wasn't built to make it pass: a realistic
+booking app with a filled envelope, a four-line ledger, a frozen GOAL and a build stopped mid-feature.
+Three agents ran against it concurrently — a false-positive pass, an adversarial pass, and a cold-resume
+reader given nothing but the state file.
+
+### Fixed (security — CRITICAL)
+- **`git add -A && git commit` bypassed the commit floor completely.** `guard-commit` read
+  `git diff --cached` at hook time, and in the chained form **nothing is staged yet** — so the diff was
+  empty and the commit sailed through with the secret in it. Verified end-to-end: `git show HEAD`
+  contained the key. The guard only ever worked when staging and committing happened to be separate tool
+  calls, and the chained form is the single most common way an agent commits — it is what every commit in
+  this session used. It now also scans tracked modifications, untracked non-ignored files, and any path
+  named on the `add` line (which covers `git add -f .env` defeating gitignore).
+
+### Fixed (security — HIGH)
+- **Namespaced credential names were invisible.** `\b` before the key word never matched `STRIPE_API_KEY`,
+  because the preceding character is `_` — a word character, so there is no boundary. Only bare,
+  unprefixed names were caught, and real `.env` files essentially never use those. **And fixing the
+  leading boundary left the trailing one**: in `SECRET_KEY`, `secret` matches but the following `\b`
+  fails on `_`. That second one was caught only because the regression test happened to use a different
+  variable name than the manual check — a reminder that verifying with the same example you designed
+  against proves very little.
+- **`guard-cost` failed OPEN on any unreadable parse target** — the identical "malformed brake" bug fixed
+  in `guard-autopilot` at 0.14.1, reintroduced because I copied the invariants and not the lesson. One
+  edit (append `<agreed>` to the ceiling, delete the line, rename `## ENVELOPE` or `## COST LEDGER`)
+  permanently disabled the ceiling freeze, the increment-only rule, the brake and the pause timeout. Now
+  fails closed: if it parsed on disk, it must still parse.
+- **`Committed:` scored the FIRST number on the line**, so `monthly=180 (superseded: monthly=580)` read
+  honestly to a human while the brake used the smaller figure. Now takes the largest, and a non-finite
+  value (`58.0.0` → NaN, and every comparison against NaN is false) fails closed instead of vanishing.
+- **The pause-timeout check simulated the edit against the state text regardless of which file it
+  targeted**, so editing `src/booking.ts` — or writing a doc that merely contained a `## AUTOPILOT`
+  section — could flip the hook's view of `Mode` and walk past a stale pause.
+
+### Fixed (MEDIUM)
+- A symlink pointing at `VIBEGOD-STATE.md` bypassed `guard-state`'s basename identity test; the frozen
+  GOAL was rewritable through the alias. Now resolves the real path — without depending on knowing the
+  project root, since this hook protects the file wherever it sits.
+- `hasEvidence` accepted `pending review`, `TBD later`, `n/a for now`, a bare date, and `aaaaaa`. It now
+  rejects placeholder stems anywhere in the value and requires a signal carrying both a letter and a digit.
+- `FIXTURE_PATH` exempted **every** `.md`, so a live key in a root `README.md` was waved through. Markdown
+  under `docs/` or `examples/` is still exempt; a runbook with a real key is a leak path, not a fixture.
+- `sh -c 'git commit …'` escaped detection because quote-blanking hid the command; both views are tested now.
+
+### Fixed (false positive)
+- `.env.example` containing `postgres://user:password@localhost` — the canonical template line — was
+  blocked. Fixed by teaching `placeholder()` to recognise a placeholder *credential*, **not** by exempting
+  the path: `.env.example` is explicitly un-gitignored and therefore committed, and `FIXTURE_PATH` is
+  shared with `guard-commit`, so a path exemption would have punched a hole through the commit floor. A
+  real password in that same file still blocks, at write time and at commit time.
+
+### Changed (the state file is a handover, and it failed as one)
+An independent reader given only `VIBEGOD-STATE.md` rated it **4/10** — *"it reads like a project that's
+60% built; the repo is a 38-byte stub."* The fixture was mine, but the point stands: **the schema happily
+accepted a wall of confident, unverifiable green ticks.** The GOAL block demanded "proof, not self-report"
+while every other status line demanded nothing at all.
+- `## PER-FEATURE LENS STATUS` and `## GATES PASSED` now require a `verified:` signal — *if you cannot
+  name the signal, it is a `?`, not a pass* — and `/feature-check` enforces it.
+- New `## WHERE`: repo, branch, the commit the claims are true for, install/test commands and expected
+  result. Nothing anchored the file to a tree, which is exactly how it drifted from one.
+- `Interrupt above:` — "expensive" needs a number, or the appetite dial has no units.
+- `Window:` and `Remaining:`, with committed-vs-spent stated: the two readings differed by £2,150.
+
+### Tests
+- +26 dogfood regressions, run against **real git repositories and realistic state files**. Suite
+  **219 → 245**.
+
 ## [0.19.0] — The cost brake: the envelope gets teeth
 Step 4 of the redesign. v0.18.0 let the user declare a hard ceiling; this enforces it.
 

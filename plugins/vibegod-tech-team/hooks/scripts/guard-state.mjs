@@ -6,7 +6,8 @@
 //
 // BEST-EFFORT, fail-open: only acts on a file literally named VIBEGOD-STATE.md; any error => allow.
 import { readStdin, hardBlock, sectionBlock, applyToolEdit } from './_lib.mjs';
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
+
 
 process.on('uncaughtException', () => process.exit(0));
 process.on('unhandledRejection', () => process.exit(0));
@@ -14,7 +15,13 @@ process.on('unhandledRejection', () => process.exit(0));
 const inp = await readStdin();
 const ti = inp?.tool_input ?? {};
 const file = String(ti.file_path ?? '');
-if (file.split(/[\\/]/).pop() !== 'VIBEGOD-STATE.md') process.exit(0);
+// Match the basename of the given path OR of what it really points at. Resolving the symlink is what
+// closes the escape: `notes.md -> VIBEGOD-STATE.md` passed a basename-only test, and the frozen GOAL
+// was freely rewritable through the alias. Deliberately NOT resolved against a project root — this
+// hook protects any file of that name wherever it sits, and must not depend on knowing the root.
+const baseOf = (p) => String(p).split(/[\\/]/).pop();
+const realBase = (() => { try { return baseOf(realpathSync(file)); } catch { return null; } })();
+if (baseOf(file) !== 'VIBEGOD-STATE.md' && realBase !== 'VIBEGOD-STATE.md') process.exit(0);
 
 // The GOAL block = from the `## GOAL` heading up to (not including) the next `## ` section or EOF,
 // fence-aware so a `## `-prefixed line inside a code fence can't truncate it early — see sectionBlock.
@@ -43,7 +50,12 @@ const hasEvidence = (l) => {
   const m = l.match(/verified:(?!.*verified:)\s*(.*)$/i);
   if (!m) return false;
   const v = m[1].replace(/[—–-]/g, '').trim();
-  return v.length >= 6 && !/^(tbd|pending|none|n\/?a|todo|wip)$/i.test(v);
+  // A real reproduced signal NAMES something — a command and its result, a commit, a report path. The
+  // old test (>=6 chars, and an ANCHORED list of six words) waved through `pending review`, `TBD later`,
+  // `n/a for now`, a bare date, and `aaaaaa`. Placeholder stems are now rejected ANYWHERE in the value,
+  // and a signal must carry both a letter and a digit — which a date alone or a run of letters does not.
+  if (/\b(?:tbd|pending|todo|wip|none|n\/?a|later|soon|assume[ds]?|probably|should\s+be)\b/i.test(v)) return false;
+  return v.length >= 8 && /[A-Za-z]/.test(v) && /\d/.test(v);
 };
 
 let onDisk;

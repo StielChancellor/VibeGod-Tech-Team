@@ -2,7 +2,7 @@
 import { spawnSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 
 const S = join(dirname(fileURLToPath(import.meta.url)), '..', 'plugins', 'vibegod-tech-team', 'hooks', 'scripts');
@@ -569,6 +569,58 @@ check('inactive with no state file', cost(mkdtempSync(join(tmpdir(), 'vg-nocost-
 { const d = costProj({ one: 1200, mon: 400 });
   const a = run('guard-cost.mjs', { tool_input: cwork(d) }, { CLAUDE_PROJECT_DIR: d, VIBEGOD_GUARDRAILS: 'advisory' });
   check('advisory downgrades the cost brake', a.status === 0 && /would BLOCK/.test(a.out)); }
+
+console.log('dogfood regressions (adversarial pass on a realistic project):');
+// Every case below was an OBSERVED bypass against a realistic dogfood project, not a theoretical one.
+const dogState = ({ ceil = '£4,000 over 12 months', one = 900, mon = 180, mode = 'off', at = '-' } = {}) =>
+  `## ENVELOPE\nCost ceiling: ${ceil}\nSensitive domains: payments\n\n## COST LEDGER\nCommitted: one-time=${one} monthly=${mon}\n\n## AUTOPILOT\nMode: ${mode}\nPaused at: ${at}\nPause reason: r\nPause timeout: 60m\n\n## GOAL\nObjective: Ship a booking app.\n- [ ] AC-1: book a class - proof: e2e - verified: -\nHard constraints: OWASP\n\n## STATUS\nStage: 6\n`;
+const dogProj = (o) => { const d = mkdtempSync(join(tmpdir(), 'vg-dog-')); writeFileSync(join(d, 'VIBEGOD-STATE.md'), dogState(o)); return d; };
+const dogSF = (d) => join(d, 'VIBEGOD-STATE.md');
+const dogCost = (d, ti) => run('guard-cost.mjs', { tool_input: ti }, { CLAUDE_PROJECT_DIR: d });
+
+// The critical one: `git add -A && git commit` staged nothing at hook time, so the diff was empty and
+// the floor waved the commit through. It is the single most common way an agent commits.
+{ const { d, g } = gitRepo(); writeFileSync(join(d, 'leak.js'), 'const k="AKIAIOSFODNN7EXAMPLZ"\n');
+  check('blocks a secret via chained `git add -A && git commit`', commit(d, 'git add -A && git commit -m feat').status === 2);
+  check('blocks it via `git add .; git commit` too', commit(d, 'git add .; git commit -m x').status === 2);
+  g('add', '-A');
+  check('blocks `sh -c \'git commit\'` (quote-blanking hid the command)', commit(d, "sh -c 'git commit -m wip'").status === 2); }
+{ const { d, g } = gitRepo(); writeFileSync(join(d, '.gitignore'), '.env\n'); writeFileSync(join(d, '.env'), 'SECRET_KEY=Xq7vRt2mNp9wLz4kE1x\n');
+  check('blocks `git add -f <gitignored>` chained with commit', commit(d, 'git add -f .env && git commit -m env').status === 2); }
+{ const { d, g } = gitRepo(); writeFileSync(join(d, 'ok.js'), 'export const ok=1\n');
+  check('a clean chained commit is still allowed', commit(d, 'git add -A && git commit -m clean').status === 0); }
+// A leading \b never matched a NAMESPACED env var, so only the unrealistic bare form was ever caught.
+for (const v of ['STRIPE_API_KEY=8f3a9b2c1d4e5f60718293a4b5c6d7e8', 'DATABASE_PASSWORD=Xq7vRt2mNp9wLz4kE1x', 'SESSION_SECRET=Zk3pQ9rT5vX7bN2mL4jH6g'])
+  check(`blocks a prefixed credential name (${v.split('=')[0]})`, run('guard-write.mjs', { tool_input: { file_path: 'cfg.yml', content: v } }).status === 2);
+check('reading a prefixed env var is still fine', run('guard-write.mjs', { tool_input: { file_path: 'a.js', content: 'const p=process.env.STRIPE_API_KEY' } }).status === 0);
+// guard-cost failed OPEN on any unparseable target — the same "malformed brake" bug fixed in 0.14.1.
+{ const d = dogProj(); check('garbling the ceiling with a <placeholder> is blocked', dogCost(d, { file_path: dogSF(d), old_string: 'Cost ceiling: £4,000 over 12 months', new_string: 'Cost ceiling: £4,000 over 12 months <agreed>' }).status === 2); }
+{ const d = dogProj(); check('deleting the Cost ceiling line is blocked', dogCost(d, { file_path: dogSF(d), old_string: 'Cost ceiling: £4,000 over 12 months\n', new_string: '' }).status === 2); }
+{ const d = dogProj(); check('renaming ## COST LEDGER is blocked', dogCost(d, { file_path: dogSF(d), old_string: '## COST LEDGER', new_string: '## LEDGER' }).status === 2); }
+{ const d = dogProj(); check('renaming ## ENVELOPE is blocked', dogCost(d, { file_path: dogSF(d), old_string: '## ENVELOPE', new_string: '## SCOPE' }).status === 2); }
+// `Committed:` took the FIRST number, so a "superseded" annotation read honestly while scoring low.
+{ const d = dogProj(); check('a second figure on the Committed line is blocked', dogCost(d, { file_path: dogSF(d), old_string: 'Committed: one-time=900 monthly=180', new_string: 'Committed: one-time=900 monthly=180 (superseded: monthly=580)' }).status === 2); }
+check('an unparseable counter fails closed (NaN comparisons are all false)', dogCost(dogProj({ mon: '58.0.0' }), { file_path: 'a.ts', content: 'x' }).status === 2);
+// The pause simulation applied the tool input to the STATE text whatever file it targeted.
+{ const stale = new Date(Date.now() - 2 * 3600e3).toISOString();
+  check('editing an unrelated file cannot flip Mode out of a stale pause', dogCost(dogProj({ mode: 'paused', at: stale }), { file_path: 'src/booking.ts', old_string: 'Mode: paused', new_string: 'Mode: full-auto' }).status === 2);
+  check('a doc containing its own ## AUTOPILOT section cannot either', dogCost(dogProj({ mode: 'paused', at: stale }), { file_path: 'docs/runbook.md', content: '# R\n\n## AUTOPILOT\nMode: off\n' }).status === 2); }
+// hasEvidence accepted anything >= 6 chars outside an anchored six-word list.
+const evFlip = (v) => { const d = dogProj(); return run('guard-state.mjs', { tool_input: { file_path: dogSF(d), old_string: '- [ ] AC-1: book a class - proof: e2e - verified: -', new_string: `- [x] AC-1: book a class - proof: e2e - verified: ${v}` } }).status; };
+for (const v of ['pending review', 'TBD later', 'n/a for now', '2026-08-03', 'aaaaaa'])
+  check(`rejects "${v}" as evidence`, evFlip(v) === 2);
+check('a real reproduced signal is still accepted', evFlip('reproduced e2e 12/12 green on commit abc1234') === 0);
+// FIXTURE_PATH exempted EVERY .md, so a live key in a root README was waved through.
+const wrote = (f, c) => run('guard-write.mjs', { tool_input: { file_path: f, content: c } }).status;
+check('a real key in root README.md is blocked', wrote('README.md', 'const k="AKIAIOSFODNN7REALKEY"') === 2);
+check('a real key under docs/ is still allowed', wrote('docs/guide.md', 'const k="AKIAIOSFODNN7REALKEY"') === 0);
+// A symlink pointing at the state file bypassed the basename identity test.
+{ const d = mkdtempSync(join(tmpdir(), 'vg-sym-'));
+  writeFileSync(join(d, 'VIBEGOD-STATE.md'), dogState());
+  try {
+    symlinkSync(join(d, 'VIBEGOD-STATE.md'), join(d, 'notes.md'));
+    check('the frozen GOAL cannot be rewritten through a symlink alias', run('guard-state.mjs', { tool_input: { file_path: join(d, 'notes.md'), old_string: 'Objective: Ship a booking app.', new_string: 'Objective: brochure site.' } }).status === 2);
+  } catch { check('the frozen GOAL cannot be rewritten through a symlink alias (skipped: no symlink support)', true); } }
 
 console.log(`\n${fail ? '✗' : '✓'} ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
