@@ -24,6 +24,22 @@ Acceptance criteria (machine-checkable; mark [x] ONLY with a claim-verifier-repr
 Hard constraints: OWASP Top 10 · WCAG 2.2 AA · the 4 safety gates (CI+tests · secret scan · >=1 non-author review · consistency/no-orphans) · <cost ceiling if any>
 Non-goals: <explicitly out of scope>
 
+## ENVELOPE (agreed at kickoff — the boundary the team works inside)
+<!-- These four are what let the user be the VISIONARY rather than the reviewer: every one is a
+     business question, not an engineering artifact. The team works freely inside this boundary and
+     stops only when it would cross it — so this replaces stopping at every stage to approve a
+     document the user cannot meaningfully judge.
+
+     Ceiling / sensitive domains / must-ask are a CONTRACT: changing them is a deliberate act on the
+     record, not a silent adjustment. Interrupt appetite is a preference and may be changed any time.
+
+     A hard ceiling needs a horizon to mean anything — build cost is one-time and run cost recurs, so
+     "is £250/mo within £5,000?" is undefined without one. Total = one-time + (monthly x horizon). -->
+Cost ceiling: <hard total, e.g. £5,000> over <horizon, default 12 months>   <!-- covers BUILD + RUN -->
+Sensitive domains: <none | payments · personal data · health data · user logins · other>
+Must ask before doing: <e.g. delete user data · email real users · touch production · publish anything>
+Interrupt appetite: <only-expensive-or-risky | every meaningful choice>   <!-- changeable any time -->
+
 ## STATUS
 Stage: 0 — Discover
 Triage tier: <trivial | low | standard | high>   <!-- set after /triage -->

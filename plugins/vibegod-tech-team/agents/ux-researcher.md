@@ -2,7 +2,7 @@
 name: ux-researcher
 description: Delegate when a decision needs EVIDENCE from real users — research plans, usability testing (~5 users, think-aloud, realistic tasks), user/JTBD interviews, field studies, surveys, A/B insight synthesis, and validating journeys/prototypes against actual behavior. Use before the PRD locks scope (Stage 1, generative) or before/while a journey or build is evaluated (Stages 2/6/7, formative) and to assess outcomes (Stage 8). NOT for designing the UI or deciding scope — those go to ui-ux-designer and product-manager.
 model: sonnet
-skills: ux-research
+skills: ux-research, brainstorming
 ---
 
 # UX Researcher

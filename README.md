@@ -119,6 +119,12 @@ Discover → PRD → Journey → Stack & Cost → Modules → Security review
   ER diagram) that renders right in GitHub, your IDE, and PRs.
 - 💸 **Cost-aware** — every tech choice shows the price tag *and* a cheaper alternative with what you'd lose.
 - 🚦 **You stay in control** — it never jumps straight to code, and pauses at every decision gate for your yes.
+- 🎯 **You set the boundary, not the blueprint** — at kickoff you agree four things in plain English: a
+  **hard budget** (covering build *and* running, over a period you choose), whether it touches
+  **payments / personal data / logins**, anything you **must be asked about first**, and how often you
+  want interrupting. The team then works inside that boundary. And before any of it, `/kickoff` offers
+  **two or three different product shapes** with costs and a recommendation — because picking the wrong
+  shape is the one mistake good engineering can't fix later.
 - 🩺 **It checks its own toolchain** — `/doctor` verifies Node, Playwright, the code graph, and more
   before the build relies on them, and the team nudges you when a newer plugin version ships.
 - 🤖 **Autopilot when you want to step away** — `/autopilot on` runs the pipeline unattended and stops

@@ -3,6 +3,44 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.18.0] — The envelope: the user starts acting as the visionary
+Step 3 of the redesign. The pitch says the user "isn't a security engineer *and* a designer *and* a DBA
+*and* an SRE" — while the pipeline asked them to personally sign off on STRIDE threat models, module
+contracts, p99 SLA tables and CAB approvals. The problem was never the *number* of gates; it was their
+**altitude**. This release adds the boundary that lets the team work without asking.
+
+### Added
+- **`## ENVELOPE` in the state file — four fields, every one a business question.** A hard cost ceiling
+  (over a stated horizon), declared sensitive domains, a must-ask-first list, and interrupt appetite.
+  Contrast with what the pipeline asks for approval today: a visionary can answer *"what's your ceiling"*
+  and *"will this handle payments"*; they cannot meaningfully approve a module contract, and asking them
+  to manufactures a false record of human sign-off.
+- **A hard ceiling covering BUILD + RUN together**, as one number over a horizon. A ceiling needs a
+  horizon or the arithmetic is undefined — build cost is one-time and run cost recurs, so *"is £250/mo
+  within £5,000?"* has no answer without one. Total = one-time + (monthly × horizon); default 12 months.
+- **`/kickoff` now diverges before committing.** It offers **two or three genuinely different product
+  shapes** that satisfy the objective — narrower/faster, richer/slower, a different framing — each with
+  rough cost, what it wins and what it gives up, **and a recommendation**. Previously Stage 0 *captured*
+  what the user said and Stage 1 *documented* it; nothing ever challenged the premise. For a product
+  whose stated objective is *guiding the user to the best use case*, that divergence step **is** the
+  product — and a wrong shape chosen here cannot be recovered by any amount of good engineering later.
+- **`brainstorming` is now bound to `ux-researcher`** (which had a free slot under the 2-skill cap). It
+  was one of 17 skills bound to no agent at all, despite being the engine of the divergence step.
+
+### Changed
+- `/kickoff`'s "do NOT estimate work" now correctly excludes the step-5 shape comparison — those are
+  order-of-magnitude comparisons to help the user choose ("roughly £2k vs roughly £8k"), not an estimate
+  of the work. Costing the chosen stack remains Stage 3.
+- The Stage-0 gate now confirms the chosen shape (and what it ruled out) and all four envelope answers,
+  and says plainly that a vague envelope is inherited by everything downstream — with far fewer gates
+  later to catch it.
+
+### Not yet enforced (deliberately)
+- The envelope is **declared** here, not **enforced**. The cost brake, the `Mode: paused` state and the
+  trigger set land in the next step. Declaring before enforcing keeps the two reviewable separately —
+  and the enforcement reuses `guard-autopilot`'s already-hardened write-once/increment-only invariants
+  rather than inventing a mechanism.
+
 ## [0.17.0] — The pipeline actually remembers now
 Step 2 of the redesign. This makes true a claim the README has carried since v0.9 and that was, on
 inspection, false: *"Progress lives in `VIBEGOD-STATE.md`, so a new session resumes exactly where the
