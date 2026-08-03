@@ -600,6 +600,19 @@ console.log('guard-write document scan (split-secret floor):');
     gw({ file_path: f, old_string: 'export const a = 1;', new_string: 'export const a = "AKIAIOSFODNN7REALKEY";' }).status === 2);
 }
 
+// A test file is not always in a test DIRECTORY. This suite lives at `ingest/test-hooks.mjs` and
+// matched no fixture rule, so the secret scanner blocked the repo from committing the very tests that
+// prove the secret scanner works — found by running the guard against a real commit, not a fixture.
+{
+  const K = 'const k = "AKIAIOSFODNN7REALKEY";';
+  const at = (f) => run('guard-write.mjs', { tool_input: { file_path: f, content: K } }).status;
+  for (const f of ['ingest/test-hooks.mjs', 'test_parser.py', 'foo_test.go', 'lib/spec-helpers.mjs'])
+    check(`exempts a test file outside a test/ dir (${f})`, at(f) === 0);
+  // The widening must stay narrow — these only LOOK test-ish.
+  for (const f of ['src/testUtils.ts', 'config/latest-config.json', 'src/latest.ts', 'ingest/validate.mjs'])
+    check(`still blocks a real key in ${f}`, at(f) === 2);
+}
+
 console.log('dogfood regressions (adversarial pass on a realistic project):');
 // Every case below was an OBSERVED bypass against a realistic dogfood project, not a theoretical one.
 const dogState = ({ ceil = '£4,000 over 12 months', one = 900, mon = 180, mode = 'off', at = '-' } = {}) =>

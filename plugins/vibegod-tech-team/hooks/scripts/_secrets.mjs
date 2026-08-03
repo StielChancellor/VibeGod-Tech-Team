@@ -13,7 +13,17 @@
 // in README.md or NOTES.md at the repo root was waved through, and a runbook with a live key is a
 // normal leak path, not a fixture. Markdown under docs/ or examples/ is still exempt via the
 // directory rule below, and real docs should use placeholders, which `placeholder()` already allows.
-export const FIXTURE_PATH = /(?:^|[\\/])(?:tests?|spec|__tests__|__mocks__|fixtures?|examples?|samples?|docs?)[\\/]|(?:^|[\\/])[^\\/]*\.(?:test|spec)\.[a-z]+$/i;
+// A test file is not always in a test DIRECTORY. `ingest/test-hooks.mjs` — this plugin's own suite —
+// matched neither the directory rule nor the `foo.test.js` rule, so the secret scanner blocked the repo
+// from committing the very tests that prove the secret scanner works. Found by running the guard against
+// a real commit, which no fixture had done. Covers the near-universal conventions: `test-*` / `test_*`
+// (this repo, pytest) and `*_test` / `*-test` (Go, and much JS).
+//
+// This WIDENS an exemption, so it is kept to filename conventions that unambiguously denote a test —
+// `testUtils.ts` and `latest-config.json` are deliberately NOT matched. The tradeoff is the same one the
+// directory rule already makes: anything named like a test can carry a real credential past this hook,
+// and guard-commit shares that blind spot. It is a floor, not a vault.
+export const FIXTURE_PATH = /(?:^|[\\/])(?:tests?|spec|__tests__|__mocks__|fixtures?|examples?|samples?|docs?)[\\/]|(?:^|[\\/])[^\\/]*\.(?:test|spec)\.[a-z]+$|(?:^|[\\/])(?:test|spec)[-_][^\\/]*$|(?:^|[\\/])[^\\/]*[-_](?:test|spec)s?\.[a-z]+$/i;
 
 export const placeholder = (v) =>
   /(?:example|placeholder|your[_-]?(?:api|key|token|secret|password)|changeme|dummy|sample|redacted|xxxx|<[^>]*>|\$\{[^}]*\})/i.test(v) ||

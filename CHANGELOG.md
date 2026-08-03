@@ -3,6 +3,64 @@
 All notable changes to the `vibegod-tech-team` plugin are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.21.1] — The secret scanner blocked its own test suite
+Found by the 0.21.0 real run: `guard-commit`, run against an actual commit of this repo, blocked it —
+reporting an AWS key in `ingest/test-hooks.mjs`. The shape genuinely is an AWS key; it is the fixture
+that proves detection works. But `FIXTURE_PATH` recognised test *directories* and the `foo.test.js`
+naming form, and this suite is neither. **The plugin would not let its own repo commit its own tests.**
+
+### Fixed
+- `FIXTURE_PATH` now also recognises test files by naming convention — `test-*` / `test_*` (this repo,
+  pytest) and `*_test` / `*-test` (Go, much of JS). Verified narrow: `src/testUtils.ts`,
+  `config/latest-config.json` and `src/latest.ts` still block, and a key planted in `src/` still blocks
+  the commit while the suite passes through.
+- Two alternatives rejected and recorded in the state file: obfuscating the fixtures to dodge the scanner
+  (less readable tests, and fighting our own tooling), and an inline allow-comment (a new mechanism, and
+  abusable). A secret-scanner's own tests necessarily contain real-looking keys.
+
+### Honest note
+This **widens** an exemption: anything named like a test can now carry a real credential past both
+`guard-write` and `guard-commit`. That is the same tradeoff the directory rule already made — stated in
+the code rather than discovered later. Floor, not vault.
+
+### Tests
+- +8 naming cases, half asserting the widening did NOT go too far. Suite **250 → 258**.
+
+## [0.21.0] — Real run: the plugin builds its own next feature
+*(Entry added in 0.21.1 — 0.21.0 shipped without one, which it should not have.)*
+
+The first end-to-end run of the pipeline on real work, and the repo's first committed
+`VIBEGOD-STATE.md`. Until this point every release was verified by invoking hook scripts directly with
+hand-built JSON: the product had never been used.
+
+### Fixed (security)
+- **`guard-write` scanned the edit FRAGMENTS**, so a credential split across two edits was invisible —
+  each half is harmless alone — and one completed against text already on disk was never seen, because
+  the hook never read the file. It now scans the **resulting document** and reports only what the change
+  **introduces**. The differencing is the load-bearing part: scanning the whole document without it would
+  block every edit to a file that already contains a secret, making such a file impossible to fix.
+  Reuses `applyToolEdit` rather than a second simulator, since it already models `replace_all` and
+  literal `$&` — the divergence behind a real bypass in v0.15.0.
+
+### Added
+- **`VIBEGOD-STATE.md`, committed** — the worked example the critique said was missing, and real work
+  rather than a demo. Four acceptance criteria `[x]` with reproduced evidence, four lens rows each naming
+  its signal, an honest £0 ledger with the rejected alternative recorded.
+
+### Verified against the real file, not a fixture
+Ticking a criterion with no evidence → blocked. With `pending review` → blocked. With the reproduced
+signal → allowed. Mutating the frozen objective or constraints → blocked. Updating `In flight:` and
+`DECISIONS` → allowed. The fix was also stashed to confirm the split-secret case flips to failing, so the
+guard is load-bearing rather than passing for free.
+
+### Process note
+Two of the acceptance tests were wrong before the code was: the first split the credential across two
+lines, so the assembled value carried a newline and was never a valid key; the second anchored on a
+string already edited away. Both failed loudly — which is the argument for writing the criteria first.
+
+### Tests
+- Suite **245 → 250**.
+
 ## [0.20.0] — First real dogfood: three agents, nine bypasses, one critical
 Everything in 0.16–0.19 was verified against fixtures written by the same hand that wrote the hooks.
 This is the first time the machinery met a project that wasn't built to make it pass: a realistic
